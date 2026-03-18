@@ -276,6 +276,7 @@
     border:1px solid rgba(25,247,255,.4);
     box-shadow: 0 0 36px rgba(25,247,255,.2), 0 0 60px rgba(138,91,255,.12), inset 0 1px 0 rgba(25,247,255,.2);
     padding:20px 22px; border-radius:16px; min-width:260px;
+    max-height:88vh; overflow-y:auto;
   }
   .settings-row{
     display:flex; align-items:center; justify-content:space-between;
@@ -522,21 +523,35 @@
     background: linear-gradient(180deg, rgba(10,16,30,.95), rgba(6,10,20,.95));
     border:1px solid rgba(25,247,255,.35);
     box-shadow: 0 0 28px rgba(25,247,255,.25);
-    padding:18px 20px 14px; border-radius:14px; width:min(520px, 90vw);
-    max-height:min(92dvh, 90vh);
+    padding:18px 20px 14px; border-radius:14px;
+    width:min(96vw, 700px);
+    max-height:88vh;
     display:flex; flex-direction:column;
+    overflow:hidden;
+    position:relative;
   }
+  .upgrades-close-x{
+    position:absolute; top:10px; right:12px;
+    width:28px; height:28px; border-radius:50%;
+    background: rgba(25,247,255,.15); border:1px solid rgba(25,247,255,.4);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:14px; color:var(--neon);
+    transition: background .15s ease;
+    z-index:2;
+  }
+  .upgrades-close-x:hover{ background: rgba(25,247,255,.3); }
   .upgrades-scroll{
-    flex:1 1 0; overflow-y:auto; min-height:0;
-    padding-right:4px;
+    flex:1 1 0; overflow-x:auto; overflow-y:hidden; min-height:0;
+    padding-bottom:6px;
     scrollbar-width:thin;
     scrollbar-color:rgba(25,247,255,.4) transparent;
   }
-  .upgrades-scroll::-webkit-scrollbar{ width:4px; }
+  .upgrades-scroll::-webkit-scrollbar{ height:4px; }
   .upgrades-scroll::-webkit-scrollbar-track{ background:transparent; }
   .upgrades-scroll::-webkit-scrollbar-thumb{ background:rgba(25,247,255,.4); border-radius:4px; }
   .upgrade-grid{
-    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    display:flex; flex-direction:row; gap:10px;
+    min-width:max-content;
   }
   .upgrade-card{
     border:1px solid rgba(25,247,255,.38);
@@ -544,6 +559,7 @@
     font-size:11px; text-transform:uppercase; letter-spacing:1px;
     box-shadow: inset 0 1px 0 rgba(25,247,255,.15);
     transition: box-shadow .15s ease;
+    width:140px; flex-shrink:0;
   }
   .upgrade-card:hover{
     box-shadow: 0 0 16px rgba(25,247,255,.15), inset 0 1px 0 rgba(25,247,255,.2);
@@ -702,7 +718,18 @@
         <option value="high">High</option>
       </select>
     </div>
+    <div class="settings-row"><span>Motion Intensity</span>
+      <select id="motionLevel" class="toggle">
+        <option value="low">Low</option>
+        <option value="med">Med</option>
+        <option value="high">High</option>
+      </select>
+    </div>
     <div class="settings-row"><span>High Contrast</span><button id="contrastToggle" class="toggle">Off</button></div>
+    <div class="settings-row"><span>Color-Blind</span><button id="colorBlindToggle" class="toggle">Off</button></div>
+    <div class="settings-row"><span>Streamer Mode</span><button id="streamerToggle" class="toggle">Off</button></div>
+    <div class="settings-row"><span>Left Key</span><span id="rebindLeft" class="rebind-key">A</span></div>
+    <div class="settings-row"><span>Right Key</span><span id="rebindRight" class="rebind-key">D</span></div>
     <div class="settings-actions">
       <div id="closeSettings" class="btn">Close</div>
     </div>
@@ -784,25 +811,11 @@
 
 <div id="upgradesPanel" class="upgrades-panel">
   <div class="upgrades-box">
-    <div class="title">Upgrades / Mods</div>
+    <div id="upgradesCloseX" class="upgrades-close-x" title="Close">✕</div>
+    <div class="title">Upgrades</div>
     <div id="currency" class="currency">Neon Shards: 0</div>
     <div class="upgrades-scroll">
       <div class="upgrade-grid" id="upgradeGrid"></div>
-      <div class="rebind">
-        <span>Left Key</span><span id="rebindLeft" class="rebind-key">A</span>
-      </div>
-      <div class="rebind">
-        <span>Right Key</span><span id="rebindRight" class="rebind-key">D</span>
-      </div>
-      <div class="feature-toggle"><span>Motion Intensity</span>
-        <select id="motionLevel" class="toggle">
-          <option value="low">Low</option>
-          <option value="med">Med</option>
-          <option value="high">High</option>
-        </select>
-      </div>
-      <div class="feature-toggle"><span>Color-Blind</span><button id="colorBlindToggle" class="toggle">Off</button></div>
-      <div class="feature-toggle"><span>Streamer Mode</span><button id="streamerToggle" class="toggle">Off</button></div>
     </div>
     <div class="settings-actions">
       <div id="closeUpgrades" class="btn">Close</div>
@@ -829,7 +842,7 @@
       </div>
       <div class="slide">
         <h3>Controls</h3>
-        <p>Keyboard: Left/Right (rebind in Upgrades).</p>
+        <p>Keyboard: Left/Right (rebind in Settings).</p>
         <p>Touch: drag or tap to set a target.</p>
         <p>P or Esc to pause.</p>
       </div>
@@ -865,7 +878,7 @@
       <div class="slide">
         <h3>Settings</h3>
         <p>Adjust music/SFX, shake, motion intensity.</p>
-        <p>Color-blind and streamer modes available.</p>
+        <p>Rebind keys and toggle color-blind/streamer modes.</p>
       </div>
     </div>
     <div class="slide-controls">
@@ -1638,8 +1651,8 @@
       card.appendChild(btn);
       upgradeGridEl.appendChild(card);
     }
-    rebindLeftEl.textContent = state.rebind.left.replace("Key","").replace("Arrow","Arrow ");
-    rebindRightEl.textContent = state.rebind.right.replace("Key","").replace("Arrow","Arrow ");
+    rebindLeftEl.textContent = formatKeyName(state.rebind.left);
+    rebindRightEl.textContent = formatKeyName(state.rebind.right);
   }
 
   function applyUpgrades(){
@@ -2108,9 +2121,7 @@
     // Leaderboard hook: submit score to server here.
     submitScore(state.score);
 
-    overPanel.classList.remove("hidden");
-    overPanel.classList.add("enter");
-    setTimeout(() => overPanel.classList.remove("enter"), 600);
+    overPanel.classList.add("hidden");
   }
 
   function beginDeath(){
@@ -3443,7 +3454,13 @@
   canvas.addEventListener("touchmove", preventTouchScroll, { passive: false });
   canvas.addEventListener("touchend", preventTouchScroll, { passive: false });
 
-  startPanel.addEventListener("click", startGame);
+  startPanel.addEventListener("click", () => {
+    if (state.mode !== "start") return;
+    initAudio();
+    unlockAudio();
+    sfxClick();
+    modsPanelEl.classList.add("active");
+  });
   overPanel.addEventListener("click", () => {
     // Return to main menu after game over
     setMode("start");
@@ -3456,32 +3473,28 @@
     unlockAudio();
     setMuted(!state.audioMuted);
   });
-  openSettingsEl.addEventListener("click", (e) => {
-    e.stopPropagation();
+  function formatKeyName(code){
+    return code.replace("Key","").replace("Arrow","Arrow ");
+  }
+  function openSettings(e){
+    if (e) e.stopPropagation();
     sfxClick();
     modsPanelEl.classList.remove("active");
     settingsPanelEl.classList.add("active");
-  });
-  openSettingsOverEl.addEventListener("click", (e) => {
-    e.stopPropagation();
-    sfxClick();
-    modsPanelEl.classList.remove("active");
-    settingsPanelEl.classList.add("active");
-  });
-  openUpgradesEl.addEventListener("click", (e) => {
-    e.stopPropagation();
+    rebindLeftEl.textContent = formatKeyName(state.rebind.left);
+    rebindRightEl.textContent = formatKeyName(state.rebind.right);
+  }
+  function openUpgrades(e){
+    if (e) e.stopPropagation();
     sfxClick();
     modsPanelEl.classList.remove("active");
     upgradesPanelEl.classList.add("active");
     updateUpgradeUI();
-  });
-  openUpgradesOverEl.addEventListener("click", (e) => {
-    e.stopPropagation();
-    sfxClick();
-    modsPanelEl.classList.remove("active");
-    upgradesPanelEl.classList.add("active");
-    updateUpgradeUI();
-  });
+  }
+  openSettingsEl.addEventListener("click", openSettings);
+  openSettingsOverEl.addEventListener("click", openSettings);
+  openUpgradesEl.addEventListener("click", openUpgrades);
+  openUpgradesOverEl.addEventListener("click", openUpgrades);
   closeSettingsEl.addEventListener("click", (e) => {
     e.stopPropagation();
     sfxClick();
@@ -3497,10 +3510,12 @@
     sfxClick();
     powerupInfoPanelEl.classList.remove("active");
   });
-  closeUpgradesEl.addEventListener("click", () => {
+  function closeUpgradesPanel(){
     sfxClick();
     upgradesPanelEl.classList.remove("active");
-  });
+  }
+  closeUpgradesEl.addEventListener("click", closeUpgradesPanel);
+  document.getElementById("upgradesCloseX").addEventListener("click", closeUpgradesPanel);
   closeModsEl.addEventListener("click", () => {
     sfxClick();
     modsPanelEl.classList.remove("active");
@@ -3558,12 +3573,20 @@
     sfxClick();
     setPaused(false);
     setMode("start");
+    modsPanelEl.classList.remove("active");
     startPanel.classList.remove("hidden");
     startPanel.classList.add("enter");
+    setTimeout(() => startPanel.classList.remove("enter"), 600);
   });
   closeBreakdownEl.addEventListener("click", () => {
     sfxClick();
     breakdownPanelEl.classList.remove("active");
+    overPanel.classList.add("hidden");
+    setMode("start");
+    modsPanelEl.classList.remove("active");
+    startPanel.classList.remove("hidden");
+    startPanel.classList.add("enter");
+    setTimeout(() => startPanel.classList.remove("enter"), 600);
   });
   document.addEventListener("visibilitychange", handleVisibilityChange);
   musicVolEl.addEventListener("input", () => {
