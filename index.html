@@ -541,38 +541,187 @@
   }
   .upgrades-close-x:hover{ background: rgba(25,247,255,.3); }
   .upgrades-scroll{
-    flex:1 1 0; overflow-x:auto; overflow-y:hidden; min-height:0;
+    flex:1 1 0; overflow-x:hidden; overflow-y:auto; min-height:0;
     padding-bottom:6px;
     scrollbar-width:thin;
     scrollbar-color:rgba(25,247,255,.4) transparent;
   }
-  .upgrades-scroll::-webkit-scrollbar{ height:4px; }
+  .upgrades-scroll::-webkit-scrollbar{ width:4px; }
   .upgrades-scroll::-webkit-scrollbar-track{ background:transparent; }
   .upgrades-scroll::-webkit-scrollbar-thumb{ background:rgba(25,247,255,.4); border-radius:4px; }
+  .upgrade-tabs{
+    display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; flex-shrink:0;
+  }
+  .upgrade-tab{
+    padding:4px 10px; border-radius:20px; font-size:10px; text-transform:uppercase;
+    letter-spacing:1px; cursor:pointer;
+    border:1px solid rgba(25,247,255,.3); background:rgba(25,247,255,.06);
+    color:var(--text); transition: all .15s ease;
+  }
+  .upgrade-tab.active{ background:rgba(25,247,255,.2); border-color:var(--neon); color:var(--neon); box-shadow:0 0 8px rgba(25,247,255,.2); }
+  .upgrade-tab:hover:not(.active){ background:rgba(25,247,255,.12); }
   .upgrade-grid{
-    display:flex; flex-direction:row; gap:10px;
-    min-width:max-content;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px;
   }
   .upgrade-card{
     border:1px solid rgba(25,247,255,.38);
-    border-radius:12px; padding:10px; background: linear-gradient(160deg, rgba(25,247,255,.08), rgba(138,91,255,.05));
+    border-radius:12px; padding:12px; background: linear-gradient(160deg, rgba(25,247,255,.08), rgba(138,91,255,.05));
     font-size:11px; text-transform:uppercase; letter-spacing:1px;
     box-shadow: inset 0 1px 0 rgba(25,247,255,.15);
     transition: box-shadow .15s ease;
-    width:140px; flex-shrink:0;
+    display:flex; flex-direction:column; gap:5px;
   }
-  .upgrade-card:hover{
-    box-shadow: 0 0 16px rgba(25,247,255,.15), inset 0 1px 0 rgba(25,247,255,.2);
+  .upgrade-card.upg-maxed{ border-color:rgba(138,91,255,.55); background: linear-gradient(160deg, rgba(138,91,255,.12), rgba(25,247,255,.04)); }
+  .upgrade-card.upg-insuff{ opacity:.65; }
+  .upgrade-card:hover{ box-shadow: 0 0 16px rgba(25,247,255,.15), inset 0 1px 0 rgba(25,247,255,.2); }
+  .upg-header{ display:flex; align-items:center; gap:6px; }
+  .upg-icon{ font-size:18px; line-height:1; flex-shrink:0; }
+  .upg-name{ font-size:12px; color:var(--neon); font-weight:bold; line-height:1.2; }
+  .upg-desc{ font-size:10px; opacity:.65; line-height:1.4; }
+  .upg-dots{ display:flex; gap:4px; align-items:center; }
+  .upg-dot{
+    width:9px; height:9px; border-radius:50%;
+    border:1px solid rgba(25,247,255,.45); flex-shrink:0;
   }
-  .upgrade-card .btn{ margin-top:8px; width:100%; }
+  .upg-dot.filled{ background:var(--neon); border-color:var(--neon); box-shadow:0 0 5px rgba(25,247,255,.55); }
+  .upg-dot.maxed-dot{ background:var(--neon2); border-color:var(--neon2); box-shadow:0 0 5px rgba(138,91,255,.55); }
+  .upg-effect{ font-size:10px; color:#7dffb2; letter-spacing:.5px; min-height:13px; }
+  .upg-progress{ height:3px; border-radius:2px; background:rgba(25,247,255,.15); overflow:hidden; }
+  .upg-progress-fill{ height:100%; border-radius:2px; background:var(--neon); transition:width .3s ease; }
+  .upgrade-card.upg-maxed .upg-progress-fill{ background:var(--neon2); }
+  .upg-maxed-badge{
+    display:none; text-align:center; font-size:10px; letter-spacing:2px;
+    color:var(--neon2); padding:4px 0;
+    border:1px solid rgba(138,91,255,.4); border-radius:6px;
+    background:rgba(138,91,255,.1); margin-top:2px;
+  }
+  .upgrade-card.upg-maxed .upg-maxed-badge{ display:block; }
+  .upgrade-card.upg-maxed .upg-buy-btn{ display:none; }
+  .upgrade-card .upg-buy-btn{ margin-top:2px; width:100%; }
+  .upg-summary{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:10px; letter-spacing:1px; text-transform:uppercase;
+    color:rgba(215,249,255,.55); margin-bottom:8px; flex-shrink:0;
+  }
   .currency{
     font-size:12px; letter-spacing:1px; text-transform:uppercase;
-    color:#7dffb2; margin-bottom:8px;
+    color:#7dffb2; margin-bottom:6px; flex-shrink:0;
   }
   .shard-icon{
-    width:36px; height:36px; vertical-align:middle; margin-left:8px;
+    width:22px; height:22px; vertical-align:middle; margin-left:6px;
     image-rendering: auto;
   }
+  /* Leaderboard Panel */
+  .leaderboard-panel{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition: opacity .25s ease;
+    background: rgba(4,6,12,.75);
+    z-index:13;
+  }
+  .leaderboard-panel.active{ pointer-events:auto; opacity:1; }
+  .leaderboard-box{
+    background: linear-gradient(180deg, rgba(10,16,30,.97), rgba(6,10,20,.97));
+    border:1px solid rgba(25,247,255,.35);
+    box-shadow: 0 0 32px rgba(25,247,255,.2);
+    padding:20px 22px 16px; border-radius:14px;
+    width:min(96vw, 500px);
+    max-height:90vh;
+    display:flex; flex-direction:column;
+    overflow:hidden; position:relative;
+  }
+  .leaderboard-close-x{
+    position:absolute; top:10px; right:12px;
+    width:28px; height:28px; border-radius:50%;
+    background: rgba(25,247,255,.15); border:1px solid rgba(25,247,255,.4);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:14px; color:var(--neon);
+    transition: background .15s ease; z-index:2;
+  }
+  .leaderboard-close-x:hover{ background: rgba(25,247,255,.3); }
+  .leaderboard-list{
+    flex:1 1 0; overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(25,247,255,.4) transparent;
+    margin:8px 0;
+  }
+  .leaderboard-list::-webkit-scrollbar{ width:4px; }
+  .leaderboard-list::-webkit-scrollbar-track{ background:transparent; }
+  .leaderboard-list::-webkit-scrollbar-thumb{ background:rgba(25,247,255,.4); border-radius:4px; }
+  .lb-entry{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 10px; border-radius:10px;
+    border:1px solid rgba(25,247,255,.12);
+    background: rgba(25,247,255,.03);
+    margin-bottom:6px;
+    transition: background .15s ease;
+  }
+  .lb-entry:hover{ background: rgba(25,247,255,.08); }
+  .lb-rank{
+    font-size:14px; font-weight:bold; color:var(--neon);
+    min-width:22px; text-align:center; flex-shrink:0;
+  }
+  .lb-rank.gold{ color:#ffd700; text-shadow:0 0 8px rgba(255,215,0,.6); }
+  .lb-rank.silver{ color:#c0c0c0; text-shadow:0 0 6px rgba(192,192,192,.4); }
+  .lb-rank.bronze{ color:#cd7f32; text-shadow:0 0 6px rgba(205,127,50,.4); }
+  .lb-avatar{
+    width:36px; height:36px; border-radius:50%;
+    border:1px solid rgba(25,247,255,.35);
+    object-fit:cover; flex-shrink:0; display:block;
+  }
+  .lb-avatar-ph{
+    width:36px; height:36px; border-radius:50%;
+    border:1px solid rgba(25,247,255,.25);
+    background: rgba(25,247,255,.08);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; flex-shrink:0;
+  }
+  .lb-info{ flex:1 1 0; min-width:0; }
+  .lb-name{ font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lb-score{ font-size:17px; color:var(--neon); font-weight:bold; letter-spacing:1px; text-shadow:0 0 8px rgba(25,247,255,.4); }
+  .lb-date{ font-size:9px; color:rgba(215,249,255,.35); letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
+  .lb-empty{ text-align:center; padding:32px 0; opacity:.45; font-size:12px; letter-spacing:1px; text-transform:uppercase; }
+  .lb-your-score{ font-size:12px; letter-spacing:1px; text-transform:uppercase; color:rgba(215,249,255,.55); margin-bottom:6px; flex-shrink:0; }
+  /* Leaderboard submit modal */
+  .lb-modal{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition: opacity .25s ease;
+    background: rgba(4,6,12,.82);
+    z-index:25;
+  }
+  .lb-modal.active{ pointer-events:auto; opacity:1; }
+  .lb-modal-box{
+    background: linear-gradient(180deg, rgba(10,16,30,.98), rgba(6,10,20,.98));
+    border:1px solid rgba(25,247,255,.4);
+    box-shadow: 0 0 40px rgba(25,247,255,.25);
+    padding:22px 24px 18px; border-radius:14px;
+    width:min(96vw, 360px);
+    text-align:center;
+  }
+  .lb-modal-score{ font-size:30px; color:var(--neon); font-weight:bold; text-shadow:0 0 20px rgba(25,247,255,.5); letter-spacing:2px; margin:4px 0 12px; }
+  .lb-name-input{
+    width:100%; box-sizing:border-box;
+    background: rgba(25,247,255,.06);
+    border:1px solid rgba(25,247,255,.3);
+    border-radius:8px; padding:10px 12px;
+    color:var(--text); font-family:inherit; font-size:13px;
+    letter-spacing:1px; text-transform:uppercase;
+    margin:8px 0; outline:none;
+    transition: border-color .15s ease;
+  }
+  .lb-name-input:focus{ border-color:var(--neon); }
+  .lb-photo-label{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    cursor:pointer; font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    color:rgba(215,249,255,.6); padding:8px 12px;
+    border:1px dashed rgba(25,247,255,.25); border-radius:8px;
+    margin-bottom:10px; transition: all .15s ease;
+  }
+  .lb-photo-label:hover{ border-color:var(--neon); color:var(--neon); }
+  .lb-photo-preview{
+    width:52px; height:52px; border-radius:50%; object-fit:cover;
+    border:2px solid var(--neon); display:none; margin:0 auto 8px;
+  }
+  .lb-modal-actions{ display:flex; gap:8px; justify-content:center; margin-top:4px; }
   .rebind{
     display:flex; align-items:center; justify-content:space-between;
     margin:8px 0; font-size:11px; text-transform:uppercase;
@@ -693,6 +842,7 @@
     <div class="prompt">Press Space / Click to Start</div>
     <div class="btn">Tap to Start</div>
     <div class="btn" id="openUpgrades">Upgrades</div>
+    <div class="btn" id="openLeaderboard">🏆 Leaderboard</div>
     <div class="btn" id="openSettings">Settings</div>
   </div>
   <div id="overPanel" class="panel hidden">
@@ -814,6 +964,14 @@
     <div id="upgradesCloseX" class="upgrades-close-x" title="Close">✕</div>
     <div class="title">Upgrades</div>
     <div id="currency" class="currency">Neon Shards: 0</div>
+    <div class="upgrade-tabs" id="upgradeTabs">
+      <div class="upgrade-tab active" data-cat="all">All</div>
+      <div class="upgrade-tab" data-cat="performance">⚙️ Performance</div>
+      <div class="upgrade-tab" data-cat="powerup">⚡ Power-ups</div>
+      <div class="upgrade-tab" data-cat="survival">🛡️ Survival</div>
+      <div class="upgrade-tab" data-cat="cosmetic">✨ Cosmetic</div>
+    </div>
+    <div class="upg-summary"><span id="upgSummaryText">0 / 0 upgrades purchased</span><span id="upgSummaryPct">0%</span></div>
     <div class="upgrades-scroll">
       <div class="upgrade-grid" id="upgradeGrid"></div>
     </div>
@@ -828,6 +986,34 @@
     <div class="title">Run Breakdown</div>
     <div id="breakdownStats" class="hint">---</div>
     <div class="btn" id="closeBreakdown">Close</div>
+  </div>
+</div>
+
+<div id="leaderboardPanel" class="leaderboard-panel">
+  <div class="leaderboard-box">
+    <div id="leaderboardCloseX" class="leaderboard-close-x" title="Close">✕</div>
+    <div class="title">🏆 Leaderboard</div>
+    <div class="lb-your-score" id="lbYourScore"></div>
+    <div class="leaderboard-list" id="leaderboardList"></div>
+    <div class="settings-actions">
+      <div id="closeLeaderboard" class="btn">Close</div>
+    </div>
+  </div>
+</div>
+
+<div id="lbModal" class="lb-modal">
+  <div class="lb-modal-box">
+    <div class="title">Run Complete!</div>
+    <div class="lb-modal-score" id="lbModalScore">0</div>
+    <div class="hint" style="margin-bottom:8px;">Enter your name to save to the leaderboard.</div>
+    <img id="lbPhotoPreview" class="lb-photo-preview" alt="Preview" src="">
+    <label class="lb-photo-label" for="lbPhotoInput">📷 Add a photo (optional)</label>
+    <input type="file" id="lbPhotoInput" accept="image/*" style="display:none">
+    <input type="text" id="lbNameInput" class="lb-name-input" placeholder="Your name…" maxlength="24" autocomplete="off">
+    <div class="lb-modal-actions">
+      <div class="btn" id="lbSubmitBtn">Submit</div>
+      <div class="btn" id="lbSkipBtn">Skip</div>
+    </div>
   </div>
 </div>
 
@@ -974,6 +1160,18 @@
   const invincibleIndicatorEl = document.getElementById("invincibleIndicator");
   const missionTrackerEl = document.getElementById("missionTracker");
   const missionListEl = document.getElementById("missionList");
+  const leaderboardPanelEl = document.getElementById("leaderboardPanel");
+  const leaderboardListEl = document.getElementById("leaderboardList");
+  const closeLeaderboardEl = document.getElementById("closeLeaderboard");
+  const openLeaderboardEl = document.getElementById("openLeaderboard");
+  const lbModalEl = document.getElementById("lbModal");
+  const lbModalScoreEl = document.getElementById("lbModalScore");
+  const lbNameInputEl = document.getElementById("lbNameInput");
+  const lbPhotoInputEl = document.getElementById("lbPhotoInput");
+  const lbPhotoPreviewEl = document.getElementById("lbPhotoPreview");
+  const lbSubmitBtnEl = document.getElementById("lbSubmitBtn");
+  const lbSkipBtnEl = document.getElementById("lbSkipBtn");
+  const upgradeTabsEl = document.getElementById("upgradeTabs");
 
   let w, h, dpr;
   function resize(){
@@ -1060,6 +1258,7 @@
     achievementsUnlocked: [],
     slideshowIndex: 0,
     slideshowActive: false,
+    lbSubmitTimer: null,
     dangerZoneTimer: 0,
     bossGateTimer: 0,
     perfectCount: 0,
@@ -1249,18 +1448,18 @@
   };
 
   const UPGRADES = [
-    { id: "control", name: "Control Assist", cost: 120, desc: "Slightly steadier control feel.", level: 0, max: 3 },
-    { id: "glow", name: "Gate Clarity", cost: 90, desc: "Sharper gate glow visibility.", level: 0, max: 3 },
-    { id: "combo", name: "Combo Window", cost: 80, desc: "Combo decays slower.", level: 0, max: 3 },
-    { id: "trail", name: "Trail Tint", cost: 70, desc: "Cosmetic trail hue shift.", level: 0, max: 3 },
-    { id: "pulse", name: "Gate Pulse", cost: 110, desc: "Cosmetic pulse style.", level: 0, max: 2 },
-    { id: "shield", name: "Shield Chance", cost: 150, desc: "5% chance to spawn with shield.", level: 0, max: 5 },
-    { id: "magnet", name: "Magnet Duration", cost: 140, desc: "Magnet lasts longer.", level: 0, max: 3 },
-    { id: "fortune", name: "Powerup Rate", cost: 130, desc: "More frequent powerups.", level: 0, max: 4 },
-    { id: "streak", name: "Streak Bonus", cost: 160, desc: "+10% streak rewards.", level: 0, max: 5 },
-    { id: "danger", name: "Danger Rewards", cost: 170, desc: "Better danger zone bonuses.", level: 0, max: 3 },
-    { id: "starting", name: "Starting Boost", cost: 200, desc: "Begin runs with bonus score.", level: 0, max: 3 },
-    { id: "revival", name: "Second Chance", cost: 300, desc: "5% chance to survive hit (once).", level: 0, max: 2 }
+    { id: "control",  name: "Control Assist",  icon: "🕹️", category: "performance", cost: 120, desc: "Steadier feel in tight gaps.",       levelDesc: ["","Steering +5%","Steering +10%","Steering +15%"],             level: 0, max: 3 },
+    { id: "glow",     name: "Gate Clarity",    icon: "👁️", category: "performance", cost: 90,  desc: "Sharper gate glow visibility.",     levelDesc: ["","Glow +8%","Glow +16%","Glow +24%"],                          level: 0, max: 3 },
+    { id: "combo",    name: "Combo Window",    icon: "⏱️", category: "performance", cost: 80,  desc: "Combo decays slower.",              levelDesc: ["","Window +20%","Window +40%","Window +60%"],                   level: 0, max: 3 },
+    { id: "streak",   name: "Streak Bonus",    icon: "🔥", category: "performance", cost: 160, desc: "Bigger streak shard rewards.",      levelDesc: ["","Rewards +10%","Rewards +20%","Rewards +30%","Rewards +40%","Rewards +50%"], level: 0, max: 5 },
+    { id: "fortune",  name: "Powerup Rate",    icon: "🍀", category: "powerup",     cost: 130, desc: "More frequent powerup spawns.",    levelDesc: ["","Spawn +10%","Spawn +20%","Spawn +30%","Spawn +40%"],        level: 0, max: 4 },
+    { id: "shield",   name: "Shield Chance",   icon: "🛡️", category: "powerup",     cost: 150, desc: "Chance to start with a shield.",  levelDesc: ["","5% chance","10% chance","15% chance","20% chance","25% chance"], level: 0, max: 5 },
+    { id: "magnet",   name: "Magnet Duration", icon: "🧲", category: "powerup",     cost: 140, desc: "Magnet lasts longer each use.",    levelDesc: ["","+1.5s","+3.0s","+4.5s"],                                    level: 0, max: 3 },
+    { id: "danger",   name: "Danger Rewards",  icon: "⚡", category: "survival",    cost: 170, desc: "Better danger zone bonuses.",      levelDesc: ["","Bonus +15%","Bonus +30%","Bonus +45%"],                      level: 0, max: 3 },
+    { id: "starting", name: "Starting Boost",  icon: "🚀", category: "survival",    cost: 200, desc: "Begin runs with bonus score.",     levelDesc: ["","+100 pts","+200 pts","+300 pts"],                            level: 0, max: 3 },
+    { id: "revival",  name: "Second Chance",   icon: "💫", category: "survival",    cost: 300, desc: "Survive a hit once per run.",      levelDesc: ["","5% survival","10% survival"],                                 level: 0, max: 2 },
+    { id: "trail",    name: "Trail Tint",       icon: "🌈", category: "cosmetic",    cost: 70,  desc: "Shifts your trail's hue.",         levelDesc: ["","Tint shift +12%","Tint shift +24%","Tint shift +36%"],       level: 0, max: 3 },
+    { id: "pulse",    name: "Gate Pulse",       icon: "✨", category: "cosmetic",    cost: 110, desc: "Animated pulse on gates.",         levelDesc: ["","Pulse level 1","Pulse level 2"],                              level: 0, max: 2 }
   ];
 
   /*
@@ -1630,25 +1829,76 @@
 
   function updateUpgradeUI(){
     currencyEl.innerHTML = `${PROGRESSION.currencyName}: ${state.shards} <img src="shard.png" alt="Shard" class="shard-icon">`;
+    const activeCat = document.querySelector(".upgrade-tab.active")?.dataset.cat || "all";
+    const filtered = activeCat === "all" ? UPGRADES : UPGRADES.filter(u => u.category === activeCat);
+    // Summary stats
+    const totalLevels = UPGRADES.reduce((s, u) => s + u.max, 0);
+    const ownedLevels = UPGRADES.reduce((s, u) => s + u.level, 0);
+    const pct = totalLevels ? Math.round(ownedLevels / totalLevels * 100) : 0;
+    document.getElementById("upgSummaryText").textContent = `${ownedLevels} / ${totalLevels} levels purchased`;
+    document.getElementById("upgSummaryPct").textContent = `${pct}%`;
     upgradeGridEl.innerHTML = "";
-    for (const up of UPGRADES){
+    for (const up of filtered){
+      const maxed = up.level >= up.max;
+      const canAfford = state.shards >= up.cost;
       const card = document.createElement("div");
-      card.className = "upgrade-card";
-      card.innerHTML = `<div>${up.name}</div><div class="hint">${up.desc}</div><div class="hud-divider"></div><div>Level ${up.level}/${up.max}</div>`;
-      const btn = document.createElement("div");
-      btn.className = "btn";
-      btn.textContent = up.level >= up.max ? "Maxed" : `Buy (${up.cost})`;
-      btn.addEventListener("click", () => {
-        if (up.level >= up.max) return;
-        if (state.shards < up.cost) return;
-        state.shards -= up.cost;
-        up.level += 1;
-        state.upgrades[up.id] = up.level;
-        saveProgress();
-        updateUpgradeUI();
-        sfxClick();
-      });
-      card.appendChild(btn);
+      card.className = "upgrade-card" + (maxed ? " upg-maxed" : (!canAfford && !maxed ? " upg-insuff" : ""));
+      // Header: icon + name
+      const hdr = document.createElement("div");
+      hdr.className = "upg-header";
+      hdr.innerHTML = `<span class="upg-icon">${up.icon}</span><span class="upg-name">${up.name}</span>`;
+      card.appendChild(hdr);
+      // Description
+      const desc = document.createElement("div");
+      desc.className = "upg-desc";
+      desc.textContent = up.desc;
+      card.appendChild(desc);
+      // Level dots
+      const dots = document.createElement("div");
+      dots.className = "upg-dots";
+      for (let i = 0; i < up.max; i++){
+        const d = document.createElement("div");
+        d.className = "upg-dot" + (i < up.level ? (maxed ? " maxed-dot" : " filled") : "");
+        dots.appendChild(d);
+      }
+      card.appendChild(dots);
+      // Progress bar
+      const bar = document.createElement("div");
+      bar.className = "upg-progress";
+      const fill = document.createElement("div");
+      fill.className = "upg-progress-fill";
+      fill.style.width = `${up.max ? (up.level / up.max * 100) : 0}%`;
+      bar.appendChild(fill);
+      card.appendChild(bar);
+      // Current effect text
+      const eff = document.createElement("div");
+      eff.className = "upg-effect";
+      eff.textContent = up.level > 0 && up.levelDesc ? (up.levelDesc[up.level] || "") : (maxed ? "Fully upgraded!" : "Not yet purchased");
+      card.appendChild(eff);
+      // Maxed badge
+      const badge = document.createElement("div");
+      badge.className = "upg-maxed-badge";
+      badge.textContent = "✦ MAXED ✦";
+      card.appendChild(badge);
+      // Buy button
+      if (!maxed){
+        const btn = document.createElement("div");
+        btn.className = "btn upg-buy-btn";
+        const nextDesc = up.levelDesc ? (up.levelDesc[up.level + 1] || "") : "";
+        btn.innerHTML = `Buy Lv${up.level + 1} <img src="shard.png" alt="" class="shard-icon"> ${up.cost}`;
+        if (!canAfford) btn.style.opacity = "0.5";
+        btn.addEventListener("click", () => {
+          if (up.level >= up.max) return;
+          if (state.shards < up.cost) return;
+          state.shards -= up.cost;
+          up.level += 1;
+          state.upgrades[up.id] = up.level;
+          saveProgress();
+          updateUpgradeUI();
+          sfxClick();
+        });
+        card.appendChild(btn);
+      }
       upgradeGridEl.appendChild(card);
     }
     rebindLeftEl.textContent = formatKeyName(state.rebind.left);
@@ -2118,8 +2368,8 @@
     // Monetization hook: show interstitial ad between runs here.
     showInterstitialAd();
 
-    // Leaderboard hook: submit score to server here.
-    submitScore(state.score);
+    // Leaderboard hook: show submit modal after the breakdown panel appears.
+    state.lbSubmitTimer = setTimeout(() => submitScore(state.score), 1400);
 
     overPanel.classList.add("hidden");
   }
@@ -3388,8 +3638,129 @@
   // Monetization hook: ads between runs.
   function showInterstitialAd(){ /* integrate ad SDK here */ }
 
+  // Leaderboard (local storage based)
+  const LB_KEY = "neonLeaderboard";
+  const LB_MAX = 50;
+  let lbPendingScore = 0;
+  let lbPendingPhoto = null;
+
+  function loadLeaderboard(){
+    try {
+      const raw = localStorage.getItem(LB_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e){ return []; }
+  }
+
+  function saveLeaderboard(entries){
+    try { localStorage.setItem(LB_KEY, JSON.stringify(entries)); } catch(e){}
+  }
+
+  function addLeaderboardEntry(name, score, photo){
+    const entries = loadLeaderboard();
+    const dateStr = new Date().toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+    entries.push({ name: name.trim().slice(0, 24) || "Anonymous", score, date: dateStr, photo: photo || null });
+    entries.sort((a, b) => b.score - a.score);
+    if (entries.length > LB_MAX) entries.length = LB_MAX;
+    saveLeaderboard(entries);
+    return entries;
+  }
+
+  function renderLeaderboard(){
+    const entries = loadLeaderboard();
+    const lbYourScoreEl = document.getElementById("lbYourScore");
+    if (lbPendingScore > 0){
+      lbYourScoreEl.textContent = `Your last run: ${lbPendingScore.toLocaleString()}`;
+    } else {
+      lbYourScoreEl.textContent = "";
+    }
+    leaderboardListEl.innerHTML = "";
+    if (!entries.length){
+      leaderboardListEl.innerHTML = '<div class="lb-empty">No scores yet.<br>Play a run and submit your name!</div>';
+      return;
+    }
+    const top = entries.slice(0, 10);
+    top.forEach((e, i) => {
+      const row = document.createElement("div");
+      row.className = "lb-entry";
+      // Rank
+      const rank = document.createElement("div");
+      rank.className = "lb-rank" + (i === 0 ? " gold" : i === 1 ? " silver" : i === 2 ? " bronze" : "");
+      rank.textContent = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i+1}`;
+      row.appendChild(rank);
+      // Avatar
+      if (e.photo){
+        const img = document.createElement("img");
+        img.className = "lb-avatar";
+        img.src = e.photo;
+        img.alt = e.name;
+        row.appendChild(img);
+      } else {
+        const ph = document.createElement("div");
+        ph.className = "lb-avatar-ph";
+        ph.textContent = "👤";
+        row.appendChild(ph);
+      }
+      // Info
+      const info = document.createElement("div");
+      info.className = "lb-info";
+      const name = document.createElement("div");
+      name.className = "lb-name";
+      name.textContent = e.name;
+      const score = document.createElement("div");
+      score.className = "lb-score";
+      score.textContent = e.score.toLocaleString();
+      info.appendChild(name);
+      info.appendChild(score);
+      row.appendChild(info);
+      // Date
+      const dt = document.createElement("div");
+      dt.className = "lb-date";
+      dt.textContent = e.date || "";
+      row.appendChild(dt);
+      leaderboardListEl.appendChild(row);
+    });
+  }
+
+  function openLeaderboard(e){
+    if (e) e.stopPropagation();
+    sfxClick();
+    renderLeaderboard();
+    leaderboardPanelEl.classList.add("active");
+  }
+
+  function closeLeaderboard(){
+    sfxClick();
+    leaderboardPanelEl.classList.remove("active");
+    lbPendingScore = 0;
+  }
+
+  function showLbModal(score){
+    lbPendingScore = score;
+    lbPendingPhoto = null;
+    lbModalScoreEl.textContent = score.toLocaleString();
+    lbNameInputEl.value = "";
+    lbPhotoPreviewEl.style.display = "none";
+    lbPhotoPreviewEl.src = "";
+    lbPhotoInputEl.value = "";
+    lbModalEl.classList.add("active");
+  }
+
+  function closeLbModal(){
+    lbModalEl.classList.remove("active");
+  }
+
+  function submitLbEntry(){
+    const name = lbNameInputEl.value.trim() || "Anonymous";
+    addLeaderboardEntry(name, lbPendingScore, lbPendingPhoto);
+    closeLbModal();
+    sfxClick();
+    openLeaderboard(null);
+  }
+
   // Monetization hook: leaderboard submissions.
-  function submitScore(score){ /* integrate leaderboard API here */ }
+  function submitScore(score){
+    showLbModal(score);
+  }
 
   // Input
   window.addEventListener("keydown", (e) => {
@@ -3516,6 +3887,45 @@
   }
   closeUpgradesEl.addEventListener("click", closeUpgradesPanel);
   document.getElementById("upgradesCloseX").addEventListener("click", closeUpgradesPanel);
+
+  // Category tabs in upgrades panel
+  upgradeTabsEl.addEventListener("click", (e) => {
+    const tab = e.target.closest(".upgrade-tab");
+    if (!tab) return;
+    upgradeTabsEl.querySelectorAll(".upgrade-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    sfxClick();
+    updateUpgradeUI();
+  });
+
+  // Leaderboard
+  openLeaderboardEl.addEventListener("click", openLeaderboard);
+  closeLeaderboardEl.addEventListener("click", closeLeaderboard);
+  document.getElementById("leaderboardCloseX").addEventListener("click", closeLeaderboard);
+
+  // Leaderboard submit modal
+  lbSubmitBtnEl.addEventListener("click", submitLbEntry);
+  lbSkipBtnEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfxClick();
+    closeLbModal();
+  });
+  lbNameInputEl.addEventListener("keydown", (e) => {
+    if (e.code === "Enter") submitLbEntry();
+    e.stopPropagation();
+  });
+  lbNameInputEl.addEventListener("keyup", (e) => e.stopPropagation());
+  lbPhotoInputEl.addEventListener("change", () => {
+    const file = lbPhotoInputEl.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      lbPendingPhoto = ev.target.result;
+      lbPhotoPreviewEl.src = lbPendingPhoto;
+      lbPhotoPreviewEl.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
   closeModsEl.addEventListener("click", () => {
     sfxClick();
     modsPanelEl.classList.remove("active");
@@ -3580,6 +3990,7 @@
   });
   closeBreakdownEl.addEventListener("click", () => {
     sfxClick();
+    clearTimeout(state.lbSubmitTimer);
     breakdownPanelEl.classList.remove("active");
     overPanel.classList.add("hidden");
     setMode("start");
