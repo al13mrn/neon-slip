@@ -3652,7 +3652,13 @@
   }
 
   function saveLeaderboard(entries){
-    try { localStorage.setItem(LB_KEY, JSON.stringify(entries)); } catch(e){}
+    try {
+      localStorage.setItem(LB_KEY, JSON.stringify(entries));
+    } catch(e){
+      // Storage quota exceeded - try removing photos to free space, then retry
+      const stripped = entries.map(en => ({ name: en.name, score: en.score, date: en.date }));
+      try { localStorage.setItem(LB_KEY, JSON.stringify(stripped)); } catch(e2){}
+    }
   }
 
   function addLeaderboardEntry(name, score, photo){
@@ -3918,6 +3924,17 @@
   lbPhotoInputEl.addEventListener("change", () => {
     const file = lbPhotoInputEl.files[0];
     if (!file) return;
+    // Reject files larger than 512 KB to avoid localStorage quota issues
+    if (file.size > 512 * 1024){
+      lbPhotoInputEl.value = "";
+      lbPendingPhoto = null;
+      lbPhotoPreviewEl.style.display = "none";
+      const label = lbPhotoInputEl.previousElementSibling;
+      const orig = label ? label.textContent : null;
+      if (label) label.textContent = "⚠️ Image too large (max 512 KB)";
+      setTimeout(() => { if (label && orig) label.textContent = orig; }, 2500);
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       lbPendingPhoto = ev.target.result;
