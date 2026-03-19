@@ -22,6 +22,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
 <title>Neon Slip</title>
+<link rel="icon" type="image/png" href="shard.png">
 <style>
   :root{
     --bg: #06070b;
@@ -176,6 +177,25 @@
   .btn:hover{ transform: translateY(-2px); box-shadow: 0 0 22px rgba(25,247,255,.35), 0 4px 16px rgba(25,247,255,.15), inset 0 1px 0 rgba(25,247,255,.3); }
   .btn:hover::before{ opacity:1; }
   .btn:active{ transform: translateY(0px) scale(0.97); }
+  .btn-start{
+    display:block; width:100%; text-align:center;
+    font-size:1.5rem; font-weight:700; letter-spacing:.14em;
+    padding:22px 48px; margin-top:24px;
+    border:2px solid rgba(25,247,255,.9);
+    background: linear-gradient(135deg, rgba(25,247,255,.22) 0%, rgba(138,91,255,.18) 100%);
+    box-shadow: 0 0 30px rgba(25,247,255,.55), 0 0 70px rgba(25,247,255,.25), inset 0 1px 0 rgba(25,247,255,.4);
+    animation: startBtnPulse 2s ease-in-out infinite;
+    text-shadow: 0 0 12px rgba(25,247,255,.9), 0 0 24px rgba(25,247,255,.5);
+  }
+  .btn-start:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 0 55px rgba(25,247,255,.75), 0 0 110px rgba(25,247,255,.45), 0 6px 22px rgba(25,247,255,.3), inset 0 1px 0 rgba(25,247,255,.55);
+  }
+  .btn-start:active{ transform: translateY(0px) scale(0.97); }
+  @keyframes startBtnPulse{
+    0%,100%{ box-shadow: 0 0 30px rgba(25,247,255,.55), 0 0 70px rgba(25,247,255,.25), inset 0 1px 0 rgba(25,247,255,.4); }
+    50%{ box-shadow: 0 0 55px rgba(25,247,255,.85), 0 0 120px rgba(25,247,255,.5), 0 0 6px rgba(255,255,255,.25), inset 0 1px 0 rgba(25,247,255,.5); }
+  }
   .hint{ font-size:12px; opacity:.8; margin-top:8px; }
   .hidden{ opacity:0; transform: translateY(14px) scale(0.98); pointer-events:none; position:absolute; }
   .hud{
@@ -843,8 +863,7 @@
     <div class="title neon-title">Neon Slip</div>
     <div>Move left/right to slip through the neon gates.</div>
     <div class="hint">Keys: A/D or Arrows. Touch: drag or tap.</div>
-    <div class="prompt">Press Space / Click to Start</div>
-    <div class="btn">Tap to Start</div>
+    <div class="btn btn-start" id="startRunBtn">START RUN</div>
     <div class="btn" id="openUpgrades">Upgrades</div>
     <div class="btn" id="openLeaderboard">🏆 Leaderboard</div>
     <div class="btn" id="openSettings">Settings</div>
@@ -989,7 +1008,6 @@
   <div class="breakdown-box">
     <div class="title">Run Breakdown</div>
     <div id="breakdownStats" class="hint">---</div>
-    <div class="btn" id="closeBreakdown">Close</div>
   </div>
 </div>
 
@@ -3902,7 +3920,6 @@
     unlockAudio();
     input.activePointer = true;
     player.targetX = e.clientX;
-    if (state.mode !== "play") startGame();
   });
   canvas.addEventListener("pointermove", (e) => {
     if (input.activePointer) player.targetX = e.clientX;
@@ -3925,6 +3942,13 @@
     unlockAudio();
     sfxClick();
     modsPanelEl.classList.add("active");
+  });
+  document.getElementById("startRunBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    initAudio();
+    unlockAudio();
+    sfxClick();
+    startGame();
   });
   overPanel.addEventListener("click", () => {
     // Return to main menu after game over
@@ -4093,17 +4117,7 @@
     startPanel.classList.add("enter");
     setTimeout(() => startPanel.classList.remove("enter"), 600);
   });
-  closeBreakdownEl.addEventListener("click", () => {
-    sfxClick();
-    clearTimeout(state.lbSubmitTimer);
-    breakdownPanelEl.classList.remove("active");
-    overPanel.classList.add("hidden");
-    setMode("start");
-    modsPanelEl.classList.remove("active");
-    startPanel.classList.remove("hidden");
-    startPanel.classList.add("enter");
-    setTimeout(() => startPanel.classList.remove("enter"), 600);
-  });
+
   document.addEventListener("visibilitychange", handleVisibilityChange);
   musicVolEl.addEventListener("input", () => {
     SETTINGS.musicVolume = parseFloat(musicVolEl.value);
