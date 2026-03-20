@@ -243,6 +243,30 @@
   .hud-divider{
     width:100%; height:1px; background: linear-gradient(90deg, rgba(25,247,255,0), rgba(25,247,255,.35), rgba(25,247,255,0));
   }
+  /* Leaderboard target bar in HUD */
+  .lb-target-bar{
+    display:none; width:120px; margin-top:2px;
+  }
+  .lb-target-label{
+    font-size:9px; letter-spacing:1px; opacity:.65; margin-bottom:3px;
+    color:var(--neon); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .lb-target-meter{
+    width:100%; height:4px; border-radius:4px;
+    border:1px solid rgba(25,247,255,.3);
+    background: rgba(6,12,20,.7);
+    overflow:hidden;
+  }
+  .lb-target-fill{
+    height:100%; transform-origin:left; transform:scaleX(0);
+    background: linear-gradient(90deg, #19f7ff, #8a5bff);
+    box-shadow: 0 0 6px rgba(25,247,255,.6);
+    transition: transform .25s ease, background .3s ease, box-shadow .3s ease;
+  }
+  .lb-target-fill.beat{
+    background: linear-gradient(90deg, #7dffb2, #19f7ff);
+    box-shadow: 0 0 10px rgba(125,255,178,.9);
+  }
   @keyframes hudBreath{
     0%{ text-shadow: 0 0 6px rgba(25,247,255,.35); }
     50%{ text-shadow: 0 0 10px rgba(25,247,255,.6); }
@@ -913,6 +937,10 @@
     <div class="hud-label">Score</div>
     <div class="hud-value" id="score">0</div>
     <div class="hud-divider"></div>
+    <div class="lb-target-bar" id="lbTargetBar">
+      <div class="lb-target-label" id="lbTargetLabel">NEXT: —</div>
+      <div class="lb-target-meter"><div class="lb-target-fill" id="lbTargetFill"></div></div>
+    </div>
   </div>
   <div class="hud-block hud-center">
     <div class="hud-label">Intensity</div>
@@ -1241,6 +1269,9 @@
   const ctx = canvas.getContext("2d");
 
   const scoreEl = document.getElementById("score");
+  const lbTargetBarEl = document.getElementById("lbTargetBar");
+  const lbTargetLabelEl = document.getElementById("lbTargetLabel");
+  const lbTargetFillEl = document.getElementById("lbTargetFill");
   const bestEl = document.getElementById("best");
   const intensityEl = document.getElementById("intensity");
   const intensityFillEl = document.getElementById("intensityFill");
@@ -1411,6 +1442,8 @@
     slideshowIndex: 0,
     slideshowActive: false,
     lbSubmitTimer: null,
+    lbBeatTimer: null,
+    lbTargetRank: null,
     dangerZoneTimer: 0,
     bossGateTimer: 0,
     perfectCount: 0,
@@ -2427,6 +2460,7 @@
     
     intensityEl.textContent = "1.0";
     intensityFillEl.style.transform = "scaleX(0)";
+    if (lbTargetFillEl){ state.lbTargetRank = null; lbTargetFillEl.classList.remove("beat"); }
     spawnGate(-80, true);
   }
 
@@ -2437,10 +2471,18 @@
     if (mode === "start"){
       generateRunProfile();
       selectRunMods();
+      renderLbSidebar();
     } else if (mode === "play"){
       modsPanelEl.classList.remove("active");
+      // Hide sidebar during play
+      const sidebarEl = document.getElementById("lbSidebar");
+      if (sidebarEl) sidebarEl.classList.remove("active");
       playGameMusic();
       return;
+    } else {
+      // Hide sidebar in "over" / "dying" modes
+      const sidebarEl = document.getElementById("lbSidebar");
+      if (sidebarEl) sidebarEl.classList.remove("active");
     }
     // Play menu music for both "start" and "over" modes
     playMenuMusic();
@@ -3139,6 +3181,49 @@
     }
   }
 
+  function updateLbTargetBar(){
+    if (!lbTargetBarEl) return;
+    if (state.mode !== "play" || !lbEntries.length){
+      lbTargetBarEl.style.display = "none";
+      return;
+    }
+    lbTargetBarEl.style.display = "block";
+    const currentScore = Math.floor(state.uiScore);
+
+    // lbEntries is sorted descending. Find the lowest score still above currentScore.
+    let targetIdx = -1;
+    for (let i = lbEntries.length - 1; i >= 0; i--){
+      if (lbEntries[i].score > currentScore){ targetIdx = i; break; }
+    }
+
+    if (targetIdx === -1){
+      // Beat everyone on the board!
+      lbTargetLabelEl.textContent = "🏆 #1 ON BOARD!";
+      lbTargetFillEl.style.transform = "scaleX(1)";
+      lbTargetFillEl.classList.add("beat");
+      return;
+    }
+
+    const targetScore = lbEntries[targetIdx].score;
+    const rank = targetIdx + 1;
+    const baseScore = (targetIdx + 1 < lbEntries.length) ? lbEntries[targetIdx + 1].score : 0;
+    const range = targetScore - baseScore;
+    const progress = range > 0 ? Math.min(1, (currentScore - baseScore) / range) : 1;
+
+    // Flash green when we just crossed into a new tier
+    if (state.lbTargetRank !== rank){
+      if (state.lbTargetRank !== null){
+        lbTargetFillEl.classList.add("beat");
+        clearTimeout(state.lbBeatTimer);
+        state.lbBeatTimer = setTimeout(() => lbTargetFillEl.classList.remove("beat"), 600);
+      }
+      state.lbTargetRank = rank;
+    }
+
+    lbTargetLabelEl.textContent = `BEAT #${rank}: ${targetScore.toLocaleString()}`;
+    lbTargetFillEl.style.transform = `scaleX(${progress.toFixed(4)})`;
+  }
+
   function updateHud(dt){
     state.uiScore += (state.score - state.uiScore) * POLISH.uiEase;
     state.uiBest += (state.best - state.uiBest) * POLISH.uiEase;
@@ -3166,6 +3251,7 @@
 
     const danger = Math.max(0, state.dangerPulse / POLISH.pulseTime);
     intensityFillEl.style.filter = `brightness(${1 + danger * 0.6})`;
+    updateLbTargetBar();
   }
 
   function unlockAudio(){
@@ -4114,8 +4200,13 @@
   window.addEventListener("keydown", (e) => {
     unlockAudio();
     if (state.awaitingBind){
+      const other = state.awaitingBind === "left" ? "right" : "left";
+      // If the new key was already assigned to the other side, swap them
+      if (state.rebind[other] === e.code) state.rebind[other] = state.rebind[state.awaitingBind];
       state.rebind[state.awaitingBind] = e.code;
       state.awaitingBind = null;
+      rebindLeftEl.textContent = formatKeyName(state.rebind.left);
+      rebindRightEl.textContent = formatKeyName(state.rebind.right);
       updateUpgradeUI();
       saveProgress();
       return;
@@ -4217,6 +4308,27 @@
     e.stopPropagation();
     sfxClick();
     settingsPanelEl.classList.remove("active");
+  });
+  document.getElementById("deleteProgressBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!confirm("Delete all progress? This removes your shards, upgrades, and key bindings.")) return;
+    sfxClick();
+    localStorage.removeItem("neonProgress");
+    state.shards = 0;
+    state.upgrades = {};
+    state.rebind = { left: "KeyA", right: "KeyD" };
+    for (const up of UPGRADES) up.level = 0;
+    applyUpgrades();
+    updateUpgradeUI();
+    rebindLeftEl.textContent = formatKeyName(state.rebind.left);
+    rebindRightEl.textContent = formatKeyName(state.rebind.right);
+    sfxClick();
+  });
+  document.getElementById("resetAllBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!confirm("Reset EVERYTHING? This deletes your best score, settings, progress, and all data.")) return;
+    ["neonProgress","neonBest","neonSettings","neonTutSeen","neonMuted"].forEach(k => localStorage.removeItem(k));
+    location.reload();
   });
   powerupHelpEl.addEventListener("click", (e) => {
     e.stopPropagation();
