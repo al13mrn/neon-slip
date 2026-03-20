@@ -243,6 +243,30 @@
   .hud-divider{
     width:100%; height:1px; background: linear-gradient(90deg, rgba(25,247,255,0), rgba(25,247,255,.35), rgba(25,247,255,0));
   }
+  /* Leaderboard target bar in HUD */
+  .lb-target-bar{
+    display:none; width:120px; margin-top:2px;
+  }
+  .lb-target-label{
+    font-size:9px; letter-spacing:1px; opacity:.65; margin-bottom:3px;
+    color:var(--neon); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .lb-target-meter{
+    width:100%; height:4px; border-radius:4px;
+    border:1px solid rgba(25,247,255,.3);
+    background: rgba(6,12,20,.7);
+    overflow:hidden;
+  }
+  .lb-target-fill{
+    height:100%; transform-origin:left; transform:scaleX(0);
+    background: linear-gradient(90deg, #19f7ff, #8a5bff);
+    box-shadow: 0 0 6px rgba(25,247,255,.6);
+    transition: transform .25s ease, background .3s ease, box-shadow .3s ease;
+  }
+  .lb-target-fill.beat{
+    background: linear-gradient(90deg, #7dffb2, #19f7ff);
+    box-shadow: 0 0 10px rgba(125,255,178,.9);
+  }
   @keyframes hudBreath{
     0%{ text-shadow: 0 0 6px rgba(25,247,255,.35); }
     50%{ text-shadow: 0 0 10px rgba(25,247,255,.6); }
@@ -304,6 +328,13 @@
   }
   .settings-row input[type="range"]{ width:140px; }
   .settings-actions{ display:flex; gap:10px; justify-content:center; margin-top:12px; }
+  .settings-divider{ border:none; border-top:1px solid rgba(255,59,122,.2); margin:14px 0 4px; }
+  .danger-btn{
+    border-color:rgba(255,59,122,.5) !important;
+    color:var(--danger) !important;
+    text-shadow: 0 0 8px rgba(255,59,122,.5) !important;
+  }
+  .danger-btn:hover{ background: rgba(255,59,122,.2) !important; }
   .toggle{
     border:1px solid rgba(25,247,255,.4);
     padding:6px 10px; border-radius:8px; cursor:pointer;
@@ -474,15 +505,19 @@
   }
   .shield-indicator{
     position:fixed; right:20px;
-    font-size:14px; letter-spacing:2px; color:#7dffb2;
+    font-size:13px; letter-spacing:1.5px; color:#7dffb2;
     text-shadow: 0 0 12px rgba(125,255,178,.8);
     opacity:0; transition: opacity .3s ease;
+    background: rgba(4,6,12,.7); border:1px solid rgba(125,255,178,.25);
+    border-radius:8px; padding:4px 10px; pointer-events:none;
   }
   .shield-indicator.active{ opacity:1; }
-  #shieldIndicator{ bottom:140px; color:#7dffb2; text-shadow: 0 0 12px rgba(125,255,178,.8); }
-  #dashIndicator{ bottom:115px; color:#ff9d00; text-shadow: 0 0 12px rgba(255,157,0,.8); }
-  #multiplierIndicator{ bottom:90px; color:#ff3b7a; text-shadow: 0 0 12px rgba(255,59,122,.8); }
-  #invincibleIndicator{ bottom:65px; color:#ffd700; text-shadow: 0 0 12px rgba(255,215,0,.8); }
+  #shieldIndicator{ bottom:218px; color:#7dffb2; border-color:rgba(125,255,178,.25); text-shadow: 0 0 12px rgba(125,255,178,.8); }
+  #magnetIndicator{ bottom:183px; color:#ffd86b; border-color:rgba(255,216,107,.25); text-shadow: 0 0 12px rgba(255,216,107,.8); }
+  #slowmoIndicator{ bottom:148px; color:#8a5bff; border-color:rgba(138,91,255,.25); text-shadow: 0 0 12px rgba(138,91,255,.8); }
+  #dashIndicator{ bottom:113px; color:#ff9d00; border-color:rgba(255,157,0,.25); text-shadow: 0 0 12px rgba(255,157,0,.8); }
+  #multiplierIndicator{ bottom:78px; color:#ff3b7a; border-color:rgba(255,59,122,.25); text-shadow: 0 0 12px rgba(255,59,122,.8); }
+  #invincibleIndicator{ bottom:43px; color:#ffd700; border-color:rgba(255,215,0,.25); text-shadow: 0 0 12px rgba(255,215,0,.8); }
   .streak-banner{
     position:fixed; left:50%; top:35%;
     transform: translate(-50%, -50%) scale(0.9);
@@ -642,6 +677,10 @@
     width:22px; height:22px; vertical-align:middle; margin-left:6px;
     image-rendering: auto;
   }
+  .shard-icon-sm{
+    width:14px; height:14px; vertical-align:middle; margin:0 2px;
+    image-rendering: auto;
+  }
   /* Leaderboard Panel */
   .leaderboard-panel{
     position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
@@ -729,19 +768,33 @@
   .lb-category-tab:hover:not(.active){ background:rgba(25,247,255,.12); }
   /* Leaderboard sidebar on main menu */
   .lb-sidebar{
-    margin-top:14px; text-align:left; width:100%;
-    border-top:1px solid rgba(25,247,255,.15); padding-top:10px;
+    position:fixed; top:50%; right:20px; transform:translateY(-50%);
+    background: linear-gradient(160deg, rgba(18,26,52,.96), rgba(6,10,20,.98));
+    border:1px solid rgba(25,247,255,.3);
+    box-shadow: 0 0 24px rgba(25,247,255,.12), 0 0 50px rgba(138,91,255,.08);
+    border-radius:14px; padding:16px 14px; width:190px;
+    pointer-events:none; opacity:0;
+    transition: opacity .4s ease, transform .4s ease;
+    z-index:5; text-align:left;
   }
+  .lb-sidebar.active{ opacity:1; pointer-events:auto; }
+  @media(max-width:860px){ .lb-sidebar{ display:none !important; } }
   .lb-sidebar-title{
-    font-size:11px; letter-spacing:2px; text-transform:uppercase;
-    color:rgba(25,247,255,.6); margin-bottom:6px;
+    font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    color:rgba(25,247,255,.7); margin-bottom:10px; text-align:center;
+    border-bottom:1px solid rgba(25,247,255,.15); padding-bottom:8px;
+  }
+  .lb-sidebar-empty{
+    font-size:11px; opacity:.5; text-align:center; padding:8px 0;
   }
   .lb-sidebar-entry{
     display:flex; gap:8px; align-items:center;
-    font-size:10px; letter-spacing:1px; padding:3px 0;
+    font-size:11px; letter-spacing:.5px; padding:5px 2px;
+    border-bottom:1px solid rgba(25,247,255,.06);
   }
-  .lb-sidebar-rank{ color:var(--neon); min-width:18px; font-size:11px; }
-  .lb-sidebar-name{ flex:1; opacity:.75; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lb-sidebar-entry:last-child{ border-bottom:none; }
+  .lb-sidebar-rank{ color:var(--neon); min-width:22px; font-size:13px; }
+  .lb-sidebar-name{ flex:1; opacity:.8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .lb-sidebar-score{ color:var(--neon); font-size:12px; font-weight:bold; }
   /* Main menu Neon Shards indicator */
   .main-menu-shards{
@@ -884,6 +937,10 @@
     <div class="hud-label">Score</div>
     <div class="hud-value" id="score">0</div>
     <div class="hud-divider"></div>
+    <div class="lb-target-bar" id="lbTargetBar">
+      <div class="lb-target-label" id="lbTargetLabel">NEXT: —</div>
+      <div class="lb-target-meter"><div class="lb-target-fill" id="lbTargetFill"></div></div>
+    </div>
   </div>
   <div class="hud-block hud-center">
     <div class="hud-label">Intensity</div>
@@ -904,15 +961,11 @@
     <div class="title neon-title">Neon Slip</div>
     <div>Move left/right to slip through the neon gates.</div>
     <div class="hint">Keys: A/D or Arrows. Touch: drag or tap.</div>
-    <div id="mainMenuShards" class="main-menu-shards">💎 0 Neon Shards</div>
+    <div id="mainMenuShards" class="main-menu-shards"><img src="shard.png" alt="Shard" class="shard-icon-sm"> 0 Neon Shards</div>
     <div class="btn btn-start" id="startRunBtn">START RUN</div>
     <div class="btn" id="openUpgrades">Upgrades</div>
     <div class="btn" id="openLeaderboard">🏆 Leaderboard</div>
     <div class="btn" id="openSettings">Settings</div>
-    <div id="lbSidebar" class="lb-sidebar" style="display:none;">
-      <div class="lb-sidebar-title">🏆 Top Players</div>
-      <div id="lbSidebarList"></div>
-    </div>
   </div>
   <div id="overPanel" class="panel hidden">
     <div class="title">Crashed</div>
@@ -924,6 +977,11 @@
     <div class="btn" id="openUpgradesOver">Upgrades</div>
     <div class="btn" id="openSettingsOver">Settings</div>
   </div>
+</div>
+
+<div id="lbSidebar" class="lb-sidebar">
+  <div class="lb-sidebar-title">🏆 Today's Top Players</div>
+  <div id="lbSidebarList"><div class="lb-sidebar-empty">No scores yet today</div></div>
 </div>
 
 <div id="settingsPanel" class="settings-panel">
@@ -950,6 +1008,9 @@
     <div class="settings-row"><span>Streamer Mode</span><button id="streamerToggle" class="toggle">Off</button></div>
     <div class="settings-row"><span>Left Key</span><span id="rebindLeft" class="rebind-key">A</span></div>
     <div class="settings-row"><span>Right Key</span><span id="rebindRight" class="rebind-key">D</span></div>
+    <hr class="settings-divider">
+    <div class="settings-row"><span>Delete Progress</span><button id="deleteProgressBtn" class="toggle danger-btn">Delete</button></div>
+    <div class="settings-row"><span>Reset All Data</span><button id="resetAllBtn" class="toggle danger-btn">Reset</button></div>
     <div class="settings-actions">
       <div id="closeSettings" class="btn">Close</div>
     </div>
@@ -963,7 +1024,7 @@
       <div><strong>🛡️ Shield:</strong> Blocks one death. Protects you once.</div>
       <div><strong>🧲 Magnet:</strong> Auto-attracts orbs for 8 seconds.</div>
       <div><strong>⏰ Time Slow:</strong> Slows game to 70% speed for 5s.</div>
-      <div><strong>💎 Shard:</strong> Instant Neon Shards bonus.</div>
+      <div><strong><img src="shard.png" alt="Shard" class="shard-icon-sm"> Shard:</strong> Instant Neon Shards bonus.</div>
       <div><strong>⚡ Dash:</strong> +50% movement speed for 5 seconds.</div>
       <div><strong>✖️ Multiplier:</strong> 2x score bonus for 8 seconds.</div>
       <div><strong>🌟 Invincibility:</strong> God mode for 4 seconds.</div>
@@ -994,8 +1055,10 @@
 <div id="announcer" class="announcer">FLOW</div>
 <div id="scorePop" class="score-pop">+10</div>
 <div id="streakBanner" class="streak-banner">STREAK BONUS!</div>
-<div id="shieldIndicator" class="shield-indicator">🛡️ SHIELD ACTIVE</div>
-<div id="dashIndicator" class="shield-indicator">⚡ DASH ACTIVE</div>
+<div id="shieldIndicator" class="shield-indicator">🛡️ SHIELD</div>
+<div id="magnetIndicator" class="shield-indicator">🧲 MAGNET</div>
+<div id="slowmoIndicator" class="shield-indicator">⏰ SLOW-MO</div>
+<div id="dashIndicator" class="shield-indicator">⚡ DASH</div>
 <div id="multiplierIndicator" class="shield-indicator">✖️ 2X SCORE</div>
 <div id="invincibleIndicator" class="shield-indicator">🌟 INVINCIBLE</div>
 
@@ -1127,7 +1190,7 @@
         <p class="hint">🛡️ Shield: Blocks one death. Protects you once.</p>
         <p class="hint">🧲 Magnet: Auto-attracts orbs for 8 seconds.</p>
         <p class="hint">⏰ Time Slow: Slows game to 70% speed for 5s.</p>
-        <p class="hint">💎 Shard: Instant Neon Shards bonus.</p>
+        <p class="hint"><img src="shard.png" alt="Shard" class="shard-icon-sm"> Shard: Instant Neon Shards bonus.</p>
         <p class="hint">⚡ Dash: +50% movement speed for 5 seconds.</p>
         <p class="hint">✖️ Multiplier: 2x score bonus for 8 seconds.</p>
         <p class="hint">🌟 Invincibility: God mode for 4 seconds.</p>
@@ -1206,6 +1269,9 @@
   const ctx = canvas.getContext("2d");
 
   const scoreEl = document.getElementById("score");
+  const lbTargetBarEl = document.getElementById("lbTargetBar");
+  const lbTargetLabelEl = document.getElementById("lbTargetLabel");
+  const lbTargetFillEl = document.getElementById("lbTargetFill");
   const bestEl = document.getElementById("best");
   const intensityEl = document.getElementById("intensity");
   const intensityFillEl = document.getElementById("intensityFill");
@@ -1270,6 +1336,8 @@
   const nextSlideshowSlideEl = document.getElementById("nextSlide");
   const streakBannerEl = document.getElementById("streakBanner");
   const shieldIndicatorEl = document.getElementById("shieldIndicator");
+  const magnetIndicatorEl = document.getElementById("magnetIndicator");
+  const slowmoIndicatorEl = document.getElementById("slowmoIndicator");
   const dashIndicatorEl = document.getElementById("dashIndicator");
   const multiplierIndicatorEl = document.getElementById("multiplierIndicator");
   const invincibleIndicatorEl = document.getElementById("invincibleIndicator");
@@ -1374,6 +1442,8 @@
     slideshowIndex: 0,
     slideshowActive: false,
     lbSubmitTimer: null,
+    lbBeatTimer: null,
+    lbTargetRank: null,
     dangerZoneTimer: 0,
     bossGateTimer: 0,
     perfectCount: 0,
@@ -1563,17 +1633,17 @@
   };
 
   const UPGRADES = [
-    { id: "control",  name: "Control Assist",  icon: "🕹️", category: "performance", cost: 120, desc: "Steadier feel in tight gaps.",       levelDesc: ["","Steering +5%","Steering +10%","Steering +15%"],             level: 0, max: 3 },
-    { id: "glow",     name: "Gate Clarity",    icon: "👁️", category: "performance", cost: 90,  desc: "Sharper gate glow visibility.",     levelDesc: ["","Glow +8%","Glow +16%","Glow +24%"],                          level: 0, max: 3 },
-    { id: "combo",    name: "Combo Window",    icon: "⏱️", category: "performance", cost: 80,  desc: "Combo decays slower.",              levelDesc: ["","Window +20%","Window +40%","Window +60%"],                   level: 0, max: 3 },
+    { id: "control",  name: "Control Assist",  icon: "🕹️", category: "performance", cost: 120, desc: "Steadier feel in tight gaps.",       levelDesc: ["","Steering +12%","Steering +24%","Steering +36%"],            level: 0, max: 3 },
+    { id: "glow",     name: "Gate Clarity",    icon: "👁️", category: "performance", cost: 90,  desc: "Sharper gate glow visibility.",     levelDesc: ["","Glow +18%","Glow +36%","Glow +54%"],                         level: 0, max: 3 },
+    { id: "combo",    name: "Combo Window",    icon: "⏱️", category: "performance", cost: 80,  desc: "Combo decays much slower.",         levelDesc: ["","Window +35%","Window +70%","Window +105%"],                  level: 0, max: 3 },
     { id: "streak",   name: "Streak Bonus",    icon: "🔥", category: "performance", cost: 160, desc: "Bigger streak shard rewards.",      levelDesc: ["","Rewards +10%","Rewards +20%","Rewards +30%","Rewards +40%","Rewards +50%"], level: 0, max: 5 },
     { id: "fortune",  name: "Powerup Rate",    icon: "🍀", category: "powerup",     cost: 130, desc: "More frequent powerup spawns.",    levelDesc: ["","Spawn +10%","Spawn +20%","Spawn +30%","Spawn +40%"],        level: 0, max: 4 },
     { id: "shield",   name: "Shield Chance",   icon: "🛡️", category: "powerup",     cost: 150, desc: "Chance to start with a shield.",  levelDesc: ["","5% chance","10% chance","15% chance","20% chance","25% chance"], level: 0, max: 5 },
-    { id: "magnet",   name: "Magnet Duration", icon: "🧲", category: "powerup",     cost: 140, desc: "Magnet lasts longer each use.",    levelDesc: ["","+1.5s","+3.0s","+4.5s"],                                    level: 0, max: 3 },
-    { id: "danger",   name: "Danger Rewards",  icon: "⚡", category: "survival",    cost: 170, desc: "Better danger zone bonuses.",      levelDesc: ["","Bonus +15%","Bonus +30%","Bonus +45%"],                      level: 0, max: 3 },
-    { id: "starting", name: "Starting Boost",  icon: "🚀", category: "survival",    cost: 200, desc: "Begin runs with bonus score.",     levelDesc: ["","+100 pts","+200 pts","+300 pts"],                            level: 0, max: 3 },
-    { id: "revival",  name: "Second Chance",   icon: "💫", category: "survival",    cost: 300, desc: "Survive a hit once per run.",      levelDesc: ["","5% survival","10% survival"],                                 level: 0, max: 2 },
-    { id: "trail",    name: "Trail Tint",       icon: "🌈", category: "cosmetic",    cost: 70,  desc: "Shifts your trail's hue.",         levelDesc: ["","Tint shift +12%","Tint shift +24%","Tint shift +36%"],       level: 0, max: 3 },
+    { id: "magnet",   name: "Magnet Duration", icon: "🧲", category: "powerup",     cost: 140, desc: "Magnet lasts much longer.",        levelDesc: ["","+3s","+6s","+9s"],                                           level: 0, max: 3 },
+    { id: "danger",   name: "Danger Rewards",  icon: "⚡", category: "survival",    cost: 170, desc: "Better danger zone bonuses.",      levelDesc: ["","Bonus +25%","Bonus +50%","Bonus +75%"],                      level: 0, max: 3 },
+    { id: "starting", name: "Starting Boost",  icon: "🚀", category: "survival",    cost: 200, desc: "Begin runs with bonus score.",     levelDesc: ["","+250 pts","+500 pts","+750 pts"],                            level: 0, max: 3 },
+    { id: "revival",  name: "Second Chance",   icon: "💫", category: "survival",    cost: 300, desc: "Survive a hit once per run.",      levelDesc: ["","20% survival","40% survival"],                                level: 0, max: 2 },
+    { id: "trail",    name: "Trail Tint",       icon: "🌈", category: "cosmetic",    cost: 70,  desc: "Shifts your trail's hue.",         levelDesc: ["","Tint shift +20%","Tint shift +40%","Tint shift +60%"],       level: 0, max: 3 },
     { id: "pulse",    name: "Gate Pulse",       icon: "✨", category: "cosmetic",    cost: 110, desc: "Animated pulse on gates.",         levelDesc: ["","Pulse level 1","Pulse level 2"],                              level: 0, max: 2 }
   ];
 
@@ -1582,29 +1652,29 @@
   */
   const MODIFIERS = {
     positive: [
-      { id: "hyper", name: "Hyper Drift", desc: "Faster scroll, wider gaps.", icon: "⚡", apply: (m) => { m.speedMul *= 1.15; m.gapMul *= 1.1; } },
+      { id: "hyper", name: "Hyper Drift", desc: "Faster scroll, much wider gaps.", icon: "⚡", apply: (m) => { m.speedMul *= 1.30; m.gapMul *= 1.25; } },
       { id: "echo", name: "Echo Gates", desc: "Decoy gates fade out.", icon: "👻", apply: (m) => { m.echo = true; } },
-      { id: "flow", name: "Flow Assist", desc: "Smoother patterns.", icon: "🌊", apply: (m) => { m.patternBias += 0.08; } },
-      { id: "fortune", name: "Fortune's Favor", desc: "More powerup spawns.", icon: "🍀", apply: (m) => { m.powerupBoost = 1.6; } },
-      { id: "zen", name: "Zen Mode", desc: "Longer combo windows.", icon: "☯️", apply: (m) => { m.comboBonus = 1.35; } },
-      { id: "vision", name: "Future Vision", desc: "See gates earlier.", icon: "👁️", apply: (m) => { m.visionBoost = 1.15; } },
-      { id: "slipstream", name: "Slipstream", desc: "Smoother movements.", icon: "💨", apply: (m) => { m.smoothMove = 1.25; } },
-      { id: "bonus", name: "Score Rush", desc: "+50% score multiplier.", icon: "💰", apply: (m) => { m.scoreMul = 1.5; } }
+      { id: "flow", name: "Flow Assist", desc: "Much smoother patterns.", icon: "🌊", apply: (m) => { m.patternBias += 0.25; } },
+      { id: "fortune", name: "Fortune's Favor", desc: "Loads more powerup spawns.", icon: "🍀", apply: (m) => { m.powerupBoost = 2.8; } },
+      { id: "zen", name: "Zen Mode", desc: "Much longer combo windows.", icon: "☯️", apply: (m) => { m.comboBonus = 1.8; } },
+      { id: "vision", name: "Future Vision", desc: "See gates much earlier.", icon: "👁️", apply: (m) => { m.visionBoost = 1.5; } },
+      { id: "slipstream", name: "Slipstream", desc: "Much smoother movements.", icon: "💨", apply: (m) => { m.smoothMove = 1.8; } },
+      { id: "bonus", name: "Score Rush", desc: "+150% score multiplier.", icon: "💰", apply: (m) => { m.scoreMul = 2.5; } }
     ],
     negative: [
-      { id: "tight", name: "Tight Slip", desc: "Smaller gaps, slower scroll.", icon: "🔒", apply: (m) => { m.gapMul *= 0.9; m.speedMul *= 0.92; } },
-      { id: "mirror", name: "Mirror Bias", desc: "Subtle left/right pull.", icon: "🔄", apply: (m) => { m.mirror = true; } },
-      { id: "pulse", name: "Pulse Locks", desc: "Rhythmic bursts.", icon: "💓", apply: (m) => { m.pulse = true; } },
-      { id: "chaos", name: "Chaos Theory", desc: "More random patterns.", icon: "🎲", apply: (m) => { m.chaosMode = true; } },
-      { id: "gravity", name: "Heavy Gravity", desc: "Sluggish controls.", icon: "⬇️", apply: (m) => { m.speedMul *= 0.88; m.controlPenalty = 0.85; } },
+      { id: "tight", name: "Tight Slip", desc: "Much smaller gaps, slower scroll.", icon: "🔒", apply: (m) => { m.gapMul *= 0.75; m.speedMul *= 0.85; } },
+      { id: "mirror", name: "Mirror Bias", desc: "Strong left/right pull.", icon: "🔄", apply: (m) => { m.mirror = true; } },
+      { id: "pulse", name: "Pulse Locks", desc: "Intense rhythmic bursts.", icon: "💓", apply: (m) => { m.pulse = true; } },
+      { id: "chaos", name: "Chaos Theory", desc: "Very random patterns.", icon: "🎲", apply: (m) => { m.chaosMode = true; } },
+      { id: "gravity", name: "Heavy Gravity", desc: "Very sluggish controls.", icon: "⬇️", apply: (m) => { m.speedMul *= 0.72; m.controlPenalty = 0.60; } },
       { id: "fog", name: "Neon Fog", desc: "Reduced visibility.", icon: "🌫️", apply: (m) => { m.fogMode = true; } },
       { id: "tremor", name: "Screen Tremor", desc: "Constant shaking.", icon: "📳", apply: (m) => { m.tremorMode = true; } },
-      { id: "pressure", name: "Time Pressure", desc: "Faster intensity ramp.", icon: "⏱️", apply: (m) => { m.speedMul *= 1.08; m.gapMul *= 0.95; } }
+      { id: "pressure", name: "Time Pressure", desc: "Fast intensity ramp, tighter gaps.", icon: "⏱️", apply: (m) => { m.speedMul *= 1.25; m.gapMul *= 0.80; } }
     ],
     legendary: [
-      { id: "godmode", name: "God Mode", desc: "MASSIVE gaps, slow mo.", icon: "👑", apply: (m) => { m.gapMul *= 1.5; m.speedMul *= 0.7; m.scoreMul = 0.5; } },
-      { id: "nightmare", name: "Nightmare", desc: "Tiny gaps, ultra speed.", icon: "😈", apply: (m) => { m.gapMul *= 0.7; m.speedMul *= 1.4; m.scoreMul = 2.5; } },
-      { id: "matrix", name: "Matrix Mode", desc: "Everything in slow mo.", icon: "🕶️", apply: (m) => { m.speedMul *= 0.6; m.scoreMul = 1.8; } }
+      { id: "godmode", name: "God Mode", desc: "HUGE gaps, very slow.", icon: "👑", apply: (m) => { m.gapMul *= 1.85; m.speedMul *= 0.5; m.scoreMul = 0.5; } },
+      { id: "nightmare", name: "Nightmare", desc: "Tiny gaps, extreme speed.", icon: "😈", apply: (m) => { m.gapMul *= 0.58; m.speedMul *= 1.65; m.scoreMul = 3.0; } },
+      { id: "matrix", name: "Matrix Mode", desc: "Very slow motion, massive score.", icon: "🕶️", apply: (m) => { m.speedMul *= 0.40; m.scoreMul = 2.8; } }
     ]
   };
 
@@ -1625,7 +1695,7 @@
   const GAMEPLAY_CONSTANTS = {
     legendarySpawnChance: 0.05, // 5% chance for legendary modifiers
     shieldSpawnChance: 0.05, // 5% per upgrade level
-    revivalChance: 0.05 // 5% per upgrade level
+    revivalChance: 0.20 // 20% per upgrade level
   };
 
   const MISSIONS = {
@@ -1946,7 +2016,7 @@
     currencyEl.innerHTML = `${PROGRESSION.currencyName}: ${state.shards} <img src="shard.png" alt="Shard" class="shard-icon">`;
     // Update main menu shard display
     const mainMenuShardsEl = document.getElementById("mainMenuShards");
-    if (mainMenuShardsEl) mainMenuShardsEl.textContent = `💎 ${state.shards} Neon Shards`;
+    if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
     const activeCat = document.querySelector(".upgrade-tab.active")?.dataset.cat || "all";
     const filtered = activeCat === "all" ? UPGRADES : UPGRADES.filter(u => u.category === activeCat);
     // Summary stats
@@ -2030,10 +2100,10 @@
     const trail = state.upgrades.trail || 0;
     const pulse = state.upgrades.pulse || 0;
     state.upgradeEffects = {
-      controlBoost: 1 + control * 0.05,
-      comboExtend: 1 + combo * 0.2,
-      glowBoost: 1 + glow * 0.08,
-      trailShift: trail * 0.12,
+      controlBoost: 1 + control * 0.12,
+      comboExtend: 1 + combo * 0.35,
+      glowBoost: 1 + glow * 0.18,
+      trailShift: trail * 0.20,
       gatePulse: pulse
     };
   }
@@ -2151,7 +2221,7 @@
       const missionsList = missions.map(m =>
         `<div style="margin:8px 0; padding:6px 10px; border:1px solid rgba(25,247,255,.2); border-radius:8px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
           <span style="color:var(--neon);">${m.name}</span>
-          <span style="color:#7dffb2; margin-left:10px;">${m.reward} 💎</span>
+          <span style="color:#7dffb2; margin-left:10px;">${m.reward} <img src="shard.png" alt="Shard" class="shard-icon-sm"></span>
         </div>`
       ).join('');
       slides.push({
@@ -2288,7 +2358,7 @@
     missionListEl.innerHTML = missions.map(m => `
       <div class="mission-item ${m.completed ? 'mission-complete' : ''}">
         <span>${m.name}</span>
-        <span>${m.completed ? '✓' : m.reward + ' 💎'}</span>
+        <span>${m.completed ? '✓' : m.reward + ' <img src="shard.png" alt="Shard" class="shard-icon-sm">'}</span>
       </div>
     `).join('');
   }
@@ -2312,7 +2382,7 @@
     state.time = 0;
     state.score = 0;
     // Starting Boost upgrade: bonus score at run start
-    if (state.upgrades.starting) state.score = state.upgrades.starting * 100;
+    if (state.upgrades.starting) state.score = state.upgrades.starting * 250;
     gates.length = 0;
     particles.length = 0;
     orbs.length = 0;
@@ -2380,6 +2450,8 @@
     
     // Clear all power-up indicators
     dashIndicatorEl.classList.remove("active");
+    magnetIndicatorEl.classList.remove("active");
+    slowmoIndicatorEl.classList.remove("active");
     multiplierIndicatorEl.classList.remove("active");
     invincibleIndicatorEl.classList.remove("active");
     
@@ -2388,6 +2460,7 @@
     
     intensityEl.textContent = "1.0";
     intensityFillEl.style.transform = "scaleX(0)";
+    if (lbTargetFillEl){ state.lbTargetRank = null; lbTargetFillEl.classList.remove("beat"); }
     spawnGate(-80, true);
   }
 
@@ -2398,10 +2471,18 @@
     if (mode === "start"){
       generateRunProfile();
       selectRunMods();
+      renderLbSidebar();
     } else if (mode === "play"){
       modsPanelEl.classList.remove("active");
+      // Hide sidebar during play
+      const sidebarEl = document.getElementById("lbSidebar");
+      if (sidebarEl) sidebarEl.classList.remove("active");
       playGameMusic();
       return;
+    } else {
+      // Hide sidebar in "over" / "dying" modes
+      const sidebarEl = document.getElementById("lbSidebar");
+      if (sidebarEl) sidebarEl.classList.remove("active");
     }
     // Play menu music for both "start" and "over" modes
     playMenuMusic();
@@ -2486,13 +2567,13 @@
       state.shards += earned;
       saveProgress();
       updateUpgradeUI();
-      const earnedText = earned > 0 ? `+${earned} 💎 Neon Shards earned` : "";
+      const earnedText = earned > 0 ? `+${earned} <img src="shard.png" alt="Shard" class="shard-icon-sm"> Neon Shards earned` : "";
       const breakdownShardsEl = document.getElementById("breakdownShards");
-      if (breakdownShardsEl) breakdownShardsEl.textContent = earnedText;
+      if (breakdownShardsEl) breakdownShardsEl.innerHTML = earnedText;
       const lbModalShardsEl = document.getElementById("lbModalShards");
-      if (lbModalShardsEl) lbModalShardsEl.textContent = earnedText;
+      if (lbModalShardsEl) lbModalShardsEl.innerHTML = earnedText;
       const shardsEarnedEl = document.getElementById("shardsEarned");
-      if (shardsEarnedEl) shardsEarnedEl.textContent = earnedText;
+      if (shardsEarnedEl) shardsEarnedEl.innerHTML = earnedText;
     }
     finalScoreEl.textContent = state.score;
     finalBestEl.textContent = state.best;
@@ -2683,7 +2764,18 @@
       state.magnetTimer -= dt;
       if (state.magnetTimer <= 0){
         state.magnetActive = false;
+        magnetIndicatorEl.classList.remove("active");
+      } else {
+        magnetIndicatorEl.textContent = `🧲 MAGNET ${state.magnetTimer.toFixed(1)}s`;
       }
+    }
+
+    // Update slow-mo timer
+    if (state.slowMo > 0){
+      slowmoIndicatorEl.classList.add("active");
+      slowmoIndicatorEl.textContent = `⏰ SLOW-MO ${state.slowMo.toFixed(1)}s`;
+    } else {
+      slowmoIndicatorEl.classList.remove("active");
     }
     
     // Update dash timer
@@ -2692,6 +2784,8 @@
       if (state.dashTimer <= 0){
         state.dashActive = false;
         dashIndicatorEl.classList.remove("active");
+      } else {
+        dashIndicatorEl.textContent = `⚡ DASH ${state.dashTimer.toFixed(1)}s`;
       }
     }
     
@@ -2701,6 +2795,8 @@
       if (state.scoreMultiplierTimer <= 0){
         state.scoreMultiplier = 1;
         multiplierIndicatorEl.classList.remove("active");
+      } else {
+        multiplierIndicatorEl.textContent = `✖️ 2X SCORE ${state.scoreMultiplierTimer.toFixed(1)}s`;
       }
     }
     
@@ -2710,6 +2806,8 @@
       if (state.invincibleTimer <= 0){
         state.invincible = false;
         invincibleIndicatorEl.classList.remove("active");
+      } else {
+        invincibleIndicatorEl.textContent = `🌟 INVINCIBLE ${state.invincibleTimer.toFixed(1)}s`;
       }
     }
   }
@@ -2727,8 +2825,10 @@
         break;
       case "magnet":
         state.magnetActive = true;
-        const magnetBonus = (state.upgrades.magnet || 0) * 1.5;
+        const magnetBonus = (state.upgrades.magnet || 0) * 3.0;
         state.magnetTimer = powerup.type.duration + magnetBonus;
+        magnetIndicatorEl.classList.add("active");
+        magnetIndicatorEl.textContent = `🧲 MAGNET ${state.magnetTimer.toFixed(1)}s`;
         announce("MAGNET ACTIVE!");
         break;
       case "timeslow":
@@ -2744,18 +2844,21 @@
         state.dashActive = true;
         state.dashTimer = powerup.type.duration;
         dashIndicatorEl.classList.add("active");
+        dashIndicatorEl.textContent = `⚡ DASH ${state.dashTimer.toFixed(1)}s`;
         announce("DASH BOOST!");
         break;
       case "multiplier":
         state.scoreMultiplier = 2;
         state.scoreMultiplierTimer = powerup.type.duration;
         multiplierIndicatorEl.classList.add("active");
+        multiplierIndicatorEl.textContent = `✖️ 2X SCORE ${state.scoreMultiplierTimer.toFixed(1)}s`;
         announce("2X SCORE!");
         break;
       case "invincibility":
         state.invincible = true;
         state.invincibleTimer = powerup.type.duration;
         invincibleIndicatorEl.classList.add("active");
+        invincibleIndicatorEl.textContent = `🌟 INVINCIBLE ${state.invincibleTimer.toFixed(1)}s`;
         announce("INVINCIBLE!");
         break;
     }
@@ -2818,7 +2921,7 @@
     }
     if (state.theme) interval *= state.theme.pacingBias;
     if (state.runMods.pulse){
-      interval *= 0.85 + 0.2 * Math.sin(state.time * 2.4);
+      interval *= 0.75 + 0.35 * Math.sin(state.time * 2.4);
     }
     interval = clamp(interval, minInterval, Math.max(minInterval, maxInterval));
     state.spawnTimer = (state.spawnTimer || 0) - dt;
@@ -2848,7 +2951,7 @@
             Math.abs(px - g.gapX),
             Math.abs(px - (g.gapX + g.gapW))
           );
-          const dangerBoost = 1 + (state.upgrades.danger || 0) * 0.15;
+          const dangerBoost = 1 + (state.upgrades.danger || 0) * 0.25;
           let bonus = edgeDist < 18 ? Math.round(8 * dangerBoost) : edgeDist < 35 ? Math.round(4 * dangerBoost) : 2;
           let style = "";
           if (centerDist < 6){
@@ -3020,13 +3123,13 @@
       let desired = Math.abs(dx) > 40
         ? Math.sign(dx) * maxSpeed
         : clamp(dx * (maxSpeed / 40), -maxSpeed, maxSpeed);
-      if (state.runMods.mirror) desired += state.runMods.mirrorDir * 40;
+      if (state.runMods.mirror) desired += state.runMods.mirrorDir * 80;
       const dv = clamp(desired - player.vx, -player.accel * effectiveAccelMul * dt, player.accel * effectiveAccelMul * dt);
       player.vx += dv;
       player.x += player.vx * dt;
     } else if (move !== 0){
       let desired = move * maxSpeed;
-      if (state.runMods.mirror) desired += state.runMods.mirrorDir * 40;
+      if (state.runMods.mirror) desired += state.runMods.mirrorDir * 80;
       const dv = clamp(desired - player.vx, -player.accel * effectiveAccelMul * dt, player.accel * effectiveAccelMul * dt);
       player.vx += dv;
       player.x += player.vx * dt;
@@ -3078,6 +3181,49 @@
     }
   }
 
+  function updateLbTargetBar(){
+    if (!lbTargetBarEl) return;
+    if (state.mode !== "play" || !lbEntries.length){
+      lbTargetBarEl.style.display = "none";
+      return;
+    }
+    lbTargetBarEl.style.display = "block";
+    const currentScore = Math.floor(state.uiScore);
+
+    // lbEntries is sorted descending. Find the lowest score still above currentScore.
+    let targetIdx = -1;
+    for (let i = lbEntries.length - 1; i >= 0; i--){
+      if (lbEntries[i].score > currentScore){ targetIdx = i; break; }
+    }
+
+    if (targetIdx === -1){
+      // Beat everyone on the board!
+      lbTargetLabelEl.textContent = "🏆 #1 ON BOARD!";
+      lbTargetFillEl.style.transform = "scaleX(1)";
+      lbTargetFillEl.classList.add("beat");
+      return;
+    }
+
+    const targetScore = lbEntries[targetIdx].score;
+    const rank = targetIdx + 1;
+    const baseScore = (targetIdx + 1 < lbEntries.length) ? lbEntries[targetIdx + 1].score : 0;
+    const range = targetScore - baseScore;
+    const progress = range > 0 ? Math.min(1, (currentScore - baseScore) / range) : 1;
+
+    // Flash green when we just crossed into a new tier
+    if (state.lbTargetRank !== rank){
+      if (state.lbTargetRank !== null){
+        lbTargetFillEl.classList.add("beat");
+        clearTimeout(state.lbBeatTimer);
+        state.lbBeatTimer = setTimeout(() => lbTargetFillEl.classList.remove("beat"), 600);
+      }
+      state.lbTargetRank = rank;
+    }
+
+    lbTargetLabelEl.textContent = `BEAT #${rank}: ${targetScore.toLocaleString()}`;
+    lbTargetFillEl.style.transform = `scaleX(${progress.toFixed(4)})`;
+  }
+
   function updateHud(dt){
     state.uiScore += (state.score - state.uiScore) * POLISH.uiEase;
     state.uiBest += (state.best - state.uiBest) * POLISH.uiEase;
@@ -3105,6 +3251,7 @@
 
     const danger = Math.max(0, state.dangerPulse / POLISH.pulseTime);
     intensityFillEl.style.filter = `brightness(${1 + danger * 0.6})`;
+    updateLbTargetBar();
   }
 
   function unlockAudio(){
@@ -3943,17 +4090,25 @@
     const sidebarEl = document.getElementById("lbSidebar");
     const listEl = document.getElementById("lbSidebarList");
     if (!sidebarEl || !listEl) return;
-    if (!lbEntries.length){ sidebarEl.style.display = "none"; return; }
-    sidebarEl.style.display = "block";
-    const top3 = lbEntries.slice(0, 3);
-    const medals = ["🥇","🥈","🥉"];
-    listEl.innerHTML = top3.map((e, i) =>
+    // Only show on start screen
+    if (state.mode !== "start"){ sidebarEl.classList.remove("active"); return; }
+    // Filter to today's entries
+    const todayEntries = lbEntries.filter(e => isToday(e.date));
+    if (!todayEntries.length){
+      listEl.innerHTML = '<div class="lb-sidebar-empty">No scores yet today</div>';
+      sidebarEl.classList.add("active");
+      return;
+    }
+    const top5 = todayEntries.slice(0, 5);
+    const medals = ["🥇","🥈","🥉","4","5"];
+    listEl.innerHTML = top5.map((e, i) =>
       `<div class="lb-sidebar-entry">
-        <span class="lb-sidebar-rank">${medals[i]}</span>
+        <span class="lb-sidebar-rank">${i < 3 ? medals[i] : "#" + (i+1)}</span>
         <span class="lb-sidebar-name">${e.name || "Anonymous"}</span>
         <span class="lb-sidebar-score">${e.score.toLocaleString()}</span>
       </div>`
     ).join('');
+    sidebarEl.classList.add("active");
   }
 
   function clearLbTimer(){
@@ -3975,7 +4130,7 @@
     // Refresh sidebar and shard count
     renderLbSidebar();
     const mainMenuShardsEl = document.getElementById("mainMenuShards");
-    if (mainMenuShardsEl) mainMenuShardsEl.textContent = `💎 ${state.shards} Neon Shards`;
+    if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
   }
 
   function openLeaderboard(e){
@@ -4045,8 +4200,13 @@
   window.addEventListener("keydown", (e) => {
     unlockAudio();
     if (state.awaitingBind){
+      const other = state.awaitingBind === "left" ? "right" : "left";
+      // If the new key was already assigned to the other side, swap them
+      if (state.rebind[other] === e.code) state.rebind[other] = state.rebind[state.awaitingBind];
       state.rebind[state.awaitingBind] = e.code;
       state.awaitingBind = null;
+      rebindLeftEl.textContent = formatKeyName(state.rebind.left);
+      rebindRightEl.textContent = formatKeyName(state.rebind.right);
       updateUpgradeUI();
       saveProgress();
       return;
@@ -4148,6 +4308,27 @@
     e.stopPropagation();
     sfxClick();
     settingsPanelEl.classList.remove("active");
+  });
+  document.getElementById("deleteProgressBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!confirm("Delete all progress? This removes your shards, upgrades, and key bindings.")) return;
+    sfxClick();
+    localStorage.removeItem("neonProgress");
+    state.shards = 0;
+    state.upgrades = {};
+    state.rebind = { left: "KeyA", right: "KeyD" };
+    for (const up of UPGRADES) up.level = 0;
+    applyUpgrades();
+    updateUpgradeUI();
+    rebindLeftEl.textContent = formatKeyName(state.rebind.left);
+    rebindRightEl.textContent = formatKeyName(state.rebind.right);
+    sfxClick();
+  });
+  document.getElementById("resetAllBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!confirm("Reset EVERYTHING? This deletes your best score, settings, progress, and all data.")) return;
+    ["neonProgress","neonBest","neonSettings","neonTutSeen","neonMuted"].forEach(k => localStorage.removeItem(k));
+    location.reload();
   });
   powerupHelpEl.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -4367,7 +4548,7 @@
   setMuted(localStorage.getItem("neonMuted") === "1");
   // Show shard count and load sidebar on startup
   const mainMenuShardsEl = document.getElementById("mainMenuShards");
-  if (mainMenuShardsEl) mainMenuShardsEl.textContent = `💎 ${state.shards} Neon Shards`;
+  if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
   loadLeaderboardOnline();
   requestAnimationFrame(loop);
 })();
