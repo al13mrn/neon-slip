@@ -403,10 +403,11 @@
   .modifier-slideshow.active{ pointer-events:auto; opacity:1; }
   .slideshow-box{
     background: linear-gradient(180deg, rgba(10,16,30,.98), rgba(6,10,20,.98));
-    border:1px solid rgba(25,247,255,.35);
-    box-shadow: 0 0 32px rgba(25,247,255,.3);
+    border:1px solid rgba(25,247,255,.45);
+    box-shadow: 0 0 50px rgba(25,247,255,.35), 0 0 100px rgba(25,247,255,.12), inset 0 1px 0 rgba(25,247,255,.15);
     padding:24px 28px; border-radius:14px; width:min(480px, 92vw);
     text-align:center;
+    animation: slideshowGlow 3s ease-in-out infinite;
   }
   .slideshow-content{
     min-height:280px; display:flex; flex-direction:column; justify-content:center;
@@ -418,6 +419,11 @@
   }
   .mod-icon{
     font-size:48px; margin:12px 0;
+    animation: modIconGlow 2s ease-in-out infinite;
+  }
+  @keyframes modIconGlow{
+    0%, 100%{ filter: drop-shadow(0 0 10px rgba(25,247,255,.7)); }
+    50%{ filter: drop-shadow(0 0 22px rgba(138,91,255,.9)); }
   }
   .mod-desc{
     font-size:13px; letter-spacing:1px; opacity:.85; margin:14px 0;
@@ -449,6 +455,10 @@
   }
   .skip-text{
     font-size:10px; opacity:.6; margin-top:12px; letter-spacing:1px;
+  }
+  @keyframes slideshowGlow{
+    0%, 100%{ box-shadow: 0 0 50px rgba(25,247,255,.35), 0 0 100px rgba(25,247,255,.12), inset 0 1px 0 rgba(25,247,255,.15); }
+    50%{ box-shadow: 0 0 60px rgba(138,91,255,.4), 0 0 120px rgba(138,91,255,.15), inset 0 1px 0 rgba(138,91,255,.18); }
   }
   .powerup{
     position:absolute;
@@ -544,7 +554,7 @@
     border:1px solid rgba(25,247,255,.35);
     box-shadow: 0 0 28px rgba(25,247,255,.25);
     padding:18px 20px 14px; border-radius:14px;
-    width:min(96vw, 700px);
+    width:min(98vw, 860px);
     height:88vh;
     max-height:88vh;
     display:flex; flex-direction:column;
@@ -705,6 +715,44 @@
   .lb-your-score{ font-size:12px; letter-spacing:1px; text-transform:uppercase; color:rgba(215,249,255,.55); margin-bottom:6px; flex-shrink:0; }
   @keyframes lb-spin{ to{ transform:rotate(360deg); } }
   .lb-loading{ display:inline-block; animation: lb-spin 0.8s linear infinite; }
+  /* Leaderboard category tabs */
+  .lb-category-tabs{
+    display:flex; gap:6px; margin-bottom:10px; flex-shrink:0; flex-wrap:wrap;
+  }
+  .lb-category-tab{
+    padding:4px 10px; border-radius:20px; font-size:10px; text-transform:uppercase;
+    letter-spacing:1px; cursor:pointer;
+    border:1px solid rgba(25,247,255,.3); background:rgba(25,247,255,.06);
+    color:var(--text); transition: all .15s ease;
+  }
+  .lb-category-tab.active{ background:rgba(25,247,255,.2); border-color:var(--neon); color:var(--neon); box-shadow:0 0 8px rgba(25,247,255,.2); }
+  .lb-category-tab:hover:not(.active){ background:rgba(25,247,255,.12); }
+  /* Leaderboard sidebar on main menu */
+  .lb-sidebar{
+    margin-top:14px; text-align:left; width:100%;
+    border-top:1px solid rgba(25,247,255,.15); padding-top:10px;
+  }
+  .lb-sidebar-title{
+    font-size:11px; letter-spacing:2px; text-transform:uppercase;
+    color:rgba(25,247,255,.6); margin-bottom:6px;
+  }
+  .lb-sidebar-entry{
+    display:flex; gap:8px; align-items:center;
+    font-size:10px; letter-spacing:1px; padding:3px 0;
+  }
+  .lb-sidebar-rank{ color:var(--neon); min-width:18px; font-size:11px; }
+  .lb-sidebar-name{ flex:1; opacity:.75; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lb-sidebar-score{ color:var(--neon); font-size:12px; font-weight:bold; }
+  /* Main menu Neon Shards indicator */
+  .main-menu-shards{
+    font-size:13px; letter-spacing:1px; color:#7dffb2;
+    text-shadow: 0 0 10px rgba(125,255,178,.5); margin:4px 0 2px;
+  }
+  /* Earned shards after run */
+  .shards-earned{
+    font-size:13px; letter-spacing:1px; color:#7dffb2;
+    text-shadow: 0 0 12px rgba(125,255,178,.6); margin:6px 0;
+  }
   /* Leaderboard submit modal */
   .lb-modal{
     position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
@@ -826,15 +874,6 @@
   body[data-danger="1"] .meter-fill{ filter: brightness(1.4); }
   body[data-state="play"] .ui{ pointer-events:none; }
   body[data-state="dying"] .ui{ pointer-events:none; }
-  .itch-embed{
-    position:fixed; right:12px; bottom:12px;
-    z-index:8; opacity:.9; transition: opacity .2s ease;
-  }
-  .itch-embed iframe{ display:block; border:0; }
-  body[data-state="play"] .itch-embed,
-  body[data-state="dying"] .itch-embed{
-    opacity:0; pointer-events:none;
-  }
 </style>
 </head>
 <body>
@@ -865,15 +904,21 @@
     <div class="title neon-title">Neon Slip</div>
     <div>Move left/right to slip through the neon gates.</div>
     <div class="hint">Keys: A/D or Arrows. Touch: drag or tap.</div>
+    <div id="mainMenuShards" class="main-menu-shards">💎 0 Neon Shards</div>
     <div class="btn btn-start" id="startRunBtn">START RUN</div>
     <div class="btn" id="openUpgrades">Upgrades</div>
     <div class="btn" id="openLeaderboard">🏆 Leaderboard</div>
     <div class="btn" id="openSettings">Settings</div>
+    <div id="lbSidebar" class="lb-sidebar" style="display:none;">
+      <div class="lb-sidebar-title">🏆 Top Players</div>
+      <div id="lbSidebarList"></div>
+    </div>
   </div>
   <div id="overPanel" class="panel hidden">
     <div class="title">Crashed</div>
     <div>Score: <span id="finalScore">0</span></div>
     <div>Best: <span id="finalBest">0</span></div>
+    <div id="shardsEarned" class="shards-earned"></div>
     <div class="btn" id="tryAgainBtn">Try Again</div>
     <div class="hint">Instant restart keeps the flow.</div>
     <div class="btn" id="openUpgradesOver">Upgrades</div>
@@ -1010,6 +1055,7 @@
   <div class="breakdown-box">
     <div class="title">Run Breakdown</div>
     <div id="breakdownStats" class="hint">---</div>
+    <div id="breakdownShards" class="shards-earned" style="margin-top:6px;"></div>
   </div>
 </div>
 
@@ -1018,6 +1064,11 @@
     <div id="leaderboardCloseX" class="leaderboard-close-x" title="Close">✕</div>
     <div class="title">🏆 Leaderboard</div>
     <div class="lb-your-score" id="lbYourScore"></div>
+    <div class="lb-category-tabs" id="lbCategoryTabs">
+      <div class="lb-category-tab active" data-cat="alltime">All Time</div>
+      <div class="lb-category-tab" data-cat="thisweek">This Week</div>
+      <div class="lb-category-tab" data-cat="today">Today</div>
+    </div>
     <div class="leaderboard-list" id="leaderboardList"></div>
     <div class="settings-actions">
       <div id="closeLeaderboard" class="btn">Close</div>
@@ -1029,6 +1080,7 @@
   <div class="lb-modal-box">
     <div class="title">Run Complete!</div>
     <div class="lb-modal-score" id="lbModalScore">0</div>
+    <div id="lbModalShards" class="shards-earned" style="margin-bottom:4px;"></div>
     <div class="hint" style="margin-bottom:8px;">Enter your name to save to the leaderboard.</div>
     <img id="lbPhotoPreview" class="lb-photo-preview" alt="Preview" src="">
     <label class="lb-photo-label" for="lbPhotoInput">📷 Add a photo (optional)</label>
@@ -1100,10 +1152,6 @@
       <div id="closeIntro" class="btn">Start Run</div>
     </div>
   </div>
-</div>
-
-<div class="itch-embed">
-  <iframe frameborder="0" src="https://itch.io/embed/4157033" width="552" height="167"><a href="https://247-gamer.itch.io/neon-slip">NEON Slip by 24.7-GAMER</a></iframe>
 </div>
 
 <!-- Firebase SDK (Realtime Database compat) -->
@@ -1337,8 +1385,8 @@
     y: () => h * 0.82,
     r: 10,
     speed: 620,
-    accel: 9000,
-    friction: 12000,
+    accel: 18000,
+    friction: 20000,
     vx: 0,
     targetX: null
   };
@@ -1896,6 +1944,9 @@
 
   function updateUpgradeUI(){
     currencyEl.innerHTML = `${PROGRESSION.currencyName}: ${state.shards} <img src="shard.png" alt="Shard" class="shard-icon">`;
+    // Update main menu shard display
+    const mainMenuShardsEl = document.getElementById("mainMenuShards");
+    if (mainMenuShardsEl) mainMenuShardsEl.textContent = `💎 ${state.shards} Neon Shards`;
     const activeCat = document.querySelector(".upgrade-tab.active")?.dataset.cat || "all";
     const filtered = activeCat === "all" ? UPGRADES : UPGRADES.filter(u => u.category === activeCat);
     // Summary stats
@@ -2095,6 +2146,21 @@
       });
     }
     
+    // Missions slide
+    if (missions.length > 0){
+      const missionsList = missions.map(m =>
+        `<div style="margin:8px 0; padding:6px 10px; border:1px solid rgba(25,247,255,.2); border-radius:8px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:var(--neon);">${m.name}</span>
+          <span style="color:#7dffb2; margin-left:10px;">${m.reward} 💎</span>
+        </div>`
+      ).join('');
+      slides.push({
+        title: "🎯 YOUR MISSIONS",
+        content: `<div style="font-size:13px; margin:8px 0 12px; opacity:0.8;">Complete these for Neon Shards!</div>
+                  ${missionsList}`
+      });
+    }
+
     // Ready slide
     slides.push({
       title: "🚀 READY TO GO!",
@@ -2222,7 +2288,7 @@
     missionListEl.innerHTML = missions.map(m => `
       <div class="mission-item ${m.completed ? 'mission-complete' : ''}">
         <span>${m.name}</span>
-        <span>${m.completed ? '✓' : m.reward + '⭐'}</span>
+        <span>${m.completed ? '✓' : m.reward + ' 💎'}</span>
       </div>
     `).join('');
   }
@@ -2245,6 +2311,8 @@
     applyUpgrades();
     state.time = 0;
     state.score = 0;
+    // Starting Boost upgrade: bonus score at run start
+    if (state.upgrades.starting) state.score = state.upgrades.starting * 100;
     gates.length = 0;
     particles.length = 0;
     orbs.length = 0;
@@ -2418,6 +2486,13 @@
       state.shards += earned;
       saveProgress();
       updateUpgradeUI();
+      const earnedText = earned > 0 ? `+${earned} 💎 Neon Shards earned` : "";
+      const breakdownShardsEl = document.getElementById("breakdownShards");
+      if (breakdownShardsEl) breakdownShardsEl.textContent = earnedText;
+      const lbModalShardsEl = document.getElementById("lbModalShards");
+      if (lbModalShardsEl) lbModalShardsEl.textContent = earnedText;
+      const shardsEarnedEl = document.getElementById("shardsEarned");
+      if (shardsEarnedEl) shardsEarnedEl.textContent = earnedText;
     }
     finalScoreEl.textContent = state.score;
     finalBestEl.textContent = state.best;
@@ -2538,7 +2613,7 @@
       const target = lerp(patternCenter + directorPush, player.x, 0.2);
       const blended = state.lastGapCenter * bias + target * (1 - bias);
       const jitterScale = lerp(TUNING.jitterHigh, TUNING.jitterLow, intensityN);
-      const jitter = (randRange(-1, 1)) * maxShift * jitterScale;
+      const jitter = (randRange(-1, 1)) * maxShift * jitterScale * (state.runMods.chaosMode ? 1.8 : 1);
       const allowedLeft = state.lastGapCenter - maxShift;
       const allowedRight = state.lastGapCenter + maxShift;
       center = clamp(blended + jitter, allowedLeft, allowedRight);
@@ -2693,7 +2768,7 @@
     let gapW = Math.max(p.minGap, p.baseGap - (intensityVal - 1) * p.gapShrinkPerIntensity);
     if (state.gateCount < 12) gapW += 20;
     gapW = Math.max(p.minGap, gapW * state.runMods.gapMul);
-    const y = yOverride != null ? yOverride : -40;
+    const y = yOverride != null ? yOverride : -40 - Math.round((state.runMods.visionBoost - 1) * 350);
     const playerY = player.y();
     let speed = Math.max(p.baseSpeed, speedAtTime()) * state.runMods.speedMul;
     let passETA = state.time + (playerY - y) / speed;
@@ -2773,7 +2848,8 @@
             Math.abs(px - g.gapX),
             Math.abs(px - (g.gapX + g.gapW))
           );
-          let bonus = edgeDist < 18 ? 8 : edgeDist < 35 ? 4 : 2;
+          const dangerBoost = 1 + (state.upgrades.danger || 0) * 0.15;
+          let bonus = edgeDist < 18 ? Math.round(8 * dangerBoost) : edgeDist < 35 ? Math.round(4 * dangerBoost) : 2;
           let style = "";
           if (centerDist < 6){
             bonus += 6;
@@ -2823,11 +2899,11 @@
             }
             sfxNear();
             state.combo = Math.max(0, state.combo - 1);
-            state.comboTimer = 0.6 * state.upgradeEffects.comboExtend;
+            state.comboTimer = 0.6 * state.upgradeEffects.comboExtend * (state.runMods.comboBonus || 1);
             state.nearCount += 1;
           } else {
             state.combo += 1;
-            state.comboTimer = 1.2 * state.upgradeEffects.comboExtend;
+            state.comboTimer = 1.2 * state.upgradeEffects.comboExtend * (state.runMods.comboBonus || 1);
             if (state.combo >= 2 && !SETTINGS.streamer){
               comboPopEl.textContent = `Combo x${state.combo}`;
               comboPopEl.classList.add("show");
@@ -2932,19 +3008,26 @@
   function updatePlayer(dt){
     const controlBoost = state.upgradeEffects.controlBoost || 1;
     const intensityBoost = 1 + intensityNorm() * 0.35;
-    const dashBoost = state.dashActive ? 1.5 : 1; // 1.5x base speed (+50% boost) when dash is active
+    const dashBoost = state.dashActive ? 1.5 : 1;
+    const controlPenalty = state.runMods.controlPenalty || 1;
+    const smoothBoost = state.runMods.smoothMove || 1;
+    const effectiveAccelMul = controlBoost * smoothBoost * controlPenalty * intensityBoost * dashBoost;
+    const maxSpeed = player.speed * intensityBoost * dashBoost * controlPenalty;
     const move = (input.right ? 1 : 0) - (input.left ? 1 : 0);
     if (player.targetX != null){
       const dx = player.targetX - player.x;
-      let desired = clamp(dx * 8, -player.speed * intensityBoost * dashBoost, player.speed * intensityBoost * dashBoost);
+      // Far targets: go at full speed for snappy response; near targets: proportional slow-down
+      let desired = Math.abs(dx) > 40
+        ? Math.sign(dx) * maxSpeed
+        : clamp(dx * (maxSpeed / 40), -maxSpeed, maxSpeed);
       if (state.runMods.mirror) desired += state.runMods.mirrorDir * 40;
-      const dv = clamp(desired - player.vx, -player.accel * controlBoost * intensityBoost * dashBoost * dt, player.accel * controlBoost * intensityBoost * dashBoost * dt);
+      const dv = clamp(desired - player.vx, -player.accel * effectiveAccelMul * dt, player.accel * effectiveAccelMul * dt);
       player.vx += dv;
       player.x += player.vx * dt;
     } else if (move !== 0){
-      let desired = move * player.speed * intensityBoost * dashBoost;
+      let desired = move * maxSpeed;
       if (state.runMods.mirror) desired += state.runMods.mirrorDir * 40;
-      const dv = clamp(desired - player.vx, -player.accel * controlBoost * intensityBoost * dashBoost * dt, player.accel * controlBoost * intensityBoost * dashBoost * dt);
+      const dv = clamp(desired - player.vx, -player.accel * effectiveAccelMul * dt, player.accel * effectiveAccelMul * dt);
       player.vx += dv;
       player.x += player.vx * dt;
     } else {
@@ -3299,6 +3382,13 @@
       ctx.shadowBlur = 0;
     }
 
+    // Fog mode: dim everything drawn so far (gates/orbs will be harder to see, player stays visible after)
+    if (state.runMods.fogMode){
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = 'rgba(4,8,18,0.55)';
+      ctx.fillRect(0, 0, w, h);
+    }
+
     // Dash orbs telegraph + active
     for (const o of orbs){
       const oy = renderY(o.y);
@@ -3588,6 +3678,11 @@
       checkMissions();
 
       if (state.shake > 0) state.shake -= dt;
+      // tremorMode: constant mild screen tremor
+      if (state.runMods.tremorMode){
+        state.shake = 0.06;
+        state.shakePower = Math.max(state.shakePower, 2.5);
+      }
       if (state.slowMo > 0) state.slowMo -= dt;
       if (state.flash > 0) state.flash -= dt;
       if (state.glitch > 0) state.glitch -= dt;
@@ -3737,6 +3832,22 @@
     img.src = dataUrl;
   }
 
+  let lbCategory = "alltime"; // current leaderboard filter
+
+  function isToday(dateStr){
+    if (!dateStr) return false;
+    const today = new Date().toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+    return dateStr === today;
+  }
+
+  function isThisWeek(dateStr){
+    if (!dateStr) return false;
+    try {
+      const d = new Date(dateStr);
+      return !isNaN(d) && (Date.now() - d.getTime()) <= 7 * 24 * 60 * 60 * 1000;
+    } catch(e){ return false; }
+  }
+
   function renderLeaderboard(loading){
     const lbYourScoreEl = document.getElementById("lbYourScore");
     lbYourScoreEl.textContent = lbPendingScore > 0 ? `Your last run: ${lbPendingScore.toLocaleString()}` : "";
@@ -3754,7 +3865,15 @@
       }
       return;
     }
-    const top = lbEntries.slice(0, 10);
+    // Apply category filter
+    let filtered = lbEntries;
+    if (lbCategory === "today") filtered = lbEntries.filter(e => isToday(e.date));
+    else if (lbCategory === "thisweek") filtered = lbEntries.filter(e => isThisWeek(e.date));
+    if (!filtered.length){
+      leaderboardListEl.innerHTML = '<div class="lb-empty">No entries for this period.</div>';
+      return;
+    }
+    const top = filtered.slice(0, 10);
     top.forEach((e, i) => {
       const row = document.createElement("div");
       row.className = "lb-entry";
@@ -3800,19 +3919,38 @@
   function loadLeaderboardOnline(){
     if (!lbDB){
       renderLeaderboard(false);
+      renderLbSidebar();
       return;
     }
     renderLeaderboard(true);
     lbDB.ref("leaderboard").orderByChild("score").limitToLast(LB_MAX).once("value")
       .then(snap => {
         const raw = snap.val();
-        if (!raw){ lbEntries = []; renderLeaderboard(false); return; }
+        if (!raw){ lbEntries = []; renderLeaderboard(false); renderLbSidebar(); return; }
         lbEntries = Object.values(raw);
         lbEntries.sort((a, b) => b.score - a.score);
         if (lbEntries.length > LB_MAX) lbEntries.length = LB_MAX;
         renderLeaderboard(false);
+        renderLbSidebar();
       })
-      .catch(() => { renderLeaderboard(false); });
+      .catch(() => { renderLeaderboard(false); renderLbSidebar(); });
+  }
+
+  function renderLbSidebar(){
+    const sidebarEl = document.getElementById("lbSidebar");
+    const listEl = document.getElementById("lbSidebarList");
+    if (!sidebarEl || !listEl) return;
+    if (!lbEntries.length){ sidebarEl.style.display = "none"; return; }
+    sidebarEl.style.display = "block";
+    const top3 = lbEntries.slice(0, 3);
+    const medals = ["🥇","🥈","🥉"];
+    listEl.innerHTML = top3.map((e, i) =>
+      `<div class="lb-sidebar-entry">
+        <span class="lb-sidebar-rank">${medals[i]}</span>
+        <span class="lb-sidebar-name">${e.name || "Anonymous"}</span>
+        <span class="lb-sidebar-score">${e.score.toLocaleString()}</span>
+      </div>`
+    ).join('');
   }
 
   function clearLbTimer(){
@@ -3831,6 +3969,10 @@
     startPanel.classList.remove("hidden");
     startPanel.classList.add("enter");
     setTimeout(() => startPanel.classList.remove("enter"), 600);
+    // Refresh sidebar and shard count
+    renderLbSidebar();
+    const mainMenuShardsEl = document.getElementById("mainMenuShards");
+    if (mainMenuShardsEl) mainMenuShardsEl.textContent = `💎 ${state.shards} Neon Shards`;
   }
 
   function openLeaderboard(e){
@@ -4036,6 +4178,17 @@
   closeLeaderboardEl.addEventListener("click", closeLeaderboard);
   document.getElementById("leaderboardCloseX").addEventListener("click", closeLeaderboard);
 
+  // Leaderboard category tabs
+  document.getElementById("lbCategoryTabs").addEventListener("click", (e) => {
+    const tab = e.target.closest(".lb-category-tab");
+    if (!tab) return;
+    lbCategory = tab.dataset.cat || "alltime";
+    document.getElementById("lbCategoryTabs").querySelectorAll(".lb-category-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    sfxClick();
+    renderLeaderboard(false);
+  });
+
   // Leaderboard submit modal
   lbSubmitBtnEl.addEventListener("click", submitLbEntry);
   lbSkipBtnEl.addEventListener("click", (e) => {
@@ -4209,6 +4362,10 @@
   setTimeout(() => startPanel.classList.remove("enter"), 600);
   bestEl.textContent = state.best;
   setMuted(localStorage.getItem("neonMuted") === "1");
+  // Show shard count and load sidebar on startup
+  const mainMenuShardsEl = document.getElementById("mainMenuShards");
+  if (mainMenuShardsEl) mainMenuShardsEl.textContent = `💎 ${state.shards} Neon Shards`;
+  loadLeaderboardOnline();
   requestAnimationFrame(loop);
 })();
 </script>
