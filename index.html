@@ -2806,7 +2806,7 @@
     if (state.lastGapCenter != null && state.lastPassETA != null){
       const timeDelta = Math.max(0.05, passETA - state.lastPassETA);
       const maxShift = player.speed * timeDelta * TUNING.reachFactor;
-      const bias = 0.55 + intensityN * 0.25 + state.runMods.patternBias;
+      const bias = Math.min(0.9, 0.55 + intensityN * 0.25 + state.runMods.patternBias);
       const patternCenter = clamp(w * 0.5 + patternOffset(), minCenter, maxCenter);
       const avgX = avgPlayerX();
       const dir = Math.sign(patternCenter - avgX) || 1;
@@ -3126,7 +3126,7 @@
           // Streak tracking - every 10 gates without dying
           state.streakCount += 1;
           if (state.streakCount % 10 === 0){
-            const streakBonus = 50 + (state.streakCount / 10) * 25;
+            const streakBonus = Math.min(500, 50 + (state.streakCount / 10) * 25);
             const upgradeBonus = (state.upgrades.streak || 0) * 0.1;
             const totalBonus = Math.floor(streakBonus * (1 + upgradeBonus));
             state.score += totalBonus;
