@@ -769,33 +769,36 @@
   /* Leaderboard sidebar on main menu */
   .lb-sidebar{
     position:fixed; top:50%; right:20px; transform:translateY(-50%);
-    background: linear-gradient(160deg, rgba(18,26,52,.96), rgba(6,10,20,.98));
-    border:1px solid rgba(25,247,255,.3);
-    box-shadow: 0 0 24px rgba(25,247,255,.12), 0 0 50px rgba(138,91,255,.08);
-    border-radius:14px; padding:16px 14px; width:190px;
+    background: linear-gradient(160deg, rgba(18,26,52,.97), rgba(6,10,20,.99));
+    border:1px solid rgba(25,247,255,.45);
+    box-shadow: 0 0 32px rgba(25,247,255,.2), 0 0 60px rgba(138,91,255,.12), inset 0 1px 0 rgba(25,247,255,.2);
+    border-radius:16px; padding:18px 16px; width:270px;
     pointer-events:none; opacity:0;
     transition: opacity .4s ease, transform .4s ease;
     z-index:5; text-align:left;
   }
   .lb-sidebar.active{ opacity:1; pointer-events:auto; }
-  @media(max-width:860px){ .lb-sidebar{ display:none !important; } }
+  @media(max-width:900px){ .lb-sidebar{ display:none !important; } }
   .lb-sidebar-title{
-    font-size:10px; letter-spacing:2px; text-transform:uppercase;
-    color:rgba(25,247,255,.7); margin-bottom:10px; text-align:center;
-    border-bottom:1px solid rgba(25,247,255,.15); padding-bottom:8px;
+    font-size:13px; letter-spacing:2px; text-transform:uppercase;
+    color:rgba(25,247,255,.9); margin-bottom:12px; text-align:center;
+    border-bottom:1px solid rgba(25,247,255,.2); padding-bottom:10px;
+    text-shadow: 0 0 10px rgba(25,247,255,.5);
   }
   .lb-sidebar-empty{
-    font-size:11px; opacity:.5; text-align:center; padding:8px 0;
+    font-size:13px; opacity:.5; text-align:center; padding:10px 0;
   }
   .lb-sidebar-entry{
-    display:flex; gap:8px; align-items:center;
-    font-size:11px; letter-spacing:.5px; padding:5px 2px;
-    border-bottom:1px solid rgba(25,247,255,.06);
+    display:flex; gap:10px; align-items:center;
+    font-size:13px; letter-spacing:.5px; padding:7px 2px;
+    border-bottom:1px solid rgba(25,247,255,.08);
+    transition: background .15s;
   }
   .lb-sidebar-entry:last-child{ border-bottom:none; }
-  .lb-sidebar-rank{ color:var(--neon); min-width:22px; font-size:13px; }
-  .lb-sidebar-name{ flex:1; opacity:.8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .lb-sidebar-score{ color:var(--neon); font-size:12px; font-weight:bold; }
+  .lb-sidebar-entry:hover{ background: rgba(25,247,255,.04); border-radius:6px; }
+  .lb-sidebar-rank{ color:var(--neon); min-width:26px; font-size:14px; text-align:center; }
+  .lb-sidebar-name{ flex:1; opacity:.85; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
+  .lb-sidebar-score{ color:var(--neon); font-size:14px; font-weight:bold; text-shadow: 0 0 8px rgba(25,247,255,.4); }
   /* Main menu Neon Shards indicator */
   .main-menu-shards{
     font-size:13px; letter-spacing:1px; color:#7dffb2;
@@ -927,6 +930,70 @@
   body[data-danger="1"] .meter-fill{ filter: brightness(1.4); }
   body[data-state="play"] .ui{ pointer-events:none; }
   body[data-state="dying"] .ui{ pointer-events:none; }
+  /* Stats & Achievements panels */
+  .stats-panel, .achievements-panel{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition: opacity .25s ease;
+    background: rgba(4,6,12,.82); z-index:20;
+  }
+  .stats-panel.active, .achievements-panel.active{ pointer-events:auto; opacity:1; }
+  .stats-box, .achievements-box{
+    background: linear-gradient(160deg, rgba(18,26,52,.97), rgba(6,10,20,.99));
+    border:1px solid rgba(25,247,255,.4);
+    box-shadow: 0 0 40px rgba(25,247,255,.2), inset 0 1px 0 rgba(25,247,255,.2);
+    padding:22px 26px 18px; border-radius:16px;
+    width:min(96vw,400px); text-align:center; max-height:85vh; overflow-y:auto;
+  }
+  .stats-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0;
+  }
+  .stat-card{
+    background: rgba(25,247,255,.06); border:1px solid rgba(25,247,255,.2);
+    border-radius:12px; padding:14px 10px; text-align:center;
+  }
+  .stat-value{ font-size:24px; color:var(--neon); font-weight:bold; text-shadow:0 0 14px rgba(25,247,255,.5); letter-spacing:1px; }
+  .stat-label{ font-size:10px; letter-spacing:2px; text-transform:uppercase; opacity:.6; margin-top:4px; }
+  .achievement-item{
+    display:flex; align-items:center; gap:12px;
+    background: rgba(25,247,255,.04); border:1px solid rgba(25,247,255,.12);
+    border-radius:10px; padding:12px 14px; margin:8px 0; text-align:left;
+    transition: background .15s;
+  }
+  .achievement-item.unlocked{ background: rgba(125,255,178,.07); border-color:rgba(125,255,178,.3); }
+  .achievement-item.unlocked:hover{ background: rgba(125,255,178,.12); }
+  .achievement-icon{ font-size:26px; min-width:36px; text-align:center; }
+  .achievement-icon.locked{ filter:grayscale(1); opacity:.4; }
+  .achievement-text{ flex:1; }
+  .achievement-name{ font-size:13px; font-weight:bold; letter-spacing:1px; }
+  .achievement-name.locked{ opacity:.45; }
+  .achievement-desc{ font-size:11px; opacity:.6; margin-top:3px; }
+  .achievement-badge{ font-size:10px; letter-spacing:1px; text-transform:uppercase; color:#7dffb2; text-shadow:0 0 8px rgba(125,255,178,.6); }
+  /* Active modifier HUD bar during gameplay */
+  .mod-hud{
+    position:fixed; top:0; left:50%; transform:translateX(-50%);
+    display:flex; gap:8px; padding:6px 12px;
+    pointer-events:none; z-index:7; opacity:0;
+    transition: opacity .3s;
+  }
+  .mod-hud.active{ opacity:1; }
+  .mod-hud-tag{
+    font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:4px 9px; border-radius:20px;
+    background: rgba(10,14,28,.85);
+    border:1px solid rgba(25,247,255,.3);
+    color:var(--neon); text-shadow:0 0 8px rgba(25,247,255,.5);
+    white-space:nowrap;
+  }
+  .mod-hud-tag.neg{ border-color:rgba(255,59,122,.4); color:#ff8aaa; text-shadow:0 0 8px rgba(255,59,122,.4); }
+  .mod-hud-tag.legendary{ border-color:rgba(255,200,50,.5); color:#ffd840; text-shadow:0 0 10px rgba(255,200,50,.6); animation:legendaryPulse 2s ease-in-out infinite; }
+  @keyframes legendaryPulse{ 0%,100%{box-shadow:0 0 6px rgba(255,200,50,.3)} 50%{box-shadow:0 0 14px rgba(255,200,50,.7)} }
+  /* Slow-mo visual overlay */
+  .slowmo-overlay{
+    position:fixed; inset:0; pointer-events:none;
+    border:3px solid rgba(80,120,255,.0); z-index:4;
+    transition: border-color .2s;
+  }
+  .slowmo-overlay.active{ border-color:rgba(80,120,255,.55); box-shadow:inset 0 0 60px rgba(60,100,255,.18), 0 0 30px rgba(60,100,255,.1); }
 </style>
 </head>
 <body>
@@ -965,6 +1032,8 @@
     <div class="btn btn-start" id="startRunBtn">START RUN</div>
     <div class="btn" id="openUpgrades">Upgrades</div>
     <div class="btn" id="openLeaderboard">🏆 Leaderboard</div>
+    <div class="btn" id="openAchievements">🎖️ Achievements</div>
+    <div class="btn" id="openStats">📊 Stats</div>
     <div class="btn" id="openSettings">Settings</div>
   </div>
   <div id="overPanel" class="panel hidden">
@@ -1217,7 +1286,33 @@
   </div>
 </div>
 
-<!-- Firebase SDK (Realtime Database compat) -->
+<!-- Stats panel -->
+<div id="statsPanel" class="stats-panel">
+  <div class="stats-box">
+    <div class="title">📊 Stats</div>
+    <div class="stats-grid" id="statsGrid"><!-- filled by JS --></div>
+    <div class="settings-actions">
+      <div id="closeStats" class="btn">Close</div>
+    </div>
+  </div>
+</div>
+
+<!-- Achievements panel -->
+<div id="achievementsPanel" class="achievements-panel">
+  <div class="achievements-box">
+    <div class="title">🎖️ Achievements</div>
+    <div id="achievementsList"><!-- filled by JS --></div>
+    <div class="settings-actions">
+      <div id="closeAchievements" class="btn">Close</div>
+    </div>
+  </div>
+</div>
+
+<!-- Active modifier HUD during gameplay -->
+<div id="modHud" class="mod-hud"></div>
+
+<!-- Slow-mo border overlay -->
+<div id="slowmoOverlay" class="slowmo-overlay"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
@@ -1355,6 +1450,10 @@
   const lbSubmitBtnEl = document.getElementById("lbSubmitBtn");
   const lbSkipBtnEl = document.getElementById("lbSkipBtn");
   const upgradeTabsEl = document.getElementById("upgradeTabs");
+  const statsPanelEl = document.getElementById("statsPanel");
+  const achievementsPanelEl = document.getElementById("achievementsPanel");
+  const modHudEl = document.getElementById("modHud");
+  const slowmoOverlayEl = document.getElementById("slowmoOverlay");
 
   let w, h, dpr;
   function resize(){
@@ -1448,7 +1547,8 @@
     dangerZoneTimer: 0,
     bossGateTimer: 0,
     perfectCount: 0,
-    streakBonusCount: 0
+    streakBonusCount: 0,
+    stats: { totalRuns: 0, totalGates: 0, totalTime: 0, totalNearMisses: 0, totalShardsEarned: 0 }
   };
 
   const player = {
@@ -1531,9 +1631,10 @@
     orbYBandOffsetMax: 70,
     orbRadius: 7,
     nearMissThreshold: 13,
-    slowMoTime: 0.09,
-    slowMoScale: 0.7,
-    slowMoEaseRate: 1.5,
+    slowMoTime: 0.45,
+    slowMoScale: 0.38,      // 62% slower gameplay; lower = more dramatic
+    slowMoEaseRate: 6.0,    // ease-out rate (back to normal speed)
+    slowMoEaseInRate: 12,   // ease-in rate (into slow-mo)
     tremorShake: 0.18,
     tremorShakePower: 7,
     deathGlitchTime: 0.35
@@ -1657,22 +1758,22 @@
   const MODIFIERS = {
     positive: [
       { id: "hyper", name: "Hyper Drift", desc: "Faster scroll, much wider gaps.", icon: "⚡", apply: (m) => { m.speedMul *= 1.30; m.gapMul *= 1.25; } },
-      { id: "echo", name: "Echo Gates", desc: "Decoy gates fade out.", icon: "👻", apply: (m) => { m.echo = true; } },
-      { id: "flow", name: "Flow Assist", desc: "Much smoother patterns.", icon: "🌊", apply: (m) => { m.patternBias += 0.25; } },
+      { id: "echo", name: "Echo Gates", desc: "Decoy ghost gates fade out — avoid only the solid ones.", icon: "👻", apply: (m) => { m.echo = true; } },
+      { id: "flow", name: "Flow Assist", desc: "Gates follow predictable paths, less random jitter.", icon: "🌊", apply: (m) => { m.patternBias += 0.55; } },
       { id: "fortune", name: "Fortune's Favor", desc: "Loads more powerup spawns.", icon: "🍀", apply: (m) => { m.powerupBoost = 2.8; } },
-      { id: "zen", name: "Zen Mode", desc: "Much longer combo windows.", icon: "☯️", apply: (m) => { m.comboBonus = 1.8; } },
-      { id: "vision", name: "Future Vision", desc: "See gates much earlier.", icon: "👁️", apply: (m) => { m.visionBoost = 1.5; } },
-      { id: "slipstream", name: "Slipstream", desc: "Much smoother movements.", icon: "💨", apply: (m) => { m.smoothMove = 1.8; } },
+      { id: "zen", name: "Zen Mode", desc: "Massively extended combo windows + golden aura.", icon: "☯️", apply: (m) => { m.comboBonus = 3.0; } },
+      { id: "vision", name: "Future Vision", desc: "See gates way earlier for maximum reaction time.", icon: "👁️", apply: (m) => { m.visionBoost = 2.2; } },
+      { id: "slipstream", name: "Slipstream", desc: "Ultra-fast, silky-smooth movement response.", icon: "💨", apply: (m) => { m.smoothMove = 3.0; m.speedBoost = 1.20; } },
       { id: "bonus", name: "Score Rush", desc: "+150% score multiplier.", icon: "💰", apply: (m) => { m.scoreMul = 2.5; } }
     ],
     negative: [
       { id: "tight", name: "Tight Slip", desc: "Much smaller gaps, slower scroll.", icon: "🔒", apply: (m) => { m.gapMul *= 0.75; m.speedMul *= 0.85; } },
-      { id: "mirror", name: "Mirror Bias", desc: "Strong left/right pull.", icon: "🔄", apply: (m) => { m.mirror = true; } },
-      { id: "pulse", name: "Pulse Locks", desc: "Intense rhythmic bursts.", icon: "💓", apply: (m) => { m.pulse = true; } },
-      { id: "chaos", name: "Chaos Theory", desc: "Very random patterns.", icon: "🎲", apply: (m) => { m.chaosMode = true; } },
-      { id: "gravity", name: "Heavy Gravity", desc: "Very sluggish controls.", icon: "⬇️", apply: (m) => { m.speedMul *= 0.72; m.controlPenalty = 0.60; } },
-      { id: "fog", name: "Neon Fog", desc: "Reduced visibility.", icon: "🌫️", apply: (m) => { m.fogMode = true; } },
-      { id: "tremor", name: "Screen Tremor", desc: "Constant shaking.", icon: "📳", apply: (m) => { m.tremorMode = true; } },
+      { id: "mirror", name: "Mirror Bias", desc: "Strong constant left/right pull — fight it every moment.", icon: "🔄", apply: (m) => { m.mirror = true; } },
+      { id: "pulse", name: "Pulse Locks", desc: "Sudden gate bursts then silence — intense rhythm.", icon: "💓", apply: (m) => { m.pulse = true; } },
+      { id: "chaos", name: "Chaos Theory", desc: "Gates teleport randomly — stay alert.", icon: "🎲", apply: (m) => { m.chaosMode = true; } },
+      { id: "gravity", name: "Heavy Gravity", desc: "Very sluggish controls — slow to respond.", icon: "⬇️", apply: (m) => { m.speedMul *= 0.72; m.controlPenalty = 0.45; } },
+      { id: "fog", name: "Neon Fog", desc: "Dense fog hides the arena.", icon: "🌫️", apply: (m) => { m.fogMode = true; } },
+      { id: "tremor", name: "Screen Tremor", desc: "Constant shaking disrupts your aim.", icon: "📳", apply: (m) => { m.tremorMode = true; } },
       { id: "pressure", name: "Time Pressure", desc: "Fast intensity ramp, tighter gaps.", icon: "⏱️", apply: (m) => { m.speedMul *= 1.25; m.gapMul *= 0.80; } }
     ],
     legendary: [
@@ -1686,7 +1787,7 @@
     types: [
       { id: "shield", name: "Shield", color: "#7dffb2", icon: "🛡️", duration: 0, effect: "hasShield", desc: "Blocks one death" },
       { id: "magnet", name: "Magnet", color: "#ffd86b", icon: "🧲", duration: 8, effect: "magnetActive", desc: "Attracts orbs (8s)" },
-      { id: "timeslow", name: "Time Slow", color: "#8a5bff", icon: "⏰", duration: 5, effect: "slowMo", desc: "Slows time to 70% (5s)" },
+      { id: "timeslow", name: "Time Slow", color: "#8a5bff", icon: "⏰", duration: 5, effect: "slowMo", desc: "Slows time to 38% (5s)" },
       { id: "shard", name: "Shard", color: "#19f7ff", icon: "💎", duration: 0, effect: "instant", desc: "Instant Neon Shards" },
       { id: "dash", name: "Dash", color: "#ff9d00", icon: "⚡", duration: 5, effect: "dashActive", desc: "Burst speed movement (5s)" },
       { id: "multiplier", name: "Score Multiplier", color: "#ff3b7a", icon: "✖️", duration: 8, effect: "scoreMultiplier", desc: "2x score bonus (8s)" },
@@ -1999,6 +2100,8 @@
         state.shards = data.shards || 0;
         state.upgrades = data.upgrades || {};
         if (data.rebind) state.rebind = data.rebind;
+        if (data.stats) Object.assign(state.stats, data.stats);
+        if (data.achievementsUnlocked) state.achievementsUnlocked = data.achievementsUnlocked;
       } catch {}
     }
     for (const up of UPGRADES){
@@ -2012,7 +2115,9 @@
     localStorage.setItem("neonProgress", JSON.stringify({
       shards: state.shards,
       upgrades: state.upgrades,
-      rebind: state.rebind
+      rebind: state.rebind,
+      stats: state.stats,
+      achievementsUnlocked: state.achievementsUnlocked
     }));
   }
 
@@ -2117,7 +2222,7 @@
       state.runMods = { 
         pos: null, neg: null, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false, 
         patternBias: 0, powerupBoost: 1, comboBonus: 1, visionBoost: 1, smoothMove: 1, scoreMul: 1,
-        chaosMode: false, controlPenalty: 1, fogMode: false, tremorMode: false
+        chaosMode: false, controlPenalty: 1, fogMode: false, tremorMode: false, speedBoost: 1
       };
       return;
     }
@@ -2131,7 +2236,7 @@
         pos: legendary, neg: null, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false, 
         patternBias: 0, mirrorDir: Math.random() < 0.5 ? -1 : 1, powerupBoost: 1, comboBonus: 1,
         visionBoost: 1, smoothMove: 1, scoreMul: 1, chaosMode: false, controlPenalty: 1, 
-        fogMode: false, tremorMode: false, legendary: true
+        fogMode: false, tremorMode: false, legendary: true, speedBoost: 1
       };
       legendary.apply(mods);
       state.runMods = mods;
@@ -2147,7 +2252,7 @@
       pos, neg, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false, 
       patternBias: 0, mirrorDir: Math.random() < 0.5 ? -1 : 1, powerupBoost: 1, comboBonus: 1,
       visionBoost: 1, smoothMove: 1, scoreMul: 1, chaosMode: false, controlPenalty: 1, 
-      fogMode: false, tremorMode: false, legendary: false
+      fogMode: false, tremorMode: false, legendary: false, speedBoost: 1
     };
     pos.apply(mods);
     neg.apply(mods);
@@ -2571,6 +2676,7 @@
         state.nearCount * PROGRESSION.earnNear +
         state.bestCombo * PROGRESSION.earnCombo;
       state.shards += earned;
+      state.stats.totalShardsEarned = (state.stats.totalShardsEarned || 0) + earned;
       saveProgress();
       updateUpgradeUI();
       const earnedText = earned > 0 ? `+${earned} <img src="shard.png" alt="Shard" class="shard-icon-sm"> Neon Shards earned` : "";
@@ -2581,6 +2687,13 @@
       const shardsEarnedEl = document.getElementById("shardsEarned");
       if (shardsEarnedEl) shardsEarnedEl.innerHTML = earnedText;
     }
+    // Track lifetime stats
+    state.stats.totalRuns = (state.stats.totalRuns || 0) + 1;
+    state.stats.totalGates = (state.stats.totalGates || 0) + state.gateCount;
+    state.stats.totalTime = (state.stats.totalTime || 0) + state.time;
+    state.stats.totalNearMisses = (state.stats.totalNearMisses || 0) + state.nearCount;
+    checkAchievements();
+    saveProgress();
     finalScoreEl.textContent = state.score;
     finalBestEl.textContent = state.best;
     scoreEl.textContent = state.score;
@@ -2700,11 +2813,18 @@
       const directorPush = dir * TUNING.directorStrength * (maxCenter - minCenter);
       const target = lerp(patternCenter + directorPush, player.x, 0.2);
       const blended = state.lastGapCenter * bias + target * (1 - bias);
+      // Flow reduces jitter for smoother, more readable patterns
+      const flowJitterMul = state.runMods.patternBias > 0 ? Math.max(0.25, 1 - state.runMods.patternBias * 0.7) : 1;
       const jitterScale = lerp(TUNING.jitterHigh, TUNING.jitterLow, intensityN);
-      const jitter = (randRange(-1, 1)) * maxShift * jitterScale * (state.runMods.chaosMode ? 1.8 : 1);
-      const allowedLeft = state.lastGapCenter - maxShift;
-      const allowedRight = state.lastGapCenter + maxShift;
-      center = clamp(blended + jitter, allowedLeft, allowedRight);
+      const jitter = (randRange(-1, 1)) * maxShift * jitterScale * (state.runMods.chaosMode ? 3.0 : 1) * flowJitterMul;
+      if (state.runMods.chaosMode){
+        // Chaos: bypass reach constraint, teleport anywhere on screen
+        center = clamp(w * 0.5 + patternOffset() + jitter * 2.5, minCenter, maxCenter);
+      } else {
+        const allowedLeft = state.lastGapCenter - maxShift;
+        const allowedRight = state.lastGapCenter + maxShift;
+        center = clamp(blended + jitter, allowedLeft, allowedRight);
+      }
     }
 
     return clamp(center, minCenter, maxCenter);
@@ -2878,6 +2998,11 @@
     let gapW = Math.max(p.minGap, p.baseGap - (intensityVal - 1) * p.gapShrinkPerIntensity);
     if (state.gateCount < 12) gapW += 20;
     gapW = Math.max(p.minGap, gapW * state.runMods.gapMul);
+    // Chaos: randomize gap width per gate for extra unpredictability
+    if (state.runMods.chaosMode){
+      gapW *= 0.65 + randRange(0, 1) * 0.9;
+      gapW = Math.max(p.minGap * 0.85, gapW);
+    }
     const y = yOverride != null ? yOverride : -40 - Math.round((state.runMods.visionBoost - 1) * 350);
     const playerY = player.y();
     let speed = Math.max(p.baseSpeed, speedAtTime()) * state.runMods.speedMul;
@@ -2901,10 +3026,12 @@
 
     const gapCenter = chooseGapCenter(gapW, passETA, intensityN);
     const gapX = gapCenter - gapW / 2;
+    // Echo: 30% of gates are decoys — they look ghostly and fade out before reaching player
+    const isEcho = state.runMods.echo && randRange(0, 1) < 0.30;
     gates.push({
       y,
       gapX, gapW, speed, passed:false, passETA,
-      echo: state.runMods.echo && randRange(0, 1) < 0.2
+      echo: isEcho
     });
     state.gateCount += 1;
     state.lastPassETA = passETA;
@@ -2928,9 +3055,15 @@
     }
     if (state.theme) interval *= state.theme.pacingBias;
     if (state.runMods.pulse){
-      interval *= 0.75 + 0.35 * Math.sin(state.time * 2.4);
+      const pulseFactor = 0.65 + 0.45 * Math.sin(state.time * 2.8);
+      interval *= pulseFactor;
+      // During burst phase, bypass minimum clamp for intense gate floods
+      // Pulse burst: allow 30% of minimum interval for rapid-fire bursts
+      const pulseMin = pulseFactor < 0.70 ? minInterval * 0.30 : minInterval;
+      interval = clamp(interval, pulseMin, Math.max(minInterval, maxInterval));
+    } else {
+      interval = clamp(interval, minInterval, Math.max(minInterval, maxInterval));
     }
-    interval = clamp(interval, minInterval, Math.max(minInterval, maxInterval));
     state.spawnTimer = (state.spawnTimer || 0) - dt;
     if (state.spawnTimer <= 0){
       spawnGate();
@@ -2940,6 +3073,14 @@
     for (let i = gates.length - 1; i >= 0; i--){
       const g = gates[i];
       g.y += g.speed * dt;
+
+      // Echo decoy gates fade out and disappear before reaching the player
+      if (g.echo && !g.passed && g.y > player.y() - 100){
+        g.passed = true;
+        gates.splice(i, 1);
+        i--;
+        continue;
+      }
 
       if (!g.passed && g.y > player.y()){
         g.passed = true;
@@ -3121,29 +3262,33 @@
     const dashBoost = state.dashActive ? 1.5 : 1;
     const controlPenalty = state.runMods.controlPenalty || 1;
     const smoothBoost = state.runMods.smoothMove || 1;
+    const speedBoost = state.runMods.speedBoost || 1;
     const effectiveAccelMul = controlBoost * smoothBoost * controlPenalty * intensityBoost * dashBoost;
-    const maxSpeed = player.speed * intensityBoost * dashBoost * controlPenalty;
+    const maxSpeed = player.speed * intensityBoost * dashBoost * controlPenalty * speedBoost;
     const move = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+    // Mirror bias: constant directional pull (applied to rest velocity in all cases)
+    const mirrorPull = state.runMods.mirror ? state.runMods.mirrorDir * 350 : 0;
     if (player.targetX != null){
       const dx = player.targetX - player.x;
       // Far targets: go at full speed for snappy response; near targets: proportional slow-down
       let desired = Math.abs(dx) > 40
         ? Math.sign(dx) * maxSpeed
         : clamp(dx * (maxSpeed / 40), -maxSpeed, maxSpeed);
-      if (state.runMods.mirror) desired += state.runMods.mirrorDir * 80;
+      desired += mirrorPull;
       const dv = clamp(desired - player.vx, -player.accel * effectiveAccelMul * dt, player.accel * effectiveAccelMul * dt);
       player.vx += dv;
       player.x += player.vx * dt;
     } else if (move !== 0){
-      let desired = move * maxSpeed;
-      if (state.runMods.mirror) desired += state.runMods.mirrorDir * 80;
+      let desired = move * maxSpeed + mirrorPull;
       const dv = clamp(desired - player.vx, -player.accel * effectiveAccelMul * dt, player.accel * effectiveAccelMul * dt);
       player.vx += dv;
       player.x += player.vx * dt;
     } else {
-      const dv = clamp(-player.vx, -player.friction * controlBoost * intensityBoost * dt, player.friction * controlBoost * intensityBoost * dt);
+      // Idle: decelerate toward mirrorPull (drift even without input when mirror is active)
+      const restVelocity = mirrorPull;
+      const dv = clamp(restVelocity - player.vx, -player.friction * controlBoost * intensityBoost * dt, player.friction * controlBoost * intensityBoost * dt);
       player.vx += dv;
-      if (Math.abs(player.vx) < 6) player.vx = 0;
+      if (Math.abs(player.vx - restVelocity) < 6 && restVelocity === 0) player.vx = 0;
       player.x += player.vx * dt;
     }
     player.x = Math.max(14, Math.min(w - 14, player.x));
@@ -3241,7 +3386,7 @@
     if (state.comboTimer > 0) state.comboTimer -= dt;
     if (FEATURE_FLAGS.comboDecay && state.comboTimer <= 0 && state.combo > 0){
       state.combo -= 1;
-      state.comboTimer = 0.6 * state.upgradeEffects.comboExtend;
+      state.comboTimer = 0.6 * state.upgradeEffects.comboExtend * (state.runMods.comboBonus || 1);
       if (state.combo <= 1) comboPopEl.classList.remove("show");
     }
     if (state.comboTimer <= 0) comboPopEl.classList.remove("show");
@@ -3259,6 +3404,50 @@
     const danger = Math.max(0, state.dangerPulse / POLISH.pulseTime);
     intensityFillEl.style.filter = `brightness(${1 + danger * 0.6})`;
     updateLbTargetBar();
+
+    // Slow-mo overlay border
+    if (slowmoOverlayEl){
+      if (state.slowMoEase < 0.88){
+        slowmoOverlayEl.classList.add("active");
+      } else {
+        slowmoOverlayEl.classList.remove("active");
+      }
+    }
+
+    // Mod HUD: show active modifiers during play
+    if (modHudEl){
+      const isPlay = state.mode === "play";
+      if (isPlay && state.runMods && (state.runMods.pos || state.runMods.neg || state.runMods.legendary)){
+        modHudEl.classList.add("active");
+        // Only rebuild if needed
+        if (!modHudEl._lastMod || modHudEl._lastMod !== (state.runMods.pos?.id + state.runMods.neg?.id)){
+          modHudEl._lastMod = (state.runMods.pos?.id || '') + (state.runMods.neg?.id || '');
+          modHudEl.innerHTML = '';
+          if (state.runMods.legendary && state.runMods.pos){
+            const tag = document.createElement('div');
+            tag.className = 'mod-hud-tag legendary';
+            tag.textContent = `${state.runMods.pos.icon} ${state.runMods.pos.name} ★`;
+            modHudEl.appendChild(tag);
+          } else {
+            if (state.runMods.pos){
+              const tag = document.createElement('div');
+              tag.className = 'mod-hud-tag';
+              tag.textContent = `${state.runMods.pos.icon} ${state.runMods.pos.name}`;
+              modHudEl.appendChild(tag);
+            }
+            if (state.runMods.neg){
+              const tag = document.createElement('div');
+              tag.className = 'mod-hud-tag neg';
+              tag.textContent = `${state.runMods.neg.icon} ${state.runMods.neg.name}`;
+              modHudEl.appendChild(tag);
+            }
+          }
+        }
+      } else {
+        modHudEl.classList.remove("active");
+        modHudEl._lastMod = null;
+      }
+    }
   }
 
   function unlockAudio(){
@@ -3471,29 +3660,87 @@
     }
     ctx.globalAlpha = 1;
 
-    // Gates - enhanced multi-layer glow
+    // Gates - enhanced multi-layer glow with modifier effects
     for (const g of gates){
       const gy = renderY(g.y);
+
+      // Echo decoy: ghostly blue, fades out as it approaches the player
+      // Fade over the last 200px before the player line (ECHO_FADE_DISTANCE)
+      if (g.echo){
+        const distToPlayer = player.y() - g.y;
+        const echoAlpha = clamp(distToPlayer / 200, 0, 0.45);
+        if (echoAlpha < 0.01) continue;
+        // Flickering ghost appearance
+        const ghostFlicker = 0.55 + 0.45 * Math.sin(state.visualTime * 14 + g.gapX * 0.07);
+        ctx.save();
+        ctx.globalAlpha = echoAlpha * ghostFlicker;
+        ctx.shadowColor = `rgba(80,160,255,0.9)`;
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = `rgba(80,160,255,0.6)`;
+        ctx.fillRect(0, gy + 3, g.gapX, 10);
+        ctx.fillRect(g.gapX + g.gapW, gy + 3, w, 10);
+        ctx.fillStyle = `rgba(140,200,255,0.9)`;
+        ctx.fillRect(g.gapX - 2, gy - 2, 4, 20);
+        ctx.fillRect(g.gapX + g.gapW - 2, gy - 2, 4, 20);
+        // "DECOY" label above gate gap center
+        if (echoAlpha > 0.18){
+          ctx.globalAlpha = echoAlpha * 0.8 * ghostFlicker;
+          ctx.font = "bold 9px monospace";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "rgba(160,210,255,0.9)";
+          ctx.fillText("GHOST", g.gapX + g.gapW / 2, gy - 12);
+        }
+        ctx.restore();
+        continue;
+      }
+
       const animPulse = pulseBoost ? (0.82 + 0.18 * Math.sin(state.visualTime * 6)) : 1;
       const pulse = (pulseBoost ? (0.16 + 0.04 * Math.sin(state.visualTime * 6)) : 0.18) * animPulse;
 
+      // Chaos: flicker gate colors randomly per gate
+      let gR = neonR, gG = neonG, gB = neonB;
+      if (state.runMods.chaosMode){
+        gR = clamp(Math.round(neonR + Math.sin(state.visualTime * 17 + g.gapX * 0.1) * 90), 0, 255);
+        gG = clamp(Math.round(neonG + Math.sin(state.visualTime * 13 + g.gapX * 0.07) * 70), 0, 255);
+        gB = clamp(Math.round(neonB + Math.sin(state.visualTime * 11 + g.gapX * 0.12) * 90), 0, 255);
+      }
+      // Flow assist: subtle green tint on gates
+      if (state.runMods.patternBias > 0){
+        const flowTint = Math.min(0.55, state.runMods.patternBias);
+        gR = Math.round(gR * (1 - flowTint * 0.3));
+        gG = Math.min(255, Math.round(gG + flowTint * 60));
+        gB = Math.round(gB * (1 - flowTint * 0.1));
+      }
+      // Future vision: gates far above get a blue-violet tint when far from player
+      if (state.runMods.visionBoost > 1.0){
+        const distAbove = player.y() - g.y;
+        if (distAbove > h * 0.45){
+          const visionTint = Math.min(0.5, (distAbove - h * 0.45) / (h * 0.4));
+          gR = Math.round(gR * (1 - visionTint * 0.4) + 80 * visionTint);
+          gG = Math.round(gG * (1 - visionTint * 0.2));
+          gB = Math.min(255, Math.round(gB + visionTint * 80));
+        }
+      }
+
+      const coreR = Math.min(255, gR + 80);
+      const coreG = Math.min(255, gG + 50);
+      const coreB = Math.min(255, gB + 50);
+
       // Outer soft glow layer
-      ctx.shadowColor = `rgba(${neonR},${neonG},${neonB},0.8)`;
+      ctx.shadowColor = `rgba(${gR},${gG},${gB},0.8)`;
       ctx.shadowBlur = 18 * glowBoost;
-      ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},${pulse * 0.55})`;
+      ctx.fillStyle = `rgba(${gR},${gG},${gB},${pulse * 0.55})`;
       ctx.fillRect(0, gy, g.gapX, 16);
       ctx.fillRect(g.gapX + g.gapW, gy, w, 16);
 
       // Mid glow layer
       ctx.shadowBlur = 10 * glowBoost;
-      ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},${pulse * 0.85})`;
+      ctx.fillStyle = `rgba(${gR},${gG},${gB},${pulse * 0.85})`;
       ctx.fillRect(0, gy + 3, g.gapX, 10);
       ctx.fillRect(g.gapX + g.gapW, gy + 3, w, 10);
 
       // Bright inner core
-      const coreR = Math.min(255, neonR + 80);
-      const coreG = Math.min(255, neonG + 50);
-      const coreB = Math.min(255, neonB + 50);
       ctx.shadowBlur = 5 * glowBoost;
       ctx.fillStyle = `rgba(${coreR},${coreG},${coreB},${pulse * 1.1})`;
       ctx.fillRect(0, gy + 6, g.gapX, 4);
@@ -3501,18 +3748,10 @@
 
       ctx.globalAlpha = 0.12;
       ctx.shadowBlur = 0;
-      ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},0.08)`;
+      ctx.fillStyle = `rgba(${gR},${gG},${gB},0.08)`;
       ctx.fillRect(0, gy - 20, g.gapX, 20);
       ctx.fillRect(g.gapX + g.gapW, gy - 20, w, 20);
       ctx.globalAlpha = 1;
-
-      if (g.echo){
-        ctx.globalAlpha = 0.25;
-        ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},0.14)`;
-        ctx.fillRect(0, gy - 40, g.gapX, 10);
-        ctx.fillRect(g.gapX + g.gapW, gy - 40, w, 10);
-        ctx.globalAlpha = 1;
-      }
 
       // Edge pillars - bright neon bars with strong glow
       ctx.shadowColor = `rgba(${coreR},${coreG},${coreB},1)`;
@@ -3529,7 +3768,7 @@
 
       // Streak above edges
       ctx.globalAlpha = POLISH.gateStreakAlpha * motion * animPulse;
-      ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},0.8)`;
+      ctx.fillStyle = `rgba(${gR},${gG},${gB},0.8)`;
       ctx.fillRect(g.gapX - 1, gy - POLISH.gateStreakLen, 2, POLISH.gateStreakLen);
       ctx.fillRect(g.gapX + g.gapW - 1, gy - POLISH.gateStreakLen, 2, POLISH.gateStreakLen);
       ctx.globalAlpha = 1;
@@ -3539,8 +3778,22 @@
     // Fog mode: dim everything drawn so far (gates/orbs will be harder to see, player stays visible after)
     if (state.runMods.fogMode){
       ctx.globalAlpha = 1;
-      ctx.fillStyle = 'rgba(4,8,18,0.55)';
+      ctx.fillStyle = 'rgba(4,8,18,0.62)';
       ctx.fillRect(0, 0, w, h);
+      // Animated fog wisps
+      const fogPhase = state.visualTime * 0.4;
+      for (let f = 0; f < 5; f++){
+        const fx = (f / 5 + fogPhase * 0.13 * (f % 2 === 0 ? 1 : -1)) % 1;
+        const fy = h * (0.1 + (f * 0.18 + Math.sin(fogPhase + f) * 0.05));
+        const fr = w * (0.3 + Math.sin(fogPhase * 0.7 + f) * 0.08);
+        const fogGrad = ctx.createRadialGradient(fx * w, fy, 0, fx * w, fy, fr);
+        fogGrad.addColorStop(0, `rgba(20,30,60,0.18)`);
+        fogGrad.addColorStop(1, `rgba(20,30,60,0)`);
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = fogGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
+      ctx.globalAlpha = 1;
     }
 
     // Dash orbs telegraph + active
@@ -3677,6 +3930,124 @@
     ctx.globalAlpha = 1;
     ctx.shadowBlur = 0;
 
+    // === MODIFIER VISUAL EFFECTS AROUND PLAYER ===
+
+    // Zen Mode: golden pulsing ring around player
+    if (state.runMods.comboBonus > 1){
+      const zenPhase = state.visualTime * 1.8;
+      const zenRadius = 26 + Math.sin(zenPhase) * 4;
+      const zenAlpha = 0.18 + 0.1 * Math.sin(zenPhase * 2.3);
+      ctx.globalAlpha = zenAlpha;
+      ctx.strokeStyle = `rgba(255,215,50,0.9)`;
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = `rgba(255,215,50,1)`;
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(player.x, py, zenRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      // Outer fading ring
+      ctx.globalAlpha = zenAlpha * 0.4;
+      ctx.beginPath();
+      ctx.arc(player.x, py, zenRadius + 8, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+
+    // Slipstream: speed streaks behind the player
+    if (state.runMods.smoothMove > 1.5){
+      const slipAlpha = (0.15 + 0.1 * Math.sin(state.visualTime * 9)) * Math.min(1, Math.abs(player.vx) / 200);
+      if (slipAlpha > 0.02){
+        ctx.globalAlpha = slipAlpha;
+        ctx.strokeStyle = `rgba(80,220,255,0.9)`;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = `rgba(80,220,255,0.9)`;
+        ctx.shadowBlur = 8;
+        const leanDir = player.vx > 0 ? 1 : -1;
+        for (let s = 0; s < 4; s++){
+          const sx = player.x + (s - 2) * 5 * leanDir;
+          const sy1 = py + 14;
+          const sy2 = py + 28 + s * 8;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy1);
+          ctx.lineTo(sx + leanDir * s * 2, sy2);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    // Mirror Bias: directional pull arrow on screen edge
+    if (state.runMods.mirror){
+      const dir = state.runMods.mirrorDir;
+      const arrowAlpha = 0.35 + 0.25 * Math.sin(state.visualTime * 4);
+      const arrowX = dir > 0 ? w - 28 : 28;
+      ctx.globalAlpha = arrowAlpha;
+      ctx.fillStyle = `rgba(255,120,50,0.95)`;
+      ctx.shadowColor = `rgba(255,120,50,1)`;
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      if (dir > 0){
+        ctx.moveTo(arrowX + 12, h * 0.5);
+        ctx.lineTo(arrowX - 8, h * 0.5 - 10);
+        ctx.lineTo(arrowX - 8, h * 0.5 + 10);
+      } else {
+        ctx.moveTo(arrowX - 12, h * 0.5);
+        ctx.lineTo(arrowX + 8, h * 0.5 - 10);
+        ctx.lineTo(arrowX + 8, h * 0.5 + 10);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+
+    // Pulse Locks: red burst warning flash during burst phase
+    if (state.runMods.pulse){
+      const pulseFactor = 0.65 + 0.45 * Math.sin(state.time * 2.8);
+      if (pulseFactor < 0.68){
+        const burstStrength = (0.68 - pulseFactor) / 0.68;
+        ctx.globalAlpha = burstStrength * 0.18;
+        ctx.fillStyle = `rgba(255,40,90,0.6)`;
+        ctx.fillRect(0, 0, w, h);
+        // Edge flash
+        const edgeGrad = ctx.createRadialGradient(w*0.5, h*0.5, 0, w*0.5, h*0.5, Math.max(w,h)*0.8);
+        edgeGrad.addColorStop(0.4, `rgba(255,40,90,0)`);
+        edgeGrad.addColorStop(1, `rgba(255,40,90,${burstStrength * 0.55})`);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = edgeGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
+    }
+
+    // Slow-mo: blue chromatic ripple overlay
+    if (state.slowMoEase < 0.92){
+      const slowStrength = (1 - state.slowMoEase) / (1 - TUNING.slowMoScale);
+      // Blue tint overlay
+      ctx.globalAlpha = slowStrength * 0.18;
+      ctx.fillStyle = `rgba(60,90,255,0.4)`;
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalAlpha = 1;
+      // Expanding ripple rings
+      const ripplePhase = state.visualTime * 1.8;
+      for (let r = 0; r < 3; r++){
+        const rp = ((ripplePhase + r * 1.1) % 2.5) / 2.5;
+        const rr = rp * Math.min(w, h) * 0.55;
+        const rAlpha = (1 - rp) * slowStrength * 0.15;
+        ctx.globalAlpha = rAlpha;
+        ctx.strokeStyle = `rgba(100,150,255,0.9)`;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = `rgba(100,150,255,0.9)`;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(player.x, py, rr, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+
     // Particles - enhanced circular with glow, theme-colored
     for (const p of particles){
       const lifeAlpha = Math.max(0, p.life);
@@ -3802,7 +4173,8 @@
   function loop(ts){
     const dt = Math.min(0.033, (ts - state.lastTime) / 1000 || 0);
     if (state.slowMo > 0){
-      state.slowMoEase = TUNING.slowMoScale;
+      // Smooth ease-in: approach slowMoScale quickly
+      state.slowMoEase = Math.max(TUNING.slowMoScale, state.slowMoEase - dt * TUNING.slowMoEaseInRate);
     } else if (state.slowMoEase < 1){
       state.slowMoEase = Math.min(1, state.slowMoEase + dt * TUNING.slowMoEaseRate);
     }
@@ -4111,9 +4483,9 @@
       sidebarEl.classList.add("active");
       return;
     }
-    const top5 = todayEntries.slice(0, 5);
-    const medals = ["🥇","🥈","🥉","4","5"];
-    listEl.innerHTML = top5.map((e, i) =>
+    const top8 = todayEntries.slice(0, 8);
+    const medals = ["🥇","🥈","🥉"];
+    listEl.innerHTML = top8.map((e, i) =>
       `<div class="lb-sidebar-entry">
         <span class="lb-sidebar-rank">${i < 3 ? medals[i] : "#" + (i+1)}</span>
         <span class="lb-sidebar-name">${e.name || "Anonymous"}</span>
@@ -4125,6 +4497,67 @@
 
   function clearLbTimer(){
     if (state.lbSubmitTimer){ clearTimeout(state.lbSubmitTimer); state.lbSubmitTimer = null; }
+  }
+
+  function formatTime(sec){
+    if (sec < 60) return `${Math.floor(sec)}s`;
+    if (sec < 3600) return `${Math.floor(sec/60)}m ${Math.floor(sec%60)}s`;
+    return `${Math.floor(sec/3600)}h ${Math.floor((sec%3600)/60)}m`;
+  }
+
+  function openStats(e){
+    if (e) e.stopPropagation();
+    sfxClick();
+    const s = state.stats;
+    const gridEl = document.getElementById("statsGrid");
+    if (!gridEl) return;
+    gridEl.innerHTML = [
+      { label: "Best Score",     value: state.best.toLocaleString() },
+      { label: "Total Runs",     value: (s.totalRuns || 0).toLocaleString() },
+      { label: "Total Gates",    value: (s.totalGates || 0).toLocaleString() },
+      { label: "Time Played",    value: formatTime(s.totalTime || 0) },
+      { label: "Near Misses",    value: (s.totalNearMisses || 0).toLocaleString() },
+      { label: "Shards Earned",  value: (s.totalShardsEarned || 0).toLocaleString() }
+    ].map(item => `<div class="stat-card"><div class="stat-value">${item.value}</div><div class="stat-label">${item.label}</div></div>`).join('');
+    statsPanelEl.classList.add("active");
+  }
+
+  function openAchievements(e){
+    if (e) e.stopPropagation();
+    sfxClick();
+    const listEl = document.getElementById("achievementsList");
+    if (!listEl) return;
+    listEl.innerHTML = ACHIEVEMENTS.list.map(ach => {
+      const unlocked = state.achievementsUnlocked.includes(ach.id);
+      return `<div class="achievement-item ${unlocked ? 'unlocked' : ''}">
+        <div class="achievement-icon ${unlocked ? '' : 'locked'}">${ach.icon}</div>
+        <div class="achievement-text">
+          <div class="achievement-name ${unlocked ? '' : 'locked'}">${ach.name}</div>
+          <div class="achievement-desc">${ach.desc}</div>
+        </div>
+        ${unlocked ? '<div class="achievement-badge">✓ UNLOCKED</div>' : ''}
+      </div>`;
+    }).join('');
+    achievementsPanelEl.classList.add("active");
+  }
+
+  function checkAchievements(){
+    const unlock = (id) => {
+      if (!state.achievementsUnlocked.includes(id)){
+        state.achievementsUnlocked.push(id);
+        const ach = ACHIEVEMENTS.list.find(a => a.id === id);
+        if (ach) setTimeout(() => announce(`${ach.icon} ${ach.name.toUpperCase()}!`), 200);
+        return true;
+      }
+      return false;
+    };
+    if (state.stats.totalRuns >= 1) unlock("first_run");
+    if (state.bestCombo >= 10) unlock("combo_master");
+    if (state.nearCount >= 10) unlock("close_call");
+    if (state.time >= 120) unlock("survivor");
+    if (state.score >= 5000) unlock("high_roller");
+    if (state.streakBonusCount >= 5) unlock("streak_king");
+    saveProgress();
   }
 
   function navigateToMainMenu(){
@@ -4316,6 +4749,10 @@
   openSettingsOverEl.addEventListener("click", openSettings);
   openUpgradesEl.addEventListener("click", openUpgrades);
   openUpgradesOverEl.addEventListener("click", openUpgrades);
+  document.getElementById("openStats").addEventListener("click", openStats);
+  document.getElementById("closeStats").addEventListener("click", (e) => { e.stopPropagation(); sfxClick(); statsPanelEl.classList.remove("active"); });
+  document.getElementById("openAchievements").addEventListener("click", openAchievements);
+  document.getElementById("closeAchievements").addEventListener("click", (e) => { e.stopPropagation(); sfxClick(); achievementsPanelEl.classList.remove("active"); });
   closeSettingsEl.addEventListener("click", (e) => {
     e.stopPropagation();
     sfxClick();
