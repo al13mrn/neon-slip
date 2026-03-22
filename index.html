@@ -799,6 +799,43 @@
   .lb-sidebar-rank{ color:var(--neon); min-width:26px; font-size:14px; text-align:center; }
   .lb-sidebar-name{ flex:1; opacity:.85; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
   .lb-sidebar-score{ color:var(--neon); font-size:14px; font-weight:bold; text-shadow: 0 0 8px rgba(25,247,255,.4); }
+  /* Shared sidebar tab strip (used by both left and right sidebars) */
+  .sidebar-tabs{ display:flex; gap:4px; margin-bottom:10px; }
+  .sidebar-tab{
+    flex:1; padding:5px 0; border-radius:8px;
+    font-size:10px; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; text-align:center;
+    border:1px solid rgba(25,247,255,.3); background:rgba(25,247,255,.06);
+    color:var(--text); transition:all .15s ease;
+  }
+  .sidebar-tab.active{ background:rgba(25,247,255,.2); border-color:var(--neon); color:var(--neon); box-shadow:0 0 8px rgba(25,247,255,.2); }
+  .sidebar-tab:hover:not(.active){ background:rgba(25,247,255,.12); }
+  .sidebar-section{ display:none; }
+  .sidebar-section.active{ display:block; }
+  /* Left sidebar (Stats + Guide) */
+  .left-sidebar{
+    position:fixed; top:50%; left:20px; transform:translateY(-50%);
+    background: linear-gradient(160deg, rgba(18,26,52,.97), rgba(6,10,20,.99));
+    border:1px solid rgba(138,91,255,.45);
+    box-shadow: 0 0 32px rgba(138,91,255,.2), 0 0 60px rgba(25,247,255,.12), inset 0 1px 0 rgba(138,91,255,.2);
+    border-radius:16px; padding:18px 16px; width:210px;
+    pointer-events:none; opacity:0;
+    transition: opacity .4s ease;
+    z-index:5; text-align:left;
+  }
+  .left-sidebar.active{ opacity:1; pointer-events:auto; }
+  @media(max-width:900px){ .left-sidebar{ display:none !important; } }
+  .left-stat-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:12px; letter-spacing:.5px; padding:6px 2px;
+    border-bottom:1px solid rgba(138,91,255,.1);
+  }
+  .left-stat-row:last-child{ border-bottom:none; }
+  .left-stat-label{ opacity:.7; font-size:10px; text-transform:uppercase; letter-spacing:1px; }
+  .left-stat-value{ color:var(--neon); font-size:13px; font-weight:bold; text-shadow:0 0 8px rgba(25,247,255,.4); }
+  .guide-row{ font-size:11px; letter-spacing:.4px; padding:6px 0; border-bottom:1px solid rgba(138,91,255,.08); line-height:1.4; }
+  .guide-row:last-child{ border-bottom:none; }
+  .guide-key{ color:var(--neon); font-size:10px; letter-spacing:1px; text-transform:uppercase; opacity:.9; }
   /* Main menu Neon Shards indicator */
   .main-menu-shards{
     font-size:13px; letter-spacing:1px; color:#7dffb2;
@@ -1049,8 +1086,33 @@
 </div>
 
 <div id="lbSidebar" class="lb-sidebar">
-  <div class="lb-sidebar-title">🏆 Today's Top Players</div>
+  <div class="sidebar-tabs">
+    <div class="sidebar-tab active" id="lbTabToday">🏆 Today</div>
+    <div class="sidebar-tab" id="lbTabAllTime">📅 All Time</div>
+  </div>
+  <div class="lb-sidebar-title" id="lbSidebarTitle">Today's Top Players</div>
   <div id="lbSidebarList"><div class="lb-sidebar-empty">No scores yet today</div></div>
+</div>
+
+<div id="leftSidebar" class="left-sidebar">
+  <div class="sidebar-tabs">
+    <div class="sidebar-tab active" id="leftTabStats">📊 Stats</div>
+    <div class="sidebar-tab" id="leftTabGuide">🎮 Guide</div>
+  </div>
+  <div id="leftSectionStats" class="sidebar-section active">
+    <div class="lb-sidebar-title">Your Progress</div>
+    <div id="leftStatsList"></div>
+  </div>
+  <div id="leftSectionGuide" class="sidebar-section">
+    <div class="lb-sidebar-title">Quick Guide</div>
+    <div class="guide-row"><div class="guide-key">Move</div>A/D, Arrows, or Touch</div>
+    <div class="guide-row"><div class="guide-key">Pause</div>P or Esc</div>
+    <div class="guide-row"><div class="guide-key">Center</div>PERFECT + bonus pts</div>
+    <div class="guide-row"><div class="guide-key">Edge</div>RISK + near-miss glow</div>
+    <div class="guide-row"><div class="guide-key">Combo</div>Chain passes to multiply</div>
+    <div class="guide-row"><div class="guide-key">Power-ups</div>Collect for advantages</div>
+    <div class="guide-row"><div class="guide-key">Shards</div>Spend in Upgrades</div>
+  </div>
 </div>
 
 <div id="settingsPanel" class="settings-panel">
@@ -2583,17 +2645,22 @@
       generateRunProfile();
       selectRunMods();
       renderLbSidebar();
+      renderLeftSidebar();
     } else if (mode === "play"){
       modsPanelEl.classList.remove("active");
-      // Hide sidebar during play
+      // Hide sidebars during play
       const sidebarEl = document.getElementById("lbSidebar");
       if (sidebarEl) sidebarEl.classList.remove("active");
+      const leftSidebarEl = document.getElementById("leftSidebar");
+      if (leftSidebarEl) leftSidebarEl.classList.remove("active");
       playGameMusic();
       return;
     } else {
-      // Hide sidebar in "over" / "dying" modes
+      // Hide sidebars in "over" / "dying" modes
       const sidebarEl = document.getElementById("lbSidebar");
       if (sidebarEl) sidebarEl.classList.remove("active");
+      const leftSidebarEl = document.getElementById("leftSidebar");
+      if (leftSidebarEl) leftSidebarEl.classList.remove("active");
     }
     // Play menu music for both "start" and "over" modes
     playMenuMusic();
@@ -4367,6 +4434,7 @@
   }
 
   let lbCategory = "alltime"; // current leaderboard filter
+  let lbSidebarTab = "today"; // current right-sidebar filter
 
   function isToday(dateStr){
     if (!dateStr) return false;
@@ -4476,17 +4544,20 @@
   function renderLbSidebar(){
     const sidebarEl = document.getElementById("lbSidebar");
     const listEl = document.getElementById("lbSidebarList");
+    const titleEl = document.getElementById("lbSidebarTitle");
     if (!sidebarEl || !listEl) return;
     // Only show on start screen
     if (state.mode !== "start"){ sidebarEl.classList.remove("active"); return; }
-    // Filter to today's entries
-    const todayEntries = lbEntries.filter(e => isToday(e.date));
-    if (!todayEntries.length){
-      listEl.innerHTML = '<div class="lb-sidebar-empty">No scores yet today</div>';
+    const entries = lbSidebarTab === "today"
+      ? lbEntries.filter(e => isToday(e.date))
+      : lbEntries.slice(0, 8);
+    if (titleEl) titleEl.textContent = lbSidebarTab === "today" ? "Today's Top Players" : "All-Time Best";
+    if (!entries.length){
+      listEl.innerHTML = `<div class="lb-sidebar-empty">No scores ${lbSidebarTab === "today" ? "today" : "yet"}</div>`;
       sidebarEl.classList.add("active");
       return;
     }
-    const top8 = todayEntries.slice(0, 8);
+    const top8 = entries.slice(0, 8);
     const medals = ["🥇","🥈","🥉"];
     listEl.innerHTML = top8.map((e, i) =>
       `<div class="lb-sidebar-entry">
@@ -4495,6 +4566,30 @@
         <span class="lb-sidebar-score">${e.score.toLocaleString()}</span>
       </div>`
     ).join('');
+    sidebarEl.classList.add("active");
+  }
+
+  function renderLeftSidebar(){
+    const sidebarEl = document.getElementById("leftSidebar");
+    if (!sidebarEl) return;
+    if (state.mode !== "start"){ sidebarEl.classList.remove("active"); return; }
+    const listEl = document.getElementById("leftStatsList");
+    if (listEl){
+      const s = state.stats;
+      listEl.innerHTML = [
+        { label: "Best Score",  value: state.best.toLocaleString() },
+        { label: "Total Runs",  value: (s.totalRuns  || 0).toLocaleString() },
+        { label: "Gates",       value: (s.totalGates || 0).toLocaleString() },
+        { label: "Time Played", value: formatTime(s.totalTime || 0) },
+        { label: "Near Misses", value: (s.totalNearMisses || 0).toLocaleString() },
+        { label: "Shards",      value: (s.totalShardsEarned || 0).toLocaleString() }
+      ].map(r =>
+        `<div class="left-stat-row">
+          <span class="left-stat-label">${r.label}</span>
+          <span class="left-stat-value">${r.value}</span>
+        </div>`
+      ).join('');
+    }
     sidebarEl.classList.add("active");
   }
 
@@ -4575,8 +4670,9 @@
     startPanel.classList.remove("hidden");
     startPanel.classList.add("enter");
     setTimeout(() => startPanel.classList.remove("enter"), 600);
-    // Refresh sidebar and shard count
+    // Refresh sidebars and shard count
     renderLbSidebar();
+    renderLeftSidebar();
     const mainMenuShardsEl = document.getElementById("mainMenuShards");
     if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
   }
@@ -4985,6 +5081,33 @@
       state.slideIndex = idx;
       updateIntroDots();
     }
+  });
+
+  // Left sidebar tab switching
+  document.getElementById("leftTabStats").addEventListener("click", () => {
+    document.getElementById("leftTabStats").classList.add("active");
+    document.getElementById("leftTabGuide").classList.remove("active");
+    document.getElementById("leftSectionStats").classList.add("active");
+    document.getElementById("leftSectionGuide").classList.remove("active");
+  });
+  document.getElementById("leftTabGuide").addEventListener("click", () => {
+    document.getElementById("leftTabGuide").classList.add("active");
+    document.getElementById("leftTabStats").classList.remove("active");
+    document.getElementById("leftSectionGuide").classList.add("active");
+    document.getElementById("leftSectionStats").classList.remove("active");
+  });
+  // Right sidebar tab switching
+  document.getElementById("lbTabToday").addEventListener("click", () => {
+    lbSidebarTab = "today";
+    document.getElementById("lbTabToday").classList.add("active");
+    document.getElementById("lbTabAllTime").classList.remove("active");
+    renderLbSidebar();
+  });
+  document.getElementById("lbTabAllTime").addEventListener("click", () => {
+    lbSidebarTab = "alltime";
+    document.getElementById("lbTabAllTime").classList.add("active");
+    document.getElementById("lbTabToday").classList.remove("active");
+    renderLbSidebar();
   });
 
   resize();
