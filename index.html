@@ -1185,9 +1185,396 @@
     border:1px solid rgba(25,247,255,.3); border-radius:4px;
     padding:1px 5px; margin-left:5px; letter-spacing:0;
   }
+  .boot-loader{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    background:
+      radial-gradient(1300px 900px at 70% -15%, rgba(25,247,255,.22), rgba(5,10,20,0) 62%),
+      radial-gradient(1000px 760px at 12% 118%, rgba(138,91,255,.2), rgba(5,10,20,0) 58%),
+      linear-gradient(180deg, #04060d, #020308 62%, #02040a);
+    z-index:100;
+    transition: opacity .45s ease, visibility .45s ease;
+  }
+  .boot-loader::before,
+  .boot-loader::after{
+    content:"";
+    position:absolute; inset:-25%;
+    pointer-events:none;
+  }
+  .boot-loader::before{
+    background:
+      conic-gradient(from 0deg, rgba(25,247,255,.08), rgba(138,91,255,.05), rgba(255,59,122,.08), rgba(25,247,255,.08));
+    animation: bootSweep 9s linear infinite;
+  }
+  .boot-loader::after{
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, rgba(255,255,255,0) 1px 4px);
+    mix-blend-mode: screen;
+    opacity:.42;
+  }
+  .boot-loader.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .boot-brand-lock{
+    position:absolute;
+    top:18px;
+    left:20px;
+    z-index:4;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:7px 12px;
+    border:1px solid rgba(25,247,255,.35);
+    border-radius:999px;
+    background:rgba(5,10,18,.72);
+    color:#bffcff;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    font-size:11px;
+    text-shadow:0 0 8px rgba(25,247,255,.55);
+    box-shadow:0 0 14px rgba(25,247,255,.2);
+  }
+  .boot-brand-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#7dffb2;
+    box-shadow:0 0 10px rgba(125,255,178,.7);
+    animation: bootDot 1s ease-in-out infinite alternate;
+  }
+  .boot-corner{
+    position:absolute;
+    width:120px;
+    height:120px;
+    border-color:rgba(25,247,255,.55);
+    border-style:solid;
+    z-index:2;
+    opacity:.8;
+    pointer-events:none;
+  }
+  .boot-corner.tl{ top:18px; left:16px; border-width:2px 0 0 2px; border-top-left-radius:12px; }
+  .boot-corner.tr{ top:18px; right:16px; border-width:2px 2px 0 0; border-top-right-radius:12px; }
+  .boot-corner.bl{ bottom:16px; left:16px; border-width:0 0 2px 2px; border-bottom-left-radius:12px; }
+  .boot-corner.br{ bottom:16px; right:16px; border-width:0 2px 2px 0; border-bottom-right-radius:12px; }
+  .boot-particle-field{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    z-index:1;
+    pointer-events:none;
+  }
+  .boot-particle{
+    position:absolute;
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:rgba(25,247,255,.75);
+    box-shadow:0 0 10px rgba(25,247,255,.7);
+    animation: bootParticleRise var(--dur, 6s) linear infinite;
+    animation-delay: var(--delay, 0s);
+    left: var(--x, 50%);
+    bottom:-8px;
+    opacity:.7;
+  }
+  .boot-particle.alt{
+    background:rgba(138,91,255,.75);
+    box-shadow:0 0 10px rgba(138,91,255,.7);
+  }
+  .boot-core{
+    position:relative;
+    width:min(95vw, 1180px);
+    border:1px solid rgba(25,247,255,.35);
+    border-radius:20px;
+    padding: clamp(20px, 4vw, 42px) clamp(16px, 4vw, 44px);
+    background: linear-gradient(180deg, rgba(6,12,24,.86), rgba(4,8,16,.9));
+    box-shadow:
+      0 0 40px rgba(25,247,255,.22),
+      0 0 80px rgba(138,91,255,.15),
+      inset 0 0 40px rgba(25,247,255,.08),
+      inset 0 1px 0 rgba(25,247,255,.2);
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    z-index:2;
+    animation: bootFloat 4.5s ease-in-out infinite;
+  }
+  .boot-grid{
+    position:absolute; inset:-10% -5%;
+    background:
+      linear-gradient(rgba(25,247,255,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(25,247,255,.08) 1px, transparent 1px);
+    background-size: 80px 80px;
+    transform: perspective(700px) rotateX(68deg) translateY(28%);
+    transform-origin: center top;
+    opacity:.35;
+    z-index:0;
+    pointer-events:none;
+  }
+  .boot-ring{
+    position:absolute; border-radius:50%; pointer-events:none; z-index:1;
+    border:1px solid rgba(25,247,255,.22);
+    box-shadow: 0 0 20px rgba(25,247,255,.15);
+    animation: bootPulse 3.2s ease-in-out infinite;
+  }
+  .boot-ring.ring-a{ width:42vw; height:42vw; max-width:520px; max-height:520px; min-width:240px; min-height:240px; }
+  .boot-ring.ring-b{ width:56vw; height:56vw; max-width:720px; max-height:720px; min-width:320px; min-height:320px; animation-delay:.8s; }
+  .boot-ring.ring-c{ width:74vw; height:74vw; max-width:920px; max-height:920px; min-width:420px; min-height:420px; animation-delay:1.6s; }
+  .boot-kicker{
+    font-size:11px;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    color:rgba(125,255,178,.9);
+    text-shadow:0 0 8px rgba(125,255,178,.55);
+  }
+  .boot-title{
+    font-family: "Impact","Haettenschweiler","Arial Black",sans-serif;
+    font-size: clamp(42px, 8vw, 96px);
+    letter-spacing: clamp(4px, .9vw, 14px);
+    color: #b8fdff;
+    text-transform: uppercase;
+    text-shadow:
+      0 0 8px rgba(255,255,255,.7),
+      0 0 18px rgba(25,247,255,.9),
+      0 0 34px rgba(25,247,255,.75),
+      0 0 72px rgba(138,91,255,.6);
+  }
+  .boot-msg{
+    min-height: 28px;
+    font-size: clamp(14px, 2.1vw, 24px);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(232,252,255,.95);
+    text-shadow: 0 0 12px rgba(25,247,255,.5);
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .boot-msg.swap{
+    opacity:.15;
+    transform: translateY(-3px) scale(.995);
+  }
+  .boot-stage-row{
+    width:min(94vw, 1000px);
+    display:grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap:8px;
+  }
+  .boot-stage{
+    border:1px solid rgba(25,247,255,.28);
+    border-radius:999px;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:1.6px;
+    color:rgba(215,249,255,.5);
+    text-align:center;
+    padding:8px 6px;
+    background:rgba(7,14,26,.65);
+    transition: all .2s ease;
+  }
+  .boot-stage.active{
+    color:#7dffb2;
+    border-color:rgba(125,255,178,.7);
+    background:rgba(125,255,178,.12);
+    text-shadow:0 0 10px rgba(125,255,178,.55);
+    box-shadow:0 0 16px rgba(125,255,178,.28);
+  }
+  .boot-stage.done{
+    color:rgba(184,253,255,.9);
+    border-color:rgba(25,247,255,.65);
+    background:rgba(25,247,255,.14);
+  }
+  .boot-bar-wrap{
+    position:relative;
+    width:min(94vw, 1000px);
+    height: clamp(36px, 6vh, 74px);
+    border-radius: 999px;
+    border: 2px solid rgba(25,247,255,.6);
+    background: rgba(6,12,20,.92);
+    box-shadow: 0 0 22px rgba(25,247,255,.26), inset 0 0 20px rgba(25,247,255,.14);
+    overflow: hidden;
+  }
+  .boot-bar{
+    width: 0%;
+    height: 100%;
+    background:
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255,255,255,.16) 0 16px,
+        rgba(255,255,255,0) 16px 32px
+      ),
+      linear-gradient(90deg, #19f7ff 0%, #8a5bff 50%, #ff3b7a 100%);
+    background-size: auto, 200% 100%;
+    animation: bootBarSheen 1.2s linear infinite;
+    box-shadow: 0 0 35px rgba(25,247,255,.75), 0 0 78px rgba(138,91,255,.38);
+    transition: width .18s linear;
+  }
+  .boot-bar-glow{
+    position:absolute; inset:0;
+    background: linear-gradient(90deg, rgba(25,247,255,.0), rgba(255,255,255,.25), rgba(25,247,255,.0));
+    transform: translateX(-100%);
+    animation: bootGlowSweep 1.45s ease-in-out infinite;
+    pointer-events:none;
+    mix-blend-mode: screen;
+  }
+  .boot-meta{
+    width:min(94vw, 1000px);
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:rgba(215,249,255,.75);
+  }
+  .boot-eta{ color:rgba(255,216,107,.95); text-shadow:0 0 8px rgba(255,216,107,.4); }
+  .boot-diagnostics{
+    width:min(94vw, 1000px);
+    display:grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap:12px;
+  }
+  .boot-log{
+    min-height:72px;
+    border:1px solid rgba(25,247,255,.28);
+    border-radius:10px;
+    background:rgba(3,10,18,.72);
+    padding:8px 10px;
+    font-size:10px;
+    line-height:1.5;
+    color:rgba(193,247,255,.88);
+    letter-spacing:1px;
+    text-transform:uppercase;
+    box-shadow: inset 0 0 16px rgba(25,247,255,.08);
+  }
+  .boot-log-line{ opacity:.45; }
+  .boot-log-line.hot{ opacity:.95; color:#7dffb2; text-shadow:0 0 8px rgba(125,255,178,.5); }
+  .boot-signal{
+    border:1px solid rgba(25,247,255,.28);
+    border-radius:10px;
+    background:rgba(3,10,18,.72);
+    padding:8px 10px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:8px;
+  }
+  .boot-signal-label{
+    font-size:10px;
+    letter-spacing:1.8px;
+    text-transform:uppercase;
+    color:rgba(215,249,255,.75);
+  }
+  .boot-signal-bars{ display:flex; gap:5px; align-items:flex-end; height:28px; }
+  .boot-signal-bar{
+    flex:1;
+    border-radius:4px 4px 2px 2px;
+    background: linear-gradient(180deg, rgba(25,247,255,.9), rgba(138,91,255,.65));
+    box-shadow:0 0 8px rgba(25,247,255,.45);
+    transform-origin: bottom;
+    transform: scaleY(.2);
+    transition: transform .12s ease;
+  }
+  .boot-percent{
+    font-size: clamp(20px, 3vw, 34px);
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: #d4ffff;
+    text-shadow: 0 0 12px rgba(25,247,255,.7);
+  }
+  .boot-scanline{
+    position:absolute; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, rgba(25,247,255,0), rgba(25,247,255,.8), rgba(25,247,255,0));
+    box-shadow:0 0 14px rgba(25,247,255,.7);
+    animation: bootScan 2.8s ease-in-out infinite;
+    pointer-events:none;
+    z-index:3;
+  }
+  @media (max-width: 760px){
+    .boot-stage-row{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .boot-core{ gap:10px; }
+    .boot-diagnostics{ grid-template-columns: 1fr; }
+    .boot-brand-lock{ top:10px; left:10px; font-size:10px; padding:6px 10px; }
+  }
+  @keyframes bootFloat{
+    0%,100%{ transform: translateY(0px); }
+    50%{ transform: translateY(-4px); }
+  }
+  @keyframes bootSweep{
+    0%{ transform: rotate(0deg); }
+    100%{ transform: rotate(360deg); }
+  }
+  @keyframes bootPulse{
+    0%,100%{ opacity:.28; transform: scale(1); }
+    50%{ opacity:.48; transform: scale(1.02); }
+  }
+  @keyframes bootScan{
+    0%{ top:18%; opacity:.1; }
+    15%{ opacity:.9; }
+    100%{ top:84%; opacity:.1; }
+  }
+  @keyframes bootBarSheen{
+    0%{ background-position: 0 0, 0% 50%; }
+    100%{ background-position: 64px 0, 100% 50%; }
+  }
+  @keyframes bootGlowSweep{
+    0%{ transform: translateX(-100%); }
+    100%{ transform: translateX(100%); }
+  }
+  @keyframes bootParticleRise{
+    0%{ transform: translateY(0) scale(.8); opacity:0; }
+    10%{ opacity:.75; }
+    100%{ transform: translateY(-110vh) scale(1.2); opacity:0; }
+  }
+  @keyframes bootDot{
+    0%{ opacity:.45; transform: scale(.9); }
+    100%{ opacity:1; transform: scale(1.2); }
+  }
 </style>
 </head>
 <body>
+<div id="bootLoader" class="boot-loader">
+  <div class="boot-corner tl"></div>
+  <div class="boot-corner tr"></div>
+  <div class="boot-corner bl"></div>
+  <div class="boot-corner br"></div>
+  <div class="boot-brand-lock"><span class="boot-brand-dot"></span><span>Neon Slip</span></div>
+  <div class="boot-particle-field" id="bootParticleField"></div>
+  <div class="boot-grid"></div>
+  <div class="boot-ring ring-a"></div>
+  <div class="boot-ring ring-b"></div>
+  <div class="boot-ring ring-c"></div>
+  <div class="boot-scanline"></div>
+  <div class="boot-core">
+    <div class="boot-kicker">System Warmup</div>
+    <div class="boot-title">Neon Slip</div>
+    <div id="bootMessage" class="boot-msg">Initializing neon core...</div>
+    <div id="bootStages" class="boot-stage-row">
+      <div class="boot-stage">Core Sync</div>
+      <div class="boot-stage">Gate Build</div>
+      <div class="boot-stage">Engine Prime</div>
+      <div class="boot-stage">Stabilize</div>
+      <div class="boot-stage">Launch</div>
+    </div>
+    <div class="boot-bar-wrap">
+      <div id="bootBar" class="boot-bar"></div>
+      <div class="boot-bar-glow"></div>
+    </div>
+    <div class="boot-meta"><span id="bootPhase">Phase: Core Sync</span><span id="bootEta" class="boot-eta">ETA 2.3s</span></div>
+    <div class="boot-diagnostics">
+      <div id="bootLog" class="boot-log"></div>
+      <div class="boot-signal">
+        <div class="boot-signal-label">Signal Integrity</div>
+        <div id="bootSignalBars" class="boot-signal-bars">
+          <div class="boot-signal-bar"></div>
+          <div class="boot-signal-bar"></div>
+          <div class="boot-signal-bar"></div>
+          <div class="boot-signal-bar"></div>
+          <div class="boot-signal-bar"></div>
+          <div class="boot-signal-bar"></div>
+          <div class="boot-signal-bar"></div>
+        </div>
+      </div>
+    </div>
+    <div id="bootPercent" class="boot-percent">0%</div>
+  </div>
+</div>
 <canvas id="game"></canvas>
 
 <div class="hud">
@@ -1760,6 +2147,16 @@ const FIREBASE_CONFIG = firebaseConfig;
   const achievementsPanelEl = document.getElementById("achievementsPanel");
   const modHudEl = document.getElementById("modHud");
   const slowmoOverlayEl = document.getElementById("slowmoOverlay");
+  const bootLoaderEl = document.getElementById("bootLoader");
+  const bootMessageEl = document.getElementById("bootMessage");
+  const bootBarEl = document.getElementById("bootBar");
+  const bootPercentEl = document.getElementById("bootPercent");
+  const bootStagesEl = document.getElementById("bootStages");
+  const bootPhaseEl = document.getElementById("bootPhase");
+  const bootEtaEl = document.getElementById("bootEta");
+  const bootLogEl = document.getElementById("bootLog");
+  const bootSignalBarsEl = document.getElementById("bootSignalBars");
+  const bootParticleFieldEl = document.getElementById("bootParticleField");
 
   let w, h, dpr;
   function resize(){
@@ -1941,7 +2338,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     slowMoScale: 0.38,      // 62% slower gameplay; lower = more dramatic
     slowMoEaseRate: 6.0,    // ease-out rate (back to normal speed)
     slowMoEaseInRate: 12,   // ease-in rate (into slow-mo)
-    tremorShake: 0.18,
+    tremorShake: 1.0,
     tremorShakePower: 7,
     deathGlitchTime: 0.35
   };
@@ -2073,14 +2470,14 @@ const FIREBASE_CONFIG = firebaseConfig;
       { id: "bonus", name: "Score Rush", desc: "+150% score multiplier.", icon: "💰", apply: (m) => { m.scoreMul = 2.5; } }
     ],
     negative: [
-      { id: "tight", name: "Tight Slip", desc: "Much smaller gaps, slower scroll.", icon: "🔒", apply: (m) => { m.gapMul *= 0.75; m.speedMul *= 0.85; } },
-      { id: "mirror", name: "Mirror Bias", desc: "Strong constant left/right pull — fight it every moment.", icon: "🔄", apply: (m) => { m.mirror = true; } },
-      { id: "pulse", name: "Pulse Locks", desc: "Sudden gate bursts then silence — intense rhythm.", icon: "💓", apply: (m) => { m.pulse = true; } },
-      { id: "chaos", name: "Chaos Theory", desc: "Gates teleport randomly — stay alert.", icon: "🎲", apply: (m) => { m.chaosMode = true; } },
-      { id: "gravity", name: "Heavy Gravity", desc: "Very sluggish controls — slow to respond.", icon: "⬇️", apply: (m) => { m.speedMul *= 0.72; m.controlPenalty = 0.45; } },
-      { id: "fog", name: "Neon Fog", desc: "Dense fog hides the arena.", icon: "🌫️", apply: (m) => { m.fogMode = true; } },
-      { id: "tremor", name: "Screen Tremor", desc: "Constant shaking disrupts your aim.", icon: "📳", apply: (m) => { m.tremorMode = true; } },
-      { id: "pressure", name: "Time Pressure", desc: "Fast intensity ramp, tighter gaps.", icon: "⏱️", apply: (m) => { m.speedMul *= 1.25; m.gapMul *= 0.80; } }
+      { id: "tight", name: "Tight Slip", desc: "Much smaller gaps, slower scroll.", icon: "🔒", weight: 0.55, apply: (m) => { m.gapMul *= 0.75; m.speedMul *= 0.85; } },
+      { id: "mirror", name: "Mirror Bias", desc: "Strong constant left/right pull — fight it every moment.", icon: "🔄", weight: 0.55, apply: (m) => { m.mirror = true; } },
+      { id: "pulse", name: "Pulse Locks", desc: "Sudden gate bursts then silence — intense rhythm.", icon: "💓", weight: 0.50, apply: (m) => { m.pulse = true; } },
+      { id: "chaos", name: "Chaos Theory", desc: "Gates teleport randomly — stay alert.", icon: "🎲", weight: 0.50, apply: (m) => { m.chaosMode = true; } },
+      { id: "gravity", name: "Heavy Gravity", desc: "Very sluggish controls — slow to respond.", icon: "⬇️", weight: 0.45, apply: (m) => { m.speedMul *= 0.72; m.controlPenalty = 0.45; } },
+      { id: "fog", name: "Neon Fog", desc: "Dense fog hides the arena.", icon: "🌫️", weight: 0.90, apply: (m) => { m.fogMode = true; } },
+      { id: "tremor", name: "Screen Tremor", desc: "Constant shaking disrupts your aim.", icon: "📳", weight: 1.0, apply: (m) => { m.tremorMode = true; } },
+      { id: "pressure", name: "Time Pressure", desc: "Fast intensity ramp, tighter gaps.", icon: "⏱️", weight: 0.50, apply: (m) => { m.speedMul *= 1.25; m.gapMul *= 0.80; } }
     ],
     legendary: [
       { id: "godmode", name: "God Mode", desc: "HUGE gaps, very slow.", icon: "👑", apply: (m) => { m.gapMul *= 1.85; m.speedMul *= 0.5; m.scoreMul = 0.5; } },
@@ -2160,6 +2557,222 @@ const FIREBASE_CONFIG = firebaseConfig;
   function randPick(list){
     const r = state.rng ? state.rng() : Math.random();
     return list[Math.floor(r * list.length)];
+  }
+
+  function preloadCriticalAssets(){
+    const tasks = [];
+
+    function waitForMedia(mediaEl){
+      return new Promise(resolve => {
+        if (!mediaEl || !mediaEl.src) return resolve();
+        let settled = false;
+        const done = () => {
+          if (settled) return;
+          settled = true;
+          mediaEl.removeEventListener("canplaythrough", done);
+          mediaEl.removeEventListener("loadeddata", done);
+          mediaEl.removeEventListener("error", done);
+          resolve();
+        };
+        mediaEl.addEventListener("canplaythrough", done, { once: true });
+        mediaEl.addEventListener("loadeddata", done, { once: true });
+        mediaEl.addEventListener("error", done, { once: true });
+        mediaEl.load();
+      });
+    }
+
+    tasks.push(waitForMedia(menuMusic));
+    tasks.push(waitForMedia(gameMusic));
+
+    tasks.push(new Promise(resolve => {
+      const img = new Image();
+      img.onload = resolve;
+      img.onerror = resolve;
+      img.src = "shard.png";
+    }));
+
+    return Promise.allSettled(tasks);
+  }
+
+  function initBootLoader(){
+    if (!bootLoaderEl || !bootMessageEl || !bootBarEl || !bootPercentEl){
+      return Promise.resolve();
+    }
+
+    function seedBootParticles(){
+      if (!bootParticleFieldEl) return;
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < 32; i++){
+        const p = document.createElement("span");
+        p.className = "boot-particle" + (i % 3 === 0 ? " alt" : "");
+        p.style.setProperty("--x", `${Math.random() * 100}%`);
+        p.style.setProperty("--dur", `${4.8 + Math.random() * 4.4}s`);
+        p.style.setProperty("--delay", `${Math.random() * 4.6}s`);
+        p.style.width = `${2 + Math.random() * 3}px`;
+        p.style.height = p.style.width;
+        frag.appendChild(p);
+      }
+      bootParticleFieldEl.appendChild(frag);
+    }
+
+    seedBootParticles();
+
+    const BOOT_STAGES = [
+      {
+        phase: "Core Sync",
+        threshold: 0.17,
+        messages: ["Initializing neon core...", "Waking guidance systems..."]
+      },
+      {
+        phase: "Gate Fabrication",
+        threshold: 0.38,
+        messages: ["Building the gates...", "Forging gate rails..."]
+      },
+      {
+        phase: "Engine Prime",
+        threshold: 0.62,
+        messages: ["Fueling the engines...", "Charging drift capacitors..."]
+      },
+      {
+        phase: "Stabilization",
+        threshold: 0.83,
+        messages: ["Wiring neon circuits...", "Syncing orb trajectories..."]
+      },
+      {
+        phase: "Launch Protocol",
+        threshold: 1,
+        messages: ["Calibrating slipstream...", "Preparing launch..."]
+      }
+    ];
+
+    const startedAt = performance.now();
+    const minDuration = 2850;
+    let assetsReady = false;
+    let visualProgress = 0;
+    let lastStageIndex = -1;
+    let lastMessage = "";
+    let nextMessageAt = 0;
+    const stageNodes = bootStagesEl ? [...bootStagesEl.children] : [];
+    const signalBars = bootSignalBarsEl ? [...bootSignalBarsEl.children] : [];
+    const logBuffer = [];
+
+    function pushBootLog(line, isHot = false){
+      if (!bootLogEl) return;
+      const tag = isHot ? "[OK]" : "[SYS]";
+      logBuffer.push({ text: `${tag} ${line}`, hot: isHot });
+      while (logBuffer.length > 4) logBuffer.shift();
+      bootLogEl.innerHTML = logBuffer
+        .map(entry => `<div class="boot-log-line${entry.hot ? " hot" : ""}">${entry.text}</div>`)
+        .join("");
+    }
+
+    pushBootLog("Power bus online");
+    pushBootLog("Boot sequence armed", true);
+
+    preloadCriticalAssets().finally(() => {
+      assetsReady = true;
+    });
+
+    return new Promise(resolve => {
+      function frame(){
+        const elapsed = performance.now() - startedAt;
+        const pacedProgress = Math.min(0.93, Math.pow(elapsed / minDuration, 0.86) * 0.93);
+        const target = assetsReady ? 1 : pacedProgress;
+
+        if (assetsReady){
+          visualProgress = Math.min(1, visualProgress + 0.05 + (1 - visualProgress) * 0.03);
+        } else {
+          visualProgress += (target - visualProgress) * 0.12;
+        }
+
+        const burstPulse = Math.sin(elapsed * 0.012) * 0.006;
+        visualProgress = Math.min(1, Math.max(0, visualProgress + burstPulse));
+
+        const percent = Math.round(visualProgress * 100);
+        bootBarEl.style.width = percent + "%";
+        bootPercentEl.textContent = percent + "%";
+
+        let stageIndex = BOOT_STAGES.findIndex(s => visualProgress <= s.threshold);
+        if (stageIndex === -1) stageIndex = BOOT_STAGES.length - 1;
+
+        if (stageIndex !== lastStageIndex){
+          lastStageIndex = stageIndex;
+          for (let i = 0; i < stageNodes.length; i++){
+            stageNodes[i].classList.toggle("done", i < stageIndex);
+            stageNodes[i].classList.toggle("active", i === stageIndex);
+          }
+          if (bootPhaseEl) bootPhaseEl.textContent = "Phase: " + BOOT_STAGES[stageIndex].phase;
+          pushBootLog(`Stage changed: ${BOOT_STAGES[stageIndex].phase}`, true);
+          nextMessageAt = elapsed;
+        }
+
+        if (signalBars.length){
+          for (let i = 0; i < signalBars.length; i++){
+            const base = 0.2 + (i / signalBars.length) * 0.72;
+            const noise = Math.abs(Math.sin((elapsed * 0.016) + i * 0.8)) * 0.34;
+            const stageBoost = (stageIndex + 1) / BOOT_STAGES.length * 0.2;
+            const level = Math.min(1, base + noise + stageBoost);
+            signalBars[i].style.transform = `scaleY(${level})`;
+          }
+        }
+
+        if (bootEtaEl){
+          const eta = Math.max(0, (minDuration - elapsed) / 1000);
+          bootEtaEl.textContent = assetsReady ? "Assets locked" : `ETA ${eta.toFixed(1)}s`;
+        }
+
+        const currentStage = BOOT_STAGES[stageIndex];
+        if (elapsed >= nextMessageAt){
+          const msg = currentStage.messages[Math.floor((elapsed / 360) % currentStage.messages.length)];
+          if (msg !== lastMessage){
+            lastMessage = msg;
+            bootMessageEl.classList.add("swap");
+            setTimeout(() => {
+              bootMessageEl.textContent = msg;
+              bootMessageEl.classList.remove("swap");
+            }, 90);
+            pushBootLog(msg);
+          }
+          nextMessageAt = elapsed + 430;
+        }
+
+        if (assetsReady && visualProgress >= 0.999 && elapsed >= minDuration){
+          for (const node of stageNodes){
+            node.classList.remove("active");
+            node.classList.add("done");
+          }
+          if (bootPhaseEl) bootPhaseEl.textContent = "Phase: Launch Confirmed";
+          if (bootEtaEl) bootEtaEl.textContent = "Ready";
+          pushBootLog("Neon Slip launch confirmed", true);
+          bootMessageEl.textContent = "Launch confirmed. Good luck.";
+          bootLoaderEl.classList.add("hidden");
+          setTimeout(() => {
+            bootLoaderEl.style.display = "none";
+            resolve();
+          }, 450);
+          return;
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    });
+  }
+
+  function randPickWeighted(list, weightKey = "weight"){
+    let totalWeight = 0;
+    for (const item of list){
+      totalWeight += Math.max(0, Number(item?.[weightKey]) || 1);
+    }
+    if (totalWeight <= 0) return randPick(list);
+
+    let roll = (state.rng ? state.rng() : Math.random()) * totalWeight;
+    for (const item of list){
+      roll -= Math.max(0, Number(item?.[weightKey]) || 1);
+      if (roll <= 0) return item;
+    }
+    return list[list.length - 1];
   }
 
   function initVisualCaches(){
@@ -2553,7 +3166,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     
     const pos = randPick(MODIFIERS.positive);
-    const neg = randPick(MODIFIERS.negative);
+    const neg = randPickWeighted(MODIFIERS.negative);
     const mods = { 
       pos, neg, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false, 
       patternBias: 0, mirrorDir: Math.random() < 0.5 ? -1 : 1, powerupBoost: 1, comboBonus: 1,
@@ -6413,7 +7026,9 @@ const FIREBASE_CONFIG = firebaseConfig;
   // Try to unlock immediately in case music needs to play right away
   setTimeout(unlockAudio, 50);
   
-  requestAnimationFrame(loop);
+  initBootLoader().finally(() => {
+    requestAnimationFrame(loop);
+  });
 })();
 </script>
 </body>
