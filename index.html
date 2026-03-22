@@ -1031,6 +1031,160 @@
     transition: border-color .2s;
   }
   .slowmo-overlay.active{ border-color:rgba(80,120,255,.55); box-shadow:inset 0 0 60px rgba(60,100,255,.18), 0 0 30px rgba(60,100,255,.1); }
+  /* ── Admin Mode ── */
+  .admin-panel{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition: opacity .25s ease;
+    background: rgba(4,3,10,.9);
+    z-index:60;
+  }
+  .admin-panel.active{ pointer-events:auto; opacity:1; }
+  .admin-box{
+    background: linear-gradient(160deg, rgba(14,8,30,.98), rgba(6,4,18,.98));
+    border:1px solid rgba(138,91,255,.55);
+    box-shadow: 0 0 50px rgba(138,91,255,.35), 0 0 100px rgba(138,91,255,.15), inset 0 1px 0 rgba(138,91,255,.3);
+    padding:22px 24px 18px; border-radius:16px;
+    width:min(96vw,680px); max-height:90vh;
+    display:flex; flex-direction:column;
+    position:relative; overflow:hidden;
+  }
+  .admin-box::after{
+    content:""; position:absolute; inset:-40%;
+    background: conic-gradient(from 0deg, rgba(138,91,255,.12), rgba(25,247,255,.04), rgba(138,91,255,.12));
+    animation: panelGlow 8s linear infinite;
+    pointer-events:none;
+  }
+  .admin-box > *{ position:relative; z-index:1; }
+  .admin-close-x{
+    position:absolute; top:10px; right:12px; z-index:2;
+    width:28px; height:28px; border-radius:50%;
+    background: rgba(138,91,255,.15); border:1px solid rgba(138,91,255,.4);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:14px; color:var(--neon2);
+    transition: background .15s ease;
+  }
+  .admin-close-x:hover{ background: rgba(138,91,255,.3); }
+  .admin-tabs{
+    display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; flex-shrink:0;
+  }
+  .admin-tab{
+    padding:5px 12px; border-radius:20px; font-size:10px; text-transform:uppercase;
+    letter-spacing:1px; cursor:pointer;
+    border:1px solid rgba(138,91,255,.3); background:rgba(138,91,255,.06);
+    color:var(--text); transition: all .15s ease;
+  }
+  .admin-tab.active{ background:rgba(138,91,255,.2); border-color:var(--neon2); color:var(--neon2); box-shadow:0 0 8px rgba(138,91,255,.2); }
+  .admin-tab:hover:not(.active){ background:rgba(138,91,255,.12); }
+  .admin-content{
+    flex:1 1 0; overflow-y:auto; min-height:0; padding-bottom:6px;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(138,91,255,.4) transparent;
+  }
+  .admin-content::-webkit-scrollbar{ width:4px; }
+  .admin-content::-webkit-scrollbar-track{ background:transparent; }
+  .admin-content::-webkit-scrollbar-thumb{ background:rgba(138,91,255,.4); border-radius:4px; }
+  .admin-section-title{
+    font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    color:rgba(138,91,255,.8); margin:14px 0 8px;
+    border-bottom:1px solid rgba(138,91,255,.18); padding-bottom:6px;
+  }
+  .admin-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px; margin:6px 0; font-size:12px; text-transform:uppercase; letter-spacing:.5px;
+  }
+  .admin-input{
+    background: rgba(138,91,255,.08);
+    border:1px solid rgba(138,91,255,.3);
+    border-radius:6px; padding:5px 8px;
+    color:var(--text); font-family:inherit; font-size:12px;
+    letter-spacing:.5px; outline:none; width:130px;
+    transition: border-color .15s ease;
+  }
+  .admin-input:focus{ border-color:var(--neon2); }
+  .admin-btn{
+    padding:4px 10px; border-radius:8px; cursor:pointer;
+    border:1px solid rgba(138,91,255,.4); background:rgba(138,91,255,.12);
+    color:var(--neon2); font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    transition: background .15s ease; white-space:nowrap; display:inline-block;
+  }
+  .admin-btn:hover{ background:rgba(138,91,255,.28); }
+  .admin-btn.danger{ border-color:rgba(255,59,122,.4); color:var(--danger); background:rgba(255,59,122,.08); }
+  .admin-btn.danger:hover{ background:rgba(255,59,122,.22); }
+  .admin-badge{
+    position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+    background: rgba(138,91,255,.2); border:1px solid rgba(138,91,255,.55);
+    border-radius:20px; padding:5px 16px; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; color:var(--neon2);
+    text-shadow: 0 0 10px rgba(138,91,255,.7);
+    pointer-events:auto; cursor:pointer; z-index:40;
+    animation: adminBadgePulse 2s ease-in-out infinite;
+    display:none;
+  }
+  .admin-badge.active{ display:block; }
+  @keyframes adminBadgePulse{
+    0%,100%{ box-shadow: 0 0 8px rgba(138,91,255,.4); }
+    50%{ box-shadow: 0 0 20px rgba(138,91,255,.75); }
+  }
+  .lb-admin-actions{ display:none; gap:5px; flex-shrink:0; }
+  body.admin-active .lb-entry .lb-admin-actions{ display:flex; }
+  .lb-admin-btn{
+    padding:3px 7px; border-radius:6px; cursor:pointer; font-size:10px;
+    letter-spacing:.5px; text-transform:uppercase;
+    border:1px solid rgba(138,91,255,.4); background:rgba(138,91,255,.1);
+    color:var(--neon2); transition: background .15s ease;
+  }
+  .lb-admin-btn:hover{ background:rgba(138,91,255,.28); }
+  .lb-admin-btn.del{ border-color:rgba(255,59,122,.45); color:var(--danger); background:rgba(255,59,122,.07); }
+  .lb-admin-btn.del:hover{ background:rgba(255,59,122,.22); }
+  /* ── Auth System ── */
+  .auth-tabs{ display:flex; gap:6px; margin-bottom:14px; }
+  .auth-tab{
+    flex:1; text-align:center; padding:7px; border-radius:8px; cursor:pointer;
+    font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    border:1px solid rgba(25,247,255,.25); background:rgba(25,247,255,.05);
+    color:var(--text); transition: all .15s;
+  }
+  .auth-tab.active{ background:rgba(25,247,255,.15); border-color:var(--neon); color:var(--neon); }
+  .auth-tab:hover:not(.active){ background:rgba(25,247,255,.1); }
+  .auth-input{
+    width:100%; box-sizing:border-box;
+    background: rgba(6,7,11,.6); border:1px solid rgba(25,247,255,.25);
+    border-radius:8px; padding:9px 12px; color:var(--text);
+    font-family:inherit; font-size:13px; outline:none;
+    transition: border-color .15s; margin:4px 0;
+  }
+  .auth-input:focus{ border-color:var(--neon); }
+  .auth-msg{ font-size:11px; letter-spacing:.5px; min-height:16px; margin:6px 0; text-align:center; }
+  .auth-err{ color:var(--danger); }
+  .auth-ok{ color:#7dffb2; }
+  .auth-link{
+    font-size:11px; opacity:.6; text-align:center; margin-top:10px; cursor:pointer;
+    letter-spacing:.5px; text-transform:uppercase; transition: opacity .15s;
+  }
+  .auth-link:hover{ opacity:1; color:var(--neon); }
+  .auth-verified{ font-size:11px; color:#7dffb2; text-shadow:0 0 8px rgba(125,255,178,.4); letter-spacing:1px; margin:4px 0; text-align:center; }
+  .auth-unverified{ font-size:11px; color:#ff8aa5; letter-spacing:1px; margin:4px 0; text-align:center; }
+  .auth-signed-in{
+    font-size:11px; letter-spacing:.5px; color:#7dffb2;
+    background:rgba(125,255,178,.08); border:1px solid rgba(125,255,178,.25);
+    border-radius:6px; padding:4px 10px; margin-bottom:8px; text-align:center;
+    display:none;
+  }
+  .user-btn{
+    font-size:12px !important; letter-spacing:.5px !important;
+    border-color:rgba(25,247,255,.3) !important;
+  }
+  .user-btn.signed-in{ border-color:rgba(125,255,178,.4) !important; color:#7dffb2 !important; }
+  .lb-verified-badge{
+    font-size:10px; color:#7dffb2; background:rgba(125,255,178,.12);
+    border:1px solid rgba(125,255,178,.3); border-radius:4px;
+    padding:1px 5px; margin-left:5px; letter-spacing:0;
+  }
+  .lb-you-badge{
+    font-size:10px; color:var(--neon); background:rgba(25,247,255,.1);
+    border:1px solid rgba(25,247,255,.3); border-radius:4px;
+    padding:1px 5px; margin-left:5px; letter-spacing:0;
+  }
 </style>
 </head>
 <body>
@@ -1066,6 +1220,7 @@
     <div>Move left/right to slip through the neon gates.</div>
     <div class="hint">Keys: A/D or Arrows. Touch: drag or tap.</div>
     <div id="mainMenuShards" class="main-menu-shards"><img src="shard.png" alt="Shard" class="shard-icon-sm"> 0 Neon Shards</div>
+    <div class="btn user-btn" id="mainMenuUserBtn">👤 Sign In / Register</div>
     <div class="btn btn-start" id="startRunBtn">START RUN</div>
     <div class="btn" id="openUpgrades">Upgrades</div>
     <div class="btn" id="openLeaderboard">🏆 Leaderboard</div>
@@ -1142,6 +1297,11 @@
     <hr class="settings-divider">
     <div class="settings-row"><span>Delete Progress</span><button id="deleteProgressBtn" class="toggle danger-btn">Delete</button></div>
     <div class="settings-row"><span>Reset All Data</span><button id="resetAllBtn" class="toggle danger-btn">Reset</button></div>
+    <hr class="settings-divider">
+    <div class="settings-row">
+      <span>Admin Mode</span>
+      <button id="adminModeBtn" class="toggle" style="border-color:rgba(138,91,255,.5);color:var(--neon2);">Activate</button>
+    </div>
     <div class="settings-actions">
       <div id="closeSettings" class="btn">Close</div>
     </div>
@@ -1275,15 +1435,96 @@
     <div class="title">Run Complete!</div>
     <div class="lb-modal-score" id="lbModalScore">0</div>
     <div id="lbModalShards" class="shards-earned" style="margin-bottom:4px;"></div>
-    <div class="hint" style="margin-bottom:8px;">Enter your name to save to the leaderboard.</div>
+    <div id="lbSignedInLabel" class="auth-signed-in"></div>
+    <div class="hint" id="lbSubmitHint" style="margin-bottom:8px;">Enter your name to save to the leaderboard.</div>
     <img id="lbPhotoPreview" class="lb-photo-preview" alt="Preview" src="">
-    <label class="lb-photo-label" for="lbPhotoInput">📷 Add a photo (optional)</label>
+    <label class="lb-photo-label" id="lbPhotoLabel" for="lbPhotoInput">📷 Add a photo (optional)</label>
     <input type="file" id="lbPhotoInput" accept="image/*" style="display:none">
     <input type="text" id="lbNameInput" class="lb-name-input" placeholder="Your name…" maxlength="24" autocomplete="off">
     <div class="lb-modal-actions">
       <div class="btn" id="lbSubmitBtn">Submit</div>
       <div class="btn" id="lbSkipBtn">Skip</div>
     </div>
+  </div>
+</div>
+
+<!-- Admin password modal -->
+<div id="adminPasswordModal" class="lb-modal" style="z-index:65;">
+  <div class="lb-modal-box" style="border-color:rgba(138,91,255,.5);box-shadow:0 0 40px rgba(138,91,255,.25);">
+    <div class="title" style="color:var(--neon2);">⚡ Admin Mode</div>
+    <div class="hint" style="margin-bottom:12px;">Enter the admin password to continue.</div>
+    <input type="password" id="adminPasswordInput" class="lb-name-input" placeholder="Password…" autocomplete="off">
+    <div id="adminPasswordError" style="color:var(--danger);font-size:11px;min-height:16px;margin:4px 0;letter-spacing:1px;"></div>
+    <div class="lb-modal-actions">
+      <div class="btn" id="adminPasswordSubmit" style="border-color:rgba(138,91,255,.5);color:var(--neon2);">Enter</div>
+      <div class="btn" id="adminPasswordCancel">Cancel</div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin panel -->
+<div id="adminPanel" class="admin-panel">
+  <div class="admin-box">
+    <div id="adminCloseX" class="admin-close-x" title="Close">✕</div>
+    <div class="title" style="color:var(--neon2);margin-bottom:6px;">⚡ Admin Mode</div>
+    <div class="admin-tabs">
+      <div class="admin-tab active" data-tab="player">👤 Player</div>
+      <div class="admin-tab" data-tab="leaderboard">🏆 Leaderboard</div>
+      <div class="admin-tab" data-tab="tuning">⚙️ Tuning</div>
+      <div class="admin-tab" data-tab="progression">📈 Progression</div>
+    </div>
+    <div class="admin-content" id="adminContent"></div>
+    <div class="settings-actions" style="margin-top:10px;flex-shrink:0;">
+      <div class="btn" id="adminCloseBtn" style="border-color:rgba(138,91,255,.5);color:var(--neon2);">Close</div>
+      <div class="btn danger-btn" id="adminDeactivateBtn">Deactivate</div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin mode badge (persistent indicator) -->
+<div id="adminBadge" class="admin-badge">⚡ Admin Mode Active</div>
+
+<!-- Account / Auth modal -->
+<div id="authModal" class="lb-modal" style="z-index:55;">
+  <div class="lb-modal-box" id="authBox" style="min-width:300px;">
+    <div class="title" id="authTitle" style="color:var(--neon);">👤 Account</div>
+    <!-- Tab navigation -->
+    <div class="auth-tabs" id="authTabs">
+      <div class="auth-tab active" data-view="login">Sign In</div>
+      <div class="auth-tab" data-view="register">Create Account</div>
+    </div>
+    <!-- Login view -->
+    <div id="authViewLogin">
+      <input type="email" id="authLoginEmail" class="auth-input" placeholder="Email address" autocomplete="email">
+      <input type="password" id="authLoginPw" class="auth-input" placeholder="Password" autocomplete="current-password">
+      <div id="authLoginErr" class="auth-msg"></div>
+      <div class="lb-modal-actions">
+        <div class="btn" id="authLoginBtn">Sign In</div>
+      </div>
+      <div class="auth-link" id="authForgotLink">Forgot password?</div>
+    </div>
+    <!-- Register view -->
+    <div id="authViewRegister" style="display:none;">
+      <input type="text" id="authRegName" class="auth-input" placeholder="Display name (shown on leaderboard)" maxlength="24" autocomplete="username">
+      <input type="email" id="authRegEmail" class="auth-input" placeholder="Email address" autocomplete="email">
+      <input type="password" id="authRegPw" class="auth-input" placeholder="Password (6+ characters)" autocomplete="new-password">
+      <div id="authRegErr" class="auth-msg"></div>
+      <div class="lb-modal-actions">
+        <div class="btn" id="authRegisterBtn">Create Account</div>
+      </div>
+    </div>
+    <!-- Profile view (shown when signed in) -->
+    <div id="authViewProfile" style="display:none;">
+      <div id="authProfileInfo" style="text-align:center;margin:8px 0 14px;"></div>
+      <div id="authVerifySection" style="display:none;text-align:center;margin-bottom:10px;"></div>
+      <div id="authSyncInfo" class="auth-msg" style="font-size:11px;opacity:.55;"></div>
+      <div class="lb-modal-actions">
+        <div class="btn" id="authSignOutBtn">Sign Out</div>
+        <div class="btn" id="authCloseProfileBtn">Close</div>
+      </div>
+    </div>
+    <!-- Cancel button (hidden in profile view) -->
+    <div class="btn" id="authCancelBtn" style="width:100%;margin-top:8px;opacity:.7;box-sizing:border-box;">Cancel</div>
   </div>
 </div>
 
@@ -1377,6 +1618,7 @@
 <div id="slowmoOverlay" class="slowmo-overlay"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <audio id="menuMusic" src="menu.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
 <audio id="gameMusic" src="game.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
@@ -4406,14 +4648,18 @@
   let lbPendingPhoto = null;
   let lbEntries = [];   // local cache for fast re-render
   let lbDB = null;      // Firebase database reference (null = offline / not configured)
+  let fbAuth = null;    // Firebase auth instance
+  let authUser = null;  // currently signed-in Firebase user (null if guest)
 
   // Initialise Firebase once (safe to call multiple times)
   (function initFirebase(){
-    if (!FIREBASE_CONFIG.databaseURL) return;
+    if (!FIREBASE_CONFIG.apiKey) return;
     try {
       if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-      lbDB = firebase.database();
-    } catch(e){ lbDB = null; }
+      if (FIREBASE_CONFIG.databaseURL) lbDB = firebase.database();
+      fbAuth = firebase.auth();
+      fbAuth.onAuthStateChanged(handleAuthStateChanged);
+    } catch(e){ lbDB = null; fbAuth = null; }
   })();
 
   // Resize a photo dataURL to a 48×48 JPEG thumbnail (~2 KB) for online storage
@@ -4480,6 +4726,8 @@
     }
     const top = filtered.slice(0, 10);
     top.forEach((e, i) => {
+      // Find the actual index in lbEntries for admin actions
+      const entryIdx = lbEntries.indexOf(e);
       const row = document.createElement("div");
       row.className = "lb-entry";
       // Rank
@@ -4517,6 +4765,35 @@
       dt.className = "lb-date";
       dt.textContent = e.date || "";
       row.appendChild(dt);
+      // Admin actions (visible only in admin mode via CSS)
+      const adminActions = document.createElement("div");
+      adminActions.className = "lb-admin-actions";
+      const editBtn = document.createElement("div");
+      editBtn.className = "lb-admin-btn";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (!adminMode) return;
+        adminHighlightIdx = entryIdx;
+        adminCurrentTab = "leaderboard";
+        openAdminPanel();
+      });
+      const delBtn = document.createElement("div");
+      delBtn.className = "lb-admin-btn del";
+      delBtn.textContent = "Del";
+      delBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (!adminMode) return;
+        if (entryIdx < 0 || entryIdx >= lbEntries.length) return;
+        if (!confirm(`Delete "${lbEntries[entryIdx].name}"?`)) return;
+        lbEntries.splice(entryIdx, 1);
+        renderLeaderboard(false);
+        renderLbSidebar();
+        sfxClick();
+      });
+      adminActions.appendChild(editBtn);
+      adminActions.appendChild(delBtn);
+      row.appendChild(adminActions);
       leaderboardListEl.appendChild(row);
     });
   }
@@ -4697,10 +4974,35 @@
     lbPendingScore = score;
     lbPendingPhoto = null;
     lbModalScoreEl.textContent = score.toLocaleString();
-    lbNameInputEl.value = "";
     lbPhotoPreviewEl.style.display = "none";
     lbPhotoPreviewEl.src = "";
     lbPhotoInputEl.value = "";
+
+    const signedInLabel = document.getElementById("lbSignedInLabel");
+    const submitHint = document.getElementById("lbSubmitHint");
+    const photoLabel = document.getElementById("lbPhotoLabel");
+
+    if (authUser && authUser.emailVerified){
+      // Pre-fill and lock the name when signed in with verified email
+      const displayName = authUser.displayName || authUser.email.split("@")[0];
+      lbNameInputEl.value = displayName;
+      lbNameInputEl.setAttribute("readonly", "true");
+      lbNameInputEl.style.opacity = ".7";
+      if (signedInLabel){
+        signedInLabel.textContent = `✓ Submitting as ${displayName}`;
+        signedInLabel.style.display = "block";
+      }
+      if (submitHint) submitHint.style.display = "none";
+      if (photoLabel) photoLabel.style.display = "none";
+    } else {
+      lbNameInputEl.value = "";
+      lbNameInputEl.removeAttribute("readonly");
+      lbNameInputEl.style.opacity = "";
+      if (signedInLabel) signedInLabel.style.display = "none";
+      if (submitHint) submitHint.style.display = "";
+      if (photoLabel) photoLabel.style.display = "";
+    }
+
     lbModalEl.classList.add("active");
   }
 
@@ -4718,6 +5020,11 @@
     function doSubmit(photo){
       const entry = { name, score, date: dateStr };
       if (photo) entry.photo = photo;
+      // Tag entry with account uid when signed in with verified email
+      if (authUser && authUser.emailVerified){
+        entry.uid = authUser.uid;
+        entry.verified = true;
+      }
       if (lbDB){
         lbDB.ref("leaderboard").push(entry).catch(() => {});
       }
@@ -4739,6 +5046,759 @@
   function submitScore(score){
     showLbModal(score);
   }
+
+  // ── Account / Auth System ────────────────────────────────────────────────────
+  // Uses Firebase Authentication (email + password + email verification).
+  // Progress is synced to /users/{uid}/progress in Firebase Realtime DB when
+  // the user is signed in. Falls back gracefully to localStorage when offline
+  // or not signed in.
+  //
+  // Firebase DB rules needed for cloud save:
+  //   "users": { "$uid": { ".read": "auth.uid === $uid", ".write": "auth.uid === $uid" } }
+  // (In test mode the DB is open, so this works without rule changes.)
+
+  function handleAuthStateChanged(user){
+    authUser = user;
+    if (user){
+      // User just signed in or page reloaded while signed in
+      loadProgressFromCloud(() => {
+        updateAuthUI();
+        // Refresh leaderboard to show (You) badges
+        if (leaderboardPanelEl.classList.contains("active")) renderLeaderboard(false);
+      });
+    } else {
+      updateAuthUI();
+    }
+  }
+
+  function loadProgressFromCloud(callback){
+    if (!authUser || !lbDB){ if (callback) callback(); return; }
+    lbDB.ref("users/" + authUser.uid + "/progress").once("value")
+      .then(snap => {
+        const data = snap.val();
+        if (data){
+          // Cloud data wins — merge over local state
+          if (data.shards != null) state.shards = data.shards;
+          if (data.upgrades) state.upgrades = data.upgrades;
+          if (data.rebind) state.rebind = data.rebind;
+          if (data.stats) Object.assign(state.stats, data.stats);
+          if (data.achievementsUnlocked) state.achievementsUnlocked = data.achievementsUnlocked;
+          if (data.best != null && data.best > state.best){
+            state.best = data.best;
+            bestEl.textContent = state.best;
+            state.uiBest = state.best;
+            localStorage.setItem("neonBest", state.best);
+          }
+          for (const up of UPGRADES){
+            if (state.upgrades[up.id] == null) state.upgrades[up.id] = 0;
+            up.level = state.upgrades[up.id];
+          }
+          applyUpgrades();
+          updateUpgradeUI();
+          // Mirror back to localStorage
+          localStorage.setItem("neonProgress", JSON.stringify({
+            shards: state.shards, upgrades: state.upgrades,
+            rebind: state.rebind, stats: state.stats,
+            achievementsUnlocked: state.achievementsUnlocked
+          }));
+        }
+        if (callback) callback();
+      })
+      .catch(() => { if (callback) callback(); });
+  }
+
+  function syncProgressToCloud(){
+    if (!authUser || !lbDB) return;
+    lbDB.ref("users/" + authUser.uid + "/progress").set({
+      shards: state.shards,
+      upgrades: state.upgrades,
+      rebind: state.rebind,
+      stats: state.stats,
+      achievementsUnlocked: state.achievementsUnlocked,
+      best: state.best,
+      displayName: authUser.displayName || "",
+      lastSync: Date.now()
+    }).catch(() => {});
+  }
+
+  function updateAuthUI(){
+    const userBtnEl = document.getElementById("mainMenuUserBtn");
+    if (!userBtnEl) return;
+    if (authUser){
+      const displayName = authUser.displayName || authUser.email.split("@")[0];
+      const verified = authUser.emailVerified;
+      userBtnEl.textContent = "👤 " + displayName + (verified ? " ✓" : " ⚠");
+      userBtnEl.classList.toggle("signed-in", verified);
+      userBtnEl.title = verified ? "Verified account — click to manage" : "Email not verified — click to manage";
+    } else {
+      userBtnEl.textContent = "👤 Sign In / Register";
+      userBtnEl.classList.remove("signed-in");
+      userBtnEl.title = "";
+    }
+    // Refresh shard display
+    const mainMenuShardsEl = document.getElementById("mainMenuShards");
+    if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
+  }
+
+  function openAuthModal(view){
+    sfxClick();
+    document.getElementById("authModal").classList.add("active");
+    setAuthView(authUser ? "profile" : (view || "login"));
+  }
+
+  function closeAuthModal(){
+    document.getElementById("authModal").classList.remove("active");
+  }
+
+  function setAuthView(view){
+    const tabsEl = document.getElementById("authTabs");
+    const loginViewEl = document.getElementById("authViewLogin");
+    const registerViewEl = document.getElementById("authViewRegister");
+    const profileViewEl = document.getElementById("authViewProfile");
+    const cancelBtnEl = document.getElementById("authCancelBtn");
+
+    tabsEl.style.display = view === "profile" ? "none" : "flex";
+    loginViewEl.style.display = view === "login" ? "block" : "none";
+    registerViewEl.style.display = view === "register" ? "block" : "none";
+    profileViewEl.style.display = view === "profile" ? "block" : "none";
+    if (cancelBtnEl) cancelBtnEl.style.display = view === "profile" ? "none" : "block";
+
+    document.querySelectorAll(".auth-tab").forEach(t => {
+      t.classList.toggle("active", t.dataset.view === view);
+    });
+
+    // Populate profile view
+    if (view === "profile" && authUser){
+      const displayName = authUser.displayName || authUser.email.split("@")[0];
+      const verified = authUser.emailVerified;
+      const profileInfoEl = document.getElementById("authProfileInfo");
+      if (profileInfoEl){
+        profileInfoEl.innerHTML =
+          '<div style="font-size:28px;margin-bottom:8px;">👤</div>' +
+          '<div style="font-size:16px;font-weight:bold;color:var(--neon);margin-bottom:4px;">' + displayName + '</div>' +
+          '<div style="font-size:12px;opacity:.65;margin-bottom:8px;">' + authUser.email + '</div>' +
+          (verified
+            ? '<div class="auth-verified">✓ Email Verified</div>'
+            : '<div class="auth-unverified">⚠️ Email not verified</div>') +
+          '<div style="font-size:12px;opacity:.65;margin-top:10px;">Best Score: ' + state.best.toLocaleString() + '</div>' +
+          '<div style="font-size:12px;opacity:.65;">Neon Shards: ' + state.shards.toLocaleString() + '</div>';
+      }
+      const verifySec = document.getElementById("authVerifySection");
+      if (verifySec){
+        if (!verified){
+          verifySec.style.display = "block";
+          verifySec.innerHTML =
+            '<div class="hint" style="font-size:11px;margin-bottom:8px;">Verify your email to submit scores to the leaderboard.</div>' +
+            '<div class="btn" id="authResendBtn" style="font-size:11px;">Resend Verification Email</div>' +
+            '<div class="btn" id="authRefreshVerifyBtn" style="font-size:11px;margin-top:6px;">I\'ve Verified — Refresh</div>';
+          const resendBtn = document.getElementById("authResendBtn");
+          if (resendBtn){
+            resendBtn.addEventListener("click", () => {
+              authUser.sendEmailVerification()
+                .then(() => { resendBtn.textContent = "Sent! ✓"; resendBtn.style.opacity = ".5"; })
+                .catch(() => { resendBtn.textContent = "Error sending email"; });
+            });
+          }
+          const refreshBtn = document.getElementById("authRefreshVerifyBtn");
+          if (refreshBtn){
+            refreshBtn.addEventListener("click", () => {
+              authUser.reload().then(() => {
+                authUser = fbAuth.currentUser;
+                if (authUser.emailVerified){
+                  setAuthView("profile");
+                  updateAuthUI();
+                } else {
+                  refreshBtn.textContent = "Not verified yet";
+                  setTimeout(() => { if (refreshBtn) refreshBtn.textContent = "I've Verified — Refresh"; }, 2000);
+                }
+              });
+            });
+          }
+        } else {
+          verifySec.style.display = "none";
+        }
+      }
+      const syncInfoEl = document.getElementById("authSyncInfo");
+      if (syncInfoEl) syncInfoEl.textContent = lbDB ? "Progress syncs to cloud automatically." : "Cloud sync unavailable (offline mode).";
+    }
+
+    // Clear error fields when switching views
+    ["authLoginErr", "authRegErr"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el){ el.textContent = ""; el.className = "auth-msg"; }
+    });
+  }
+
+  function authSetError(fieldId, msg){
+    const el = document.getElementById(fieldId);
+    if (el){ el.textContent = msg; el.className = "auth-msg auth-err"; }
+  }
+
+  function authSetOk(fieldId, msg){
+    const el = document.getElementById(fieldId);
+    if (el){ el.textContent = msg; el.className = "auth-msg auth-ok"; }
+  }
+
+  function doAuthLogin(){
+    if (!fbAuth){ authSetError("authLoginErr", "Authentication not available."); return; }
+    const email = document.getElementById("authLoginEmail").value.trim();
+    const pw = document.getElementById("authLoginPw").value;
+    if (!email || !pw){ authSetError("authLoginErr", "Please fill in all fields."); return; }
+    const btn = document.getElementById("authLoginBtn");
+    btn.textContent = "Signing in…"; btn.style.opacity = ".6";
+    fbAuth.signInWithEmailAndPassword(email, pw)
+      .then(() => {
+        btn.textContent = "Sign In"; btn.style.opacity = "";
+        closeAuthModal();
+      })
+      .catch(err => {
+        btn.textContent = "Sign In"; btn.style.opacity = "";
+        const msg =
+          (err.code === "auth/wrong-password" || err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")
+            ? "Incorrect email or password."
+            : err.code === "auth/too-many-requests" ? "Too many attempts. Try again later."
+            : err.code === "auth/invalid-email" ? "Invalid email address."
+            : err.code === "auth/user-disabled" ? "This account has been disabled."
+            : "Sign-in failed. Please try again.";
+        authSetError("authLoginErr", msg);
+      });
+  }
+
+  function doAuthRegister(){
+    if (!fbAuth){ authSetError("authRegErr", "Authentication not available."); return; }
+    const name = document.getElementById("authRegName").value.trim().slice(0, 24);
+    const email = document.getElementById("authRegEmail").value.trim();
+    const pw = document.getElementById("authRegPw").value;
+    if (!name || !email || !pw){ authSetError("authRegErr", "Please fill in all fields."); return; }
+    if (pw.length < 6){ authSetError("authRegErr", "Password must be at least 6 characters."); return; }
+    const btn = document.getElementById("authRegisterBtn");
+    btn.textContent = "Creating…"; btn.style.opacity = ".6";
+    fbAuth.createUserWithEmailAndPassword(email, pw)
+      .then(cred =>
+        cred.user.updateProfile({ displayName: name })
+          .then(() => cred.user.sendEmailVerification())
+          .then(() => cred.user)
+      )
+      .then(() => {
+        btn.textContent = "Create Account"; btn.style.opacity = "";
+        authSetOk("authRegErr", "Account created! Check your email to verify.");
+        setTimeout(() => closeAuthModal(), 2200);
+      })
+      .catch(err => {
+        btn.textContent = "Create Account"; btn.style.opacity = "";
+        const msg =
+          err.code === "auth/email-already-in-use" ? "An account with this email already exists."
+            : err.code === "auth/invalid-email" ? "Invalid email address."
+            : err.code === "auth/weak-password" ? "Password is too weak."
+            : "Registration failed. Please try again.";
+        authSetError("authRegErr", msg);
+      });
+  }
+
+  function doAuthSignOut(){
+    if (!fbAuth) return;
+    fbAuth.signOut().then(() => { closeAuthModal(); sfxClick(); });
+  }
+
+  function doForgotPassword(){
+    if (!fbAuth) return;
+    const email = document.getElementById("authLoginEmail").value.trim();
+    if (!email){ authSetError("authLoginErr", "Enter your email address above first."); return; }
+    fbAuth.sendPasswordResetEmail(email)
+      .then(() => authSetOk("authLoginErr", "Password reset email sent!"))
+      .catch(() => authSetError("authLoginErr", "Could not send reset email."));
+  }
+  // ── End Auth System ──────────────────────────────────────────────────────────
+
+  const ADMIN_PASSWORD = "Homesweet12345"; // UX gate only – client-side games cannot securely hide passwords
+  let adminMode = false;
+  let adminCurrentTab = "player";
+  let adminHighlightIdx = -1; // entry index to scroll to after rendering leaderboard tab
+
+  function openAdminPasswordPrompt(){
+    const inp = document.getElementById("adminPasswordInput");
+    const err = document.getElementById("adminPasswordError");
+    inp.value = "";
+    err.textContent = "";
+    document.getElementById("adminPasswordModal").classList.add("active");
+    setTimeout(() => inp.focus(), 80);
+  }
+
+  function closeAdminPasswordPrompt(){
+    document.getElementById("adminPasswordModal").classList.remove("active");
+  }
+
+  function submitAdminPassword(){
+    const pw = document.getElementById("adminPasswordInput").value;
+    if (pw === ADMIN_PASSWORD){
+      closeAdminPasswordPrompt();
+      activateAdminMode();
+    } else {
+      const err = document.getElementById("adminPasswordError");
+      err.textContent = "Incorrect password.";
+      document.getElementById("adminPasswordInput").value = "";
+      setTimeout(() => { err.textContent = ""; }, 2000);
+    }
+  }
+
+  function activateAdminMode(){
+    adminMode = true;
+    document.body.classList.add("admin-active");
+    document.getElementById("adminBadge").classList.add("active");
+    const btn = document.getElementById("adminModeBtn");
+    btn.textContent = "Active ✓";
+    btn.style.background = "rgba(138,91,255,.2)";
+    settingsPanelEl.classList.remove("active");
+    adminCurrentTab = "player";
+    openAdminPanel();
+  }
+
+  function deactivateAdminMode(){
+    adminMode = false;
+    document.body.classList.remove("admin-active");
+    document.getElementById("adminBadge").classList.remove("active");
+    const btn = document.getElementById("adminModeBtn");
+    btn.textContent = "Activate";
+    btn.style.background = "";
+    closeAdminPanel();
+    sfxClick();
+  }
+
+  function openAdminPanel(){
+    sfxClick();
+    document.getElementById("adminPanel").classList.add("active");
+    renderAdminTab(adminCurrentTab);
+  }
+
+  function closeAdminPanel(){
+    document.getElementById("adminPanel").classList.remove("active");
+  }
+
+  function renderAdminTab(tab){
+    adminCurrentTab = tab;
+    document.querySelectorAll(".admin-tab").forEach(t => {
+      t.classList.toggle("active", t.dataset.tab === tab);
+    });
+    const content = document.getElementById("adminContent");
+    if (tab === "player") renderAdminPlayer(content);
+    else if (tab === "leaderboard") renderAdminLeaderboard(content);
+    else if (tab === "tuning") renderAdminTuning(content);
+    else if (tab === "progression") renderAdminProgression(content);
+  }
+
+  // ── Player tab ──
+  function renderAdminPlayer(content){
+    const inPlay = state.mode === "play";
+    let html = `
+      <div class="admin-section-title">Player Data</div>
+      <div class="admin-row">
+        <span>Neon Shards</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="admin-input" id="adminShards" type="number" min="0" value="${state.shards}">
+          <div class="admin-btn" id="adminSetShardsBtn">Set</div>
+        </div>
+      </div>
+      <div class="admin-row">
+        <span>Best Score</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="admin-input" id="adminBest" type="number" min="0" value="${state.best}">
+          <div class="admin-btn" id="adminSetBestBtn">Set</div>
+        </div>
+      </div>`;
+    if (inPlay){
+      html += `
+      <div class="admin-row">
+        <span>Current Score</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="admin-input" id="adminScore" type="number" min="0" value="${Math.floor(state.score)}">
+          <div class="admin-btn" id="adminSetScoreBtn">Set</div>
+        </div>
+      </div>
+      <div class="admin-row">
+        <span>Run Time (s)</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="admin-input" id="adminTime" type="number" min="0" step="0.1" value="${state.time.toFixed(1)}">
+          <div class="admin-btn" id="adminSetTimeBtn">Set</div>
+        </div>
+      </div>`;
+    }
+    html += `
+      <div class="admin-section-title">Grant Power-ups ${inPlay ? "" : '<span style="opacity:.5;font-size:10px;">(during play only)</span>'}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin:8px 0;">
+        <div class="admin-btn" id="adminGrantShieldBtn">🛡️ Shield</div>
+        <div class="admin-btn" id="adminGrantMagnetBtn">🧲 Magnet</div>
+        <div class="admin-btn" id="adminGrantDashBtn">⚡ Dash</div>
+        <div class="admin-btn" id="adminGrantMultBtn">✖️ 2x Score</div>
+        <div class="admin-btn" id="adminGrantInvBtn">🌟 Invincible</div>
+        <div class="admin-btn" id="adminGrantSlowmoBtn">⏰ Slow-Mo</div>
+      </div>
+      <div class="admin-section-title">Danger Zone</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin:8px 0;">
+        <div class="admin-btn danger" id="adminDelBestBtn">🗑️ Delete Best</div>
+        <div class="admin-btn danger" id="adminResetProgBtn">⚠️ Reset Progress</div>
+      </div>`;
+    content.innerHTML = html;
+
+    document.getElementById("adminSetShardsBtn").addEventListener("click", () => {
+      const v = parseInt(document.getElementById("adminShards").value, 10);
+      if (isNaN(v) || v < 0) return;
+      state.shards = v;
+      saveProgress();
+      updateUpgradeUI();
+      sfxClick();
+    });
+    document.getElementById("adminSetBestBtn").addEventListener("click", () => {
+      const v = parseInt(document.getElementById("adminBest").value, 10);
+      if (isNaN(v) || v < 0) return;
+      state.best = v;
+      localStorage.setItem("neonBest", v);
+      bestEl.textContent = v;
+      state.uiBest = v;
+      sfxClick();
+    });
+    if (inPlay){
+      document.getElementById("adminSetScoreBtn").addEventListener("click", () => {
+        const v = parseInt(document.getElementById("adminScore").value, 10);
+        if (isNaN(v) || v < 0) return;
+        state.score = v;
+        sfxClick();
+      });
+      document.getElementById("adminSetTimeBtn").addEventListener("click", () => {
+        const v = parseFloat(document.getElementById("adminTime").value);
+        if (isNaN(v) || v < 0) return;
+        state.time = v;
+        sfxClick();
+      });
+    }
+    document.getElementById("adminGrantShieldBtn").addEventListener("click", () => {
+      if (!inPlay) return;
+      state.hasShield = true;
+      shieldIndicatorEl.classList.add("active");
+      sfxClick();
+    });
+    document.getElementById("adminGrantMagnetBtn").addEventListener("click", () => {
+      if (!inPlay) return;
+      state.magnetActive = true;
+      state.magnetTimer = 30;
+      magnetIndicatorEl.classList.add("active");
+      sfxClick();
+    });
+    document.getElementById("adminGrantDashBtn").addEventListener("click", () => {
+      if (!inPlay) return;
+      state.dashActive = true;
+      state.dashTimer = 30;
+      dashIndicatorEl.classList.add("active");
+      sfxClick();
+    });
+    document.getElementById("adminGrantMultBtn").addEventListener("click", () => {
+      if (!inPlay) return;
+      state.scoreMultiplier = 2;
+      state.scoreMultiplierTimer = 30;
+      multiplierIndicatorEl.classList.add("active");
+      sfxClick();
+    });
+    document.getElementById("adminGrantInvBtn").addEventListener("click", () => {
+      if (!inPlay) return;
+      state.invincible = true;
+      state.invincibleTimer = 30;
+      invincibleIndicatorEl.classList.add("active");
+      sfxClick();
+    });
+    document.getElementById("adminGrantSlowmoBtn").addEventListener("click", () => {
+      if (!inPlay) return;
+      state.slowMo = 1;
+      sfxClick();
+    });
+    document.getElementById("adminDelBestBtn").addEventListener("click", () => {
+      if (!confirm("Delete best score?")) return;
+      state.best = 0;
+      localStorage.removeItem("neonBest");
+      bestEl.textContent = 0;
+      state.uiBest = 0;
+      sfxClick();
+      renderAdminTab("player");
+    });
+    document.getElementById("adminResetProgBtn").addEventListener("click", () => {
+      if (!confirm("Reset all progress (shards, upgrades, key bindings)?")) return;
+      localStorage.removeItem("neonProgress");
+      state.shards = 0;
+      state.upgrades = {};
+      state.rebind = { left: "KeyA", right: "KeyD" };
+      for (const up of UPGRADES) up.level = 0;
+      applyUpgrades();
+      updateUpgradeUI();
+      sfxClick();
+      renderAdminTab("player");
+    });
+  }
+
+  // ── Leaderboard tab ──
+  function renderAdminLeaderboard(content){
+    if (!lbEntries.length){
+      content.innerHTML = `
+        <div style="text-align:center;opacity:.5;padding:24px;font-size:13px;text-transform:uppercase;letter-spacing:1px;">
+          No leaderboard entries loaded.
+        </div>
+        <div style="text-align:center;margin-top:8px;">
+          <div class="admin-btn" id="adminRefreshLbBtn">🔄 Refresh from Server</div>
+        </div>`;
+      document.getElementById("adminRefreshLbBtn").addEventListener("click", () => {
+        loadLeaderboardOnline();
+        setTimeout(() => renderAdminTab("leaderboard"), 1500);
+      });
+      return;
+    }
+
+    let html = `
+      <div class="admin-section-title">All Entries (${lbEntries.length})</div>
+      <div style="font-size:10px;opacity:.45;margin-bottom:10px;letter-spacing:.5px;">
+        Edit a field and click Save, or click Del to remove an entry.
+      </div>`;
+    lbEntries.forEach((e, i) => {
+      html += `
+        <div class="admin-lb-row" data-idx="${i}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(138,91,255,.15);border-radius:8px;margin-bottom:6px;">
+          <div style="font-size:14px;color:var(--neon);min-width:26px;font-weight:bold;text-align:center;">#${i+1}</div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+            <input class="admin-input" style="width:100%;box-sizing:border-box;" data-field="name" value="${(e.name||"").replace(/"/g,"&quot;")}" type="text" maxlength="24" placeholder="Name">
+            <div style="display:flex;gap:4px;">
+              <input class="admin-input" style="width:90px;" data-field="score" value="${e.score}" type="number" min="0" placeholder="Score">
+              <input class="admin-input" style="flex:1;" data-field="date" value="${(e.date||"").replace(/"/g,"&quot;")}" type="text" maxlength="20" placeholder="Date">
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="admin-btn admin-lb-save" data-idx="${i}">Save</div>
+            <div class="admin-btn danger admin-lb-del" data-idx="${i}">Del</div>
+          </div>
+        </div>`;
+    });
+    html += `
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+        <div class="admin-btn" id="adminRefreshLbBtn2">🔄 Refresh</div>
+        <div class="admin-btn danger" id="adminClearAllLbBtn">⚠️ Clear All</div>
+      </div>`;
+    content.innerHTML = html;
+
+    content.querySelectorAll(".admin-lb-save").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        if (idx < 0 || idx >= lbEntries.length) return;
+        const row = content.querySelector(`.admin-lb-row[data-idx="${idx}"]`);
+        if (!row) return;
+        const nameInput = row.querySelector('[data-field="name"]');
+        const scoreInput = row.querySelector('[data-field="score"]');
+        const dateInput = row.querySelector('[data-field="date"]');
+        const newName = (nameInput ? nameInput.value.trim() : lbEntries[idx].name) || lbEntries[idx].name;
+        const newScore = scoreInput ? parseInt(scoreInput.value, 10) : lbEntries[idx].score;
+        const newDate = dateInput ? dateInput.value.trim() : lbEntries[idx].date;
+        if (isNaN(newScore) || newScore < 0) return;
+        lbEntries[idx] = { ...lbEntries[idx], name: newName, score: newScore, date: newDate };
+        lbEntries.sort((a, b) => b.score - a.score);
+        if (lbEntries.length > LB_MAX) lbEntries.length = LB_MAX;
+        renderLeaderboard(false);
+        renderLbSidebar();
+        sfxClick();
+        renderAdminTab("leaderboard");
+      });
+    });
+
+    content.querySelectorAll(".admin-lb-del").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        if (idx < 0 || idx >= lbEntries.length) return;
+        if (!confirm(`Delete "${lbEntries[idx].name}" (#${idx+1})?`)) return;
+        lbEntries.splice(idx, 1);
+        renderLeaderboard(false);
+        renderLbSidebar();
+        sfxClick();
+        renderAdminTab("leaderboard");
+      });
+    });
+
+    document.getElementById("adminRefreshLbBtn2").addEventListener("click", () => {
+      loadLeaderboardOnline();
+      setTimeout(() => renderAdminTab("leaderboard"), 1500);
+    });
+    document.getElementById("adminClearAllLbBtn").addEventListener("click", () => {
+      if (!confirm("Clear ALL leaderboard entries? This only affects the local view.")) return;
+      lbEntries.length = 0;
+      renderLeaderboard(false);
+      renderLbSidebar();
+      sfxClick();
+      renderAdminTab("leaderboard");
+    });
+
+    // Scroll to and highlight the entry that was clicked from the leaderboard
+    if (adminHighlightIdx >= 0){
+      const highlightEl = content.querySelector(`.admin-lb-row[data-idx="${adminHighlightIdx}"]`);
+      if (highlightEl){
+        highlightEl.style.borderColor = "rgba(138,91,255,.6)";
+        highlightEl.style.background = "rgba(138,91,255,.1)";
+        setTimeout(() => highlightEl.scrollIntoView({ behavior: "smooth", block: "center" }), 60);
+      }
+      adminHighlightIdx = -1;
+    }
+  }
+
+  // ── Tuning tab ──
+  function renderAdminTuning(content){
+    const fields = [
+      { key:"baseSpeedMin",          label:"Base Speed Min" },
+      { key:"baseSpeedMax",          label:"Base Speed Max" },
+      { key:"baseGapMin",            label:"Gap Width Min (px)" },
+      { key:"baseGapMax",            label:"Gap Width Max (px)" },
+      { key:"minGapMin",             label:"Min Gap Min (px)" },
+      { key:"minGapMax",             label:"Min Gap Max (px)" },
+      { key:"gapShrinkPerIntensityMin", label:"Gap Shrink/Intensity Min" },
+      { key:"gapShrinkPerIntensityMax", label:"Gap Shrink/Intensity Max" },
+      { key:"nearMissThreshold",     label:"Near-Miss Threshold (px)" },
+      { key:"slowMoScale",           label:"Slow-Mo Scale (0-1)" },
+      { key:"slowMoTime",            label:"Slow-Mo Duration (s)" },
+      { key:"orbRadius",             label:"Orb Radius (px)" },
+      { key:"tremorShake",           label:"Tremor Shake" },
+      { key:"directorStrength",      label:"Anti-Camp Strength" },
+    ];
+    let html = `
+      <div class="admin-section-title">Game Tuning</div>
+      <div style="font-size:10px;opacity:.45;margin-bottom:10px;letter-spacing:.5px;">
+        Changes take effect on the next run (some immediately).
+      </div>`;
+    fields.forEach(f => {
+      html += `
+        <div class="admin-row">
+          <span style="font-size:11px;">${f.label}</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input class="admin-input" id="adminTuning_${f.key}" type="number" step="any" value="${TUNING[f.key]}">
+            <div class="admin-btn admin-tuning-set" data-key="${f.key}">Set</div>
+          </div>
+        </div>`;
+    });
+    content.innerHTML = html;
+
+    content.querySelectorAll(".admin-tuning-set").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.key;
+        const el = document.getElementById(`adminTuning_${key}`);
+        if (!el) return;
+        const v = parseFloat(el.value);
+        if (isNaN(v)) return;
+        TUNING[key] = v;
+        sfxClick();
+      });
+    });
+  }
+
+  // ── Progression tab ──
+  function renderAdminProgression(content){
+    let html = `<div class="admin-section-title">Upgrades</div>`;
+    UPGRADES.forEach(up => {
+      html += `
+        <div class="admin-row">
+          <span style="font-size:11px;">${up.icon||""} ${up.name}</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input class="admin-input" id="adminUpg_${up.id}" type="number" min="0" max="${up.max}" value="${up.level}" style="width:70px;">
+            <div class="admin-btn admin-upg-set" data-id="${up.id}" data-max="${up.max}">Set</div>
+          </div>
+        </div>`;
+    });
+    html += `
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 14px;">
+        <div class="admin-btn" id="adminMaxAllUpgBtn">⬆️ Max All</div>
+        <div class="admin-btn danger" id="adminZeroAllUpgBtn">⬇️ Zero All</div>
+      </div>
+      <div class="admin-section-title">Achievements (${state.achievementsUnlocked.length} / ${achievements.length})</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 14px;">
+        <div class="admin-btn" id="adminUnlockAllAchBtn">🏆 Unlock All</div>
+        <div class="admin-btn danger" id="adminClearAllAchBtn">🗑️ Clear All</div>
+      </div>
+      <div class="admin-section-title">Stats</div>`;
+    const statsKeys = [
+      { k:"totalRuns",        label:"Total Runs" },
+      { k:"totalGates",       label:"Total Gates" },
+      { k:"totalTime",        label:"Total Time (s)" },
+      { k:"totalNearMisses",  label:"Total Near Misses" },
+      { k:"totalShardsEarned", label:"Total Shards Earned" }
+    ];
+    statsKeys.forEach(({ k, label }) => {
+      html += `
+        <div class="admin-row">
+          <span style="font-size:11px;">${label}</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input class="admin-input" id="adminStat_${k}" type="number" min="0" step="any" value="${state.stats[k]||0}">
+            <div class="admin-btn admin-stat-set" data-key="${k}">Set</div>
+          </div>
+        </div>`;
+    });
+    content.innerHTML = html;
+
+    content.querySelectorAll(".admin-upg-set").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const max = parseInt(btn.dataset.max, 10);
+        const el = document.getElementById(`adminUpg_${id}`);
+        if (!el) return;
+        const v = Math.min(Math.max(0, parseInt(el.value, 10)), max);
+        if (isNaN(v)) return;
+        const up = UPGRADES.find(u => u.id === id);
+        if (!up) return;
+        up.level = v;
+        state.upgrades[id] = v;
+        applyUpgrades();
+        saveProgress();
+        updateUpgradeUI();
+        sfxClick();
+      });
+    });
+
+    document.getElementById("adminMaxAllUpgBtn").addEventListener("click", () => {
+      UPGRADES.forEach(up => { up.level = up.max; state.upgrades[up.id] = up.max; });
+      applyUpgrades();
+      saveProgress();
+      updateUpgradeUI();
+      sfxClick();
+      renderAdminTab("progression");
+    });
+
+    document.getElementById("adminZeroAllUpgBtn").addEventListener("click", () => {
+      if (!confirm("Set all upgrade levels to 0?")) return;
+      UPGRADES.forEach(up => { up.level = 0; state.upgrades[up.id] = 0; });
+      applyUpgrades();
+      saveProgress();
+      updateUpgradeUI();
+      sfxClick();
+      renderAdminTab("progression");
+    });
+
+    document.getElementById("adminUnlockAllAchBtn").addEventListener("click", () => {
+      achievements.forEach(a => {
+        if (!state.achievementsUnlocked.includes(a.id)) state.achievementsUnlocked.push(a.id);
+      });
+      saveProgress();
+      sfxClick();
+      renderAdminTab("progression");
+    });
+
+    document.getElementById("adminClearAllAchBtn").addEventListener("click", () => {
+      if (!confirm("Clear all achievements?")) return;
+      state.achievementsUnlocked = [];
+      saveProgress();
+      sfxClick();
+      renderAdminTab("progression");
+    });
+
+    content.querySelectorAll(".admin-stat-set").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.key;
+        const el = document.getElementById(`adminStat_${key}`);
+        if (!el) return;
+        const v = parseFloat(el.value);
+        if (isNaN(v) || v < 0) return;
+        state.stats[key] = v;
+        saveProgress();
+        sfxClick();
+      });
+    });
+  }
+  // ── End Admin Mode ───────────────────────────────────────────────────────────
 
   // Input
   window.addEventListener("keydown", (e) => {
@@ -5108,6 +6168,56 @@
     document.getElementById("lbTabAllTime").classList.add("active");
     document.getElementById("lbTabToday").classList.remove("active");
     renderLbSidebar();
+  });
+
+  // Admin Mode event listeners
+  document.getElementById("adminModeBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (adminMode){
+      openAdminPanel();
+    } else {
+      openAdminPasswordPrompt();
+    }
+  });
+  document.getElementById("adminPasswordSubmit").addEventListener("click", (e) => {
+    e.stopPropagation();
+    submitAdminPassword();
+  });
+  document.getElementById("adminPasswordCancel").addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfxClick();
+    closeAdminPasswordPrompt();
+  });
+  document.getElementById("adminPasswordInput").addEventListener("keydown", (e) => {
+    if (e.code === "Enter") submitAdminPassword();
+    e.stopPropagation();
+  });
+  document.getElementById("adminPasswordInput").addEventListener("keyup", (e) => e.stopPropagation());
+  document.getElementById("adminPasswordModal").addEventListener("click", (e) => e.stopPropagation());
+  document.getElementById("adminPanel").addEventListener("click", (e) => e.stopPropagation());
+  document.getElementById("adminCloseBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeAdminPanel();
+    sfxClick();
+  });
+  document.getElementById("adminCloseX").addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeAdminPanel();
+    sfxClick();
+  });
+  document.getElementById("adminDeactivateBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    deactivateAdminMode();
+  });
+  document.getElementById("adminBadge").addEventListener("click", (e) => {
+    e.stopPropagation();
+    openAdminPanel();
+  });
+  document.getElementById("adminPanel").querySelector(".admin-tabs").addEventListener("click", (e) => {
+    const tab = e.target.closest(".admin-tab");
+    if (!tab) return;
+    sfxClick();
+    renderAdminTab(tab.dataset.tab);
   });
 
   resize();
