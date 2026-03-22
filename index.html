@@ -4793,6 +4793,11 @@ const FIREBASE_CONFIG = firebaseConfig;
         if (!adminMode) return;
         if (entryIdx < 0 || entryIdx >= lbEntries.length) return;
         if (!confirm(`Delete "${lbEntries[entryIdx].name}"?`)) return;
+        const fbKey = lbEntries[entryIdx].fbKey;
+        // Delete from Firebase
+        if (fbKey && lbDB){
+          lbDB.ref("leaderboard/" + fbKey).remove().catch(() => {});
+        }
         lbEntries.splice(entryIdx, 1);
         renderLeaderboard(false);
         renderLbSidebar();
@@ -4816,7 +4821,8 @@ const FIREBASE_CONFIG = firebaseConfig;
       .then(snap => {
         const raw = snap.val();
         if (!raw){ lbEntries = []; renderLeaderboard(false); renderLbSidebar(); return; }
-        lbEntries = Object.values(raw);
+        // Preserve Firebase keys so we can update entries instead of creating duplicates
+        lbEntries = Object.entries(raw).map(([key, value]) => ({...value, fbKey: key}));
         lbEntries.sort((a, b) => b.score - a.score);
         if (lbEntries.length > LB_MAX) lbEntries.length = LB_MAX;
         renderLeaderboard(false);
@@ -5033,10 +5039,35 @@ const FIREBASE_CONFIG = firebaseConfig;
         entry.verified = true;
       }
       if (lbDB){
-        lbDB.ref("leaderboard").push(entry).catch(() => {});
+        // If logged in, check if user already has an entry on the leaderboard
+        if (authUser && authUser.emailVerified){
+          let existingIdx = lbEntries.findIndex(e => e.uid === authUser.uid);
+          if (existingIdx >= 0){
+            // User already has an entry — only update if new score is better
+            if (score > lbEntries[existingIdx].score){
+              const fbKey = lbEntries[existingIdx].fbKey;
+              if (fbKey){
+                // Update existing entry in Firebase
+                lbDB.ref("leaderboard/" + fbKey).update(entry).catch(() => {});
+                // Update local cache
+                lbEntries[existingIdx] = {...entry, fbKey: fbKey};
+              }
+            }
+          } else {
+            // New entry for this user
+            lbDB.ref("leaderboard").push(entry).catch(() => {});
+            // Add to local cache
+            lbEntries.push(entry);
+          }
+        } else {
+          // Guest (not logged in) — always create new entry
+          lbDB.ref("leaderboard").push(entry).catch(() => {});
+          lbEntries.push(entry);
+        }
+      } else {
+        // No database — just add to local cache
+        lbEntries.push(entry);
       }
-      // Update local cache so the leaderboard shows the entry immediately
-      lbEntries.push(entry);
       lbEntries.sort((a, b) => b.score - a.score);
       if (lbEntries.length > LB_MAX) lbEntries.length = LB_MAX;
       openLeaderboard(null);
@@ -5622,7 +5653,12 @@ const FIREBASE_CONFIG = firebaseConfig;
         const newScore = scoreInput ? parseInt(scoreInput.value, 10) : lbEntries[idx].score;
         const newDate = dateInput ? dateInput.value.trim() : lbEntries[idx].date;
         if (isNaN(newScore) || newScore < 0) return;
+        const fbKey = lbEntries[idx].fbKey;
         lbEntries[idx] = { ...lbEntries[idx], name: newName, score: newScore, date: newDate };
+        // Sync admin changes to Firebase
+        if (fbKey && lbDB){
+          lbDB.ref("leaderboard/" + fbKey).update({ name: newName, score: newScore, date: newDate }).catch(() => {});
+        }
         lbEntries.sort((a, b) => b.score - a.score);
         if (lbEntries.length > LB_MAX) lbEntries.length = LB_MAX;
         renderLeaderboard(false);
@@ -5637,6 +5673,11 @@ const FIREBASE_CONFIG = firebaseConfig;
         const idx = parseInt(btn.dataset.idx, 10);
         if (idx < 0 || idx >= lbEntries.length) return;
         if (!confirm(`Delete "${lbEntries[idx].name}" (#${idx+1})?`)) return;
+        const fbKey = lbEntries[idx].fbKey;
+        // Delete from Firebase
+        if (fbKey && lbDB){
+          lbDB.ref("leaderboard/" + fbKey).remove().catch(() => {});
+        }
         lbEntries.splice(idx, 1);
         renderLeaderboard(false);
         renderLbSidebar();
@@ -5650,7 +5691,15 @@ const FIREBASE_CONFIG = firebaseConfig;
       setTimeout(() => renderAdminTab("leaderboard"), 1500);
     });
     document.getElementById("adminClearAllLbBtn").addEventListener("click", () => {
-      if (!confirm("Clear ALL leaderboard entries? This only affects the local view.")) return;
+      if (!confirm("Clear ALL leaderboard entries from the cloud database? This will permanently delete all scores.")) return;
+      if (lbDB){
+        // Delete all entries from Firebase
+        for (const entry of lbEntries){
+          if (entry.fbKey){
+            lbDB.ref("leaderboard/" + entry.fbKey).remove().catch(() => {});
+          }
+        }
+      }
       lbEntries.length = 0;
       renderLeaderboard(false);
       renderLbSidebar();
