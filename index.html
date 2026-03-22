@@ -923,18 +923,74 @@
   .slides::-webkit-scrollbar{ display:none; }
   .slide{
     min-width:80vw; max-width:80vw; scroll-snap-align:center;
-    background: rgba(25,247,255,.06);
-    border:1px solid rgba(25,247,255,.25);
-    border-radius:12px; padding:14px 16px;
+    background:
+      radial-gradient(110% 90% at 50% -10%, rgba(25,247,255,.14), rgba(25,247,255,0) 58%),
+      linear-gradient(165deg, rgba(25,247,255,.09), rgba(138,91,255,.08) 55%, rgba(255,59,122,.06));
+    border:1px solid rgba(25,247,255,.3);
+    box-shadow: 0 0 20px rgba(25,247,255,.14), inset 0 0 24px rgba(25,247,255,.06);
+    border-radius:14px; padding:18px 16px 16px;
     text-transform:uppercase; letter-spacing:1px;
+    display:flex; flex-direction:column; align-items:center;
+    text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .slide::before{
+    content:""; position:absolute; left:12%; right:12%; top:0; height:1px;
+    background: linear-gradient(90deg, rgba(25,247,255,0), rgba(25,247,255,.75), rgba(25,247,255,0));
+    opacity:.8;
   }
   .slide h3{
-    margin:0 0 6px 0; font-size:14px; color:var(--neon);
+    margin:0 0 10px 0;
+    font-size:16px;
+    letter-spacing:2.5px;
+    color:transparent;
+    background: linear-gradient(90deg, rgba(25,247,255,1), rgba(138,91,255,1), rgba(25,247,255,1));
+    -webkit-background-clip:text;
+    background-clip:text;
+    text-shadow: 0 0 12px rgba(25,247,255,.45);
+    position:relative;
+    padding-bottom:7px;
+  }
+  .slide h3::after{
+    content:"";
+    position:absolute; left:50%; bottom:0;
+    transform:translateX(-50%);
+    width:72px; height:2px; border-radius:2px;
+    background: linear-gradient(90deg, rgba(25,247,255,0), rgba(25,247,255,.95), rgba(25,247,255,0));
   }
   .slide p{
-    margin:6px 0; font-size:11px; opacity:.85;
+    margin:6px auto;
+    width:min(96%, 560px);
+    font-size:12px;
+    line-height:1.55;
+    opacity:.95;
+    color:rgba(224,250,255,.97);
+    text-shadow: 0 0 8px rgba(25,247,255,.2);
   }
-  .slide .hint{ font-size:10px; }
+  .slide p:first-of-type{
+    font-size:13px;
+    font-weight:bold;
+    letter-spacing:1.2px;
+    color:rgba(236,255,255,1);
+  }
+  .slide .hint{
+    font-size:11px;
+    width:min(96%, 560px);
+    margin:5px auto;
+    padding:6px 10px;
+    border-radius:10px;
+    background: rgba(25,247,255,.08);
+    border:1px solid rgba(25,247,255,.22);
+    letter-spacing:.8px;
+    color:rgba(204,246,255,.95);
+  }
+  @media (max-width:700px){
+    .slide{ min-width:88vw; max-width:88vw; padding:15px 12px 13px; }
+    .slide h3{ font-size:14px; letter-spacing:2px; }
+    .slide p{ font-size:11px; }
+    .slide p:first-of-type{ font-size:12px; }
+    .slide .hint{ font-size:10px; }
+  }
   .slide-controls{
     display:flex; align-items:center; justify-content:space-between; margin-top:8px;
   }
@@ -2410,7 +2466,18 @@ const FIREBASE_CONFIG = firebaseConfig;
       bg: { a: "#04080e", b: "#0b1230" },
       pacingBias: 0.92,
       glowBoost: 1.25,
-      meterHue: 190
+      meterHue: 190,
+      tagline: "Iridescent ribbons and smooth drifting light fields.",
+      visual: {
+        starfieldMul: 1.25,
+        bgDriftMul: 1.22,
+        gridIntensity: 1.05,
+        gatePulseMul: 1.08,
+        auroraRibbon: 1.0,
+        pulseRings: 0.2,
+        glitchSplit: 0,
+        vignetteColor: [70, 255, 180]
+      }
     },
     {
       name: "Pulse",
@@ -2418,7 +2485,18 @@ const FIREBASE_CONFIG = firebaseConfig;
       bg: { a: "#090306", b: "#180a12" },
       pacingBias: 1.08,
       glowBoost: 1.4,
-      meterHue: 340
+      meterHue: 340,
+      tagline: "High-energy wavefronts with rhythmic shock rings.",
+      visual: {
+        starfieldMul: 0.9,
+        bgDriftMul: 0.88,
+        gridIntensity: 1.2,
+        gatePulseMul: 1.45,
+        auroraRibbon: 0.2,
+        pulseRings: 1.0,
+        glitchSplit: 0,
+        vignetteColor: [255, 80, 120]
+      }
     },
     {
       name: "Glitch",
@@ -2426,7 +2504,18 @@ const FIREBASE_CONFIG = firebaseConfig;
       bg: { a: "#040509", b: "#090c1a" },
       pacingBias: 1.0,
       glowBoost: 1.5,
-      meterHue: 280
+      meterHue: 280,
+      tagline: "Fractured scanfields, chromatic offsets, unstable signal.",
+      visual: {
+        starfieldMul: 1.1,
+        bgDriftMul: 1.0,
+        gridIntensity: 0.92,
+        gatePulseMul: 1.12,
+        auroraRibbon: 0.15,
+        pulseRings: 0.35,
+        glitchSplit: 1.0,
+        vignetteColor: [255, 80, 200]
+      }
     }
   ];
 
@@ -2938,6 +3027,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     root.style.setProperty("--danger", `rgb(${palette.neonC.join(",")})`);
     root.style.setProperty("--bg", t.bg.a);
     root.style.setProperty("--bg2", t.bg.b);
+    root.style.setProperty("--theme-accent", `rgb(${palette.neonC.join(",")})`);
+    document.body.dataset.theme = t.name.toLowerCase();
     intensityFillEl.style.background = `linear-gradient(90deg, rgba(${palette.neonA.join(",")},.9), rgba(${palette.neonB.join(",")},.95), rgba(${palette.neonC.join(",")},.9))`;
   }
 
@@ -3200,10 +3291,11 @@ const FIREBASE_CONFIG = firebaseConfig;
         title: `🎨 THEME: ${state.theme.name.toUpperCase()}`,
         content: `<div style="font-size:14px; margin:20px 0; opacity:0.9;">
                     This run features the <span style="color:var(--neon);">${state.theme.name}</span> theme!<br><br>
-                    Each theme has unique visuals and pacing.<br>
-                    ${state.theme.name === "Aurora" ? "Steady, smooth flow." : ""}
-                    ${state.theme.name === "Pulse" ? "Fast, burst-paced action." : ""}
-                    ${state.theme.name === "Glitch" ? "Unpredictable, swell patterns." : ""}
+                    <span style="color:var(--neon2);">${state.theme.tagline || "Distinct atmosphere and pacing profile."}</span><br><br>
+                    Visual Signature:<br>
+                    ${state.theme.name === "Aurora" ? "Luminous ribbon fields + fluid atmospheric drift." : ""}
+                    ${state.theme.name === "Pulse" ? "Rhythmic shock-rings + aggressive beat-driven glow." : ""}
+                    ${state.theme.name === "Glitch" ? "Chromatic split bands + unstable signal distortion." : ""}
                   </div>`
       });
     }
@@ -4478,6 +4570,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Color variables derived from current intensity and theme
     const tint = intensityNorm();
     const theme = state.theme || THEMES[0];
+    const tv = theme.visual || {};
     const a = theme.palette.neonA;
     const b = theme.palette.neonB;
     const c = theme.palette.neonC;
@@ -4491,18 +4584,26 @@ const FIREBASE_CONFIG = firebaseConfig;
     const neonGlow = `rgba(${neonR},${neonG},${neonB},0.9)`;
     const glowBoost = (theme.glowBoost || 1) * (state.upgradeEffects.glowBoost || 1);
     const pulseBoost = state.upgradeEffects.gatePulse || 0;
+    const starMul = tv.starfieldMul || 1;
+    const driftMul = tv.bgDriftMul || 1;
+    const gridMul = tv.gridIntensity || 1;
+    const gatePulseMul = tv.gatePulseMul || 1;
+    const auroraRibbon = tv.auroraRibbon || 0;
+    const pulseRings = tv.pulseRings || 0;
+    const glitchSplit = tv.glitchSplit || 0;
+    const vignetteTint = tv.vignetteColor || c;
 
     // Starfield (cached)
     if (state.starCanvas){
-      ctx.globalAlpha = POLISH.starAlpha * motion;
-      const sx = (state.visualTime * POLISH.starSpeed) % state.starCanvas.width;
-      const sy = (state.visualTime * POLISH.starSpeed * 0.6) % state.starCanvas.height;
+      ctx.globalAlpha = POLISH.starAlpha * motion * starMul;
+      const sx = (state.visualTime * POLISH.starSpeed * (0.8 + starMul * 0.2)) % state.starCanvas.width;
+      const sy = (state.visualTime * POLISH.starSpeed * 0.6 * (0.9 + starMul * 0.1)) % state.starCanvas.height;
       ctx.drawImage(state.starCanvas, -sx, -sy, w + state.starCanvas.width, h + state.starCanvas.height);
       ctx.globalAlpha = 1;
     }
 
     // Animated background glow - enhanced with multiple radial layers
-    const drift = state.visualTime * POLISH.bgDriftSpeed * speedFactor;
+    const drift = state.visualTime * POLISH.bgDriftSpeed * speedFactor * driftMul;
     const gx = w * 0.6 + Math.sin(drift * 1.3) * 130;
     const gy = h * 0.2 + Math.cos(drift * 0.9) * 100;
     const maxDim = Math.max(w, h, 1);
@@ -4544,11 +4645,72 @@ const FIREBASE_CONFIG = firebaseConfig;
       ctx.fillRect(0, 0, w, h);
     }
 
+    // Theme signature overlays: each theme has distinct high-level motion language.
+    if (auroraRibbon > 0.05){
+      const ribbons = 3;
+      for (let r = 0; r < ribbons; r++){
+        const phase = state.visualTime * (0.5 + r * 0.17) + r * 1.3;
+        const yBase = h * (0.18 + r * 0.2) + Math.sin(phase * 0.7) * 22;
+        const thickness = 48 + r * 12;
+        const grad = ctx.createLinearGradient(0, yBase - thickness, w, yBase + thickness);
+        grad.addColorStop(0, `rgba(${a[0]},${a[1]},${a[2]},${0.06 * auroraRibbon})`);
+        grad.addColorStop(0.5, `rgba(${b[0]},${b[1]},${b[2]},${0.14 * auroraRibbon})`);
+        grad.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},${0.06 * auroraRibbon})`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(0, yBase + Math.sin(phase) * 18);
+        for (let x = 0; x <= w; x += 24){
+          const wave = Math.sin((x * 0.011) + phase) * (16 + r * 6);
+          ctx.lineTo(x, yBase + wave);
+        }
+        ctx.lineTo(w, yBase + thickness);
+        ctx.lineTo(0, yBase + thickness);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    if (pulseRings > 0.05){
+      const cx = w * 0.5 + Math.sin(state.visualTime * 0.9) * 18;
+      const cy = h * 0.42;
+      const beat = 0.5 + 0.5 * Math.sin(state.visualTime * 5.4);
+      for (let i = 0; i < 4; i++){
+        const r = (90 + i * 68) + beat * 26;
+        const alpha = (0.06 + i * 0.018) * pulseRings * (0.6 + beat * 0.7);
+        ctx.strokeStyle = `rgba(${a[0]},${a[1]},${a[2]},${alpha})`;
+        ctx.lineWidth = 1.2 + i * 0.35;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    if (glitchSplit > 0.05){
+      const split = (0.6 + intensityNorm() * 1.5) * glitchSplit;
+      const offset = Math.sin(state.visualTime * 17.5) * split;
+      ctx.globalAlpha = 0.08 * glitchSplit;
+      ctx.fillStyle = `rgba(${a[0]},${a[1]},${a[2]},0.45)`;
+      ctx.fillRect(offset, 0, w, h);
+      ctx.fillStyle = `rgba(${b[0]},${b[1]},${b[2]},0.4)`;
+      ctx.fillRect(-offset, 0, w, h);
+      ctx.globalAlpha = 1;
+
+      for (let i = 0; i < 5; i++){
+        const bandY = (Math.sin(state.visualTime * (2.2 + i * 0.8) + i) * 0.5 + 0.5) * h;
+        const bandH = 6 + i * 3;
+        const bandShift = Math.sin(state.visualTime * (13 + i * 2.5)) * (10 + i * 3) * glitchSplit;
+        ctx.globalAlpha = 0.05 + i * 0.02;
+        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},0.65)`;
+        ctx.fillRect(bandShift, bandY, w, bandH);
+      }
+      ctx.globalAlpha = 1;
+    }
+
     // Perspective grid (vanishing point) - replaces flat horizontal grid
     const vpX = w * 0.5 + Math.sin(drift * 0.5) * 30;
     const vpY = h * 0.25;
     const gridScroll = (state.visualTime * 55 * speedFactor) % 1;
-    const gridBaseAlpha = (0.09 + intensityNorm() * 0.07) * motion;
+    const gridBaseAlpha = (0.09 + intensityNorm() * 0.07) * motion * gridMul;
     ctx.strokeStyle = `rgba(${neonR},${neonG},${neonB},0.5)`;
     ctx.lineWidth = 0.7;
 
@@ -4619,7 +4781,7 @@ const FIREBASE_CONFIG = firebaseConfig;
         continue;
       }
 
-      const animPulse = pulseBoost ? (0.82 + 0.18 * Math.sin(state.visualTime * 6)) : 1;
+      const animPulse = (pulseBoost ? (0.82 + 0.18 * Math.sin(state.visualTime * 6)) : 1) * gatePulseMul;
       const pulse = (pulseBoost ? (0.16 + 0.04 * Math.sin(state.visualTime * 6)) : 0.18) * animPulse;
 
       // Chaos: flicker gate colors randomly per gate
@@ -4798,8 +4960,9 @@ const FIREBASE_CONFIG = firebaseConfig;
       ctx.lineTo(t.x - size + 1, t.y + size - 1);
       ctx.lineTo(t.x + size - 1, t.y + size - 1);
       ctx.closePath();
-      ctx.fillStyle = `rgba(${trailR},${trailG},${trailB},0.7)`;
-      ctx.shadowColor = `rgba(${trailR},${trailG},${trailB},0.6)`;
+      const twinkle = 0.78 + Math.sin(state.visualTime * 6 + i * 0.3) * 0.22;
+      ctx.fillStyle = `rgba(${trailR},${trailG},${trailB},${0.65 * twinkle})`;
+      ctx.shadowColor = `rgba(${trailR},${trailG},${trailB},${0.58 * twinkle})`;
       ctx.shadowBlur = 6 * frac;
       ctx.fill();
     }
@@ -5086,7 +5249,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Vignette - deeper, tinted with neon at edges
     const vg = ctx.createRadialGradient(w * 0.5, h * 0.52, 0, w * 0.5, h * 0.52, Math.max(w, h, 1) * 0.72);
     vg.addColorStop(0, "rgba(0,0,0,0)");
-    vg.addColorStop(0.6, "rgba(0,0,0,0)");
+    vg.addColorStop(0.58, `rgba(${vignetteTint[0]},${vignetteTint[1]},${vignetteTint[2]},0.05)`);
     vg.addColorStop(1, `rgba(0,0,0,${POLISH.vignetteAlpha})`);
     ctx.fillStyle = vg;
     ctx.fillRect(0, 0, w, h);
