@@ -1136,6 +1136,55 @@
   .lb-admin-btn:hover{ background:rgba(138,91,255,.28); }
   .lb-admin-btn.del{ border-color:rgba(255,59,122,.45); color:var(--danger); background:rgba(255,59,122,.07); }
   .lb-admin-btn.del:hover{ background:rgba(255,59,122,.22); }
+  /* ── Auth System ── */
+  .auth-tabs{ display:flex; gap:6px; margin-bottom:14px; }
+  .auth-tab{
+    flex:1; text-align:center; padding:7px; border-radius:8px; cursor:pointer;
+    font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    border:1px solid rgba(25,247,255,.25); background:rgba(25,247,255,.05);
+    color:var(--text); transition: all .15s;
+  }
+  .auth-tab.active{ background:rgba(25,247,255,.15); border-color:var(--neon); color:var(--neon); }
+  .auth-tab:hover:not(.active){ background:rgba(25,247,255,.1); }
+  .auth-input{
+    width:100%; box-sizing:border-box;
+    background: rgba(6,7,11,.6); border:1px solid rgba(25,247,255,.25);
+    border-radius:8px; padding:9px 12px; color:var(--text);
+    font-family:inherit; font-size:13px; outline:none;
+    transition: border-color .15s; margin:4px 0;
+  }
+  .auth-input:focus{ border-color:var(--neon); }
+  .auth-msg{ font-size:11px; letter-spacing:.5px; min-height:16px; margin:6px 0; text-align:center; }
+  .auth-err{ color:var(--danger); }
+  .auth-ok{ color:#7dffb2; }
+  .auth-link{
+    font-size:11px; opacity:.6; text-align:center; margin-top:10px; cursor:pointer;
+    letter-spacing:.5px; text-transform:uppercase; transition: opacity .15s;
+  }
+  .auth-link:hover{ opacity:1; color:var(--neon); }
+  .auth-verified{ font-size:11px; color:#7dffb2; text-shadow:0 0 8px rgba(125,255,178,.4); letter-spacing:1px; margin:4px 0; text-align:center; }
+  .auth-unverified{ font-size:11px; color:#ff8aa5; letter-spacing:1px; margin:4px 0; text-align:center; }
+  .auth-signed-in{
+    font-size:11px; letter-spacing:.5px; color:#7dffb2;
+    background:rgba(125,255,178,.08); border:1px solid rgba(125,255,178,.25);
+    border-radius:6px; padding:4px 10px; margin-bottom:8px; text-align:center;
+    display:none;
+  }
+  .user-btn{
+    font-size:12px !important; letter-spacing:.5px !important;
+    border-color:rgba(25,247,255,.3) !important;
+  }
+  .user-btn.signed-in{ border-color:rgba(125,255,178,.4) !important; color:#7dffb2 !important; }
+  .lb-verified-badge{
+    font-size:10px; color:#7dffb2; background:rgba(125,255,178,.12);
+    border:1px solid rgba(125,255,178,.3); border-radius:4px;
+    padding:1px 5px; margin-left:5px; letter-spacing:0;
+  }
+  .lb-you-badge{
+    font-size:10px; color:var(--neon); background:rgba(25,247,255,.1);
+    border:1px solid rgba(25,247,255,.3); border-radius:4px;
+    padding:1px 5px; margin-left:5px; letter-spacing:0;
+  }
 </style>
 </head>
 <body>
@@ -1171,6 +1220,7 @@
     <div>Move left/right to slip through the neon gates.</div>
     <div class="hint">Keys: A/D or Arrows. Touch: drag or tap.</div>
     <div id="mainMenuShards" class="main-menu-shards"><img src="shard.png" alt="Shard" class="shard-icon-sm"> 0 Neon Shards</div>
+    <div class="btn user-btn" id="mainMenuUserBtn">👤 Sign In / Register</div>
     <div class="btn btn-start" id="startRunBtn">START RUN</div>
     <div class="btn" id="openUpgrades">Upgrades</div>
     <div class="btn" id="openLeaderboard">🏆 Leaderboard</div>
@@ -1385,9 +1435,10 @@
     <div class="title">Run Complete!</div>
     <div class="lb-modal-score" id="lbModalScore">0</div>
     <div id="lbModalShards" class="shards-earned" style="margin-bottom:4px;"></div>
-    <div class="hint" style="margin-bottom:8px;">Enter your name to save to the leaderboard.</div>
+    <div id="lbSignedInLabel" class="auth-signed-in"></div>
+    <div class="hint" id="lbSubmitHint" style="margin-bottom:8px;">Enter your name to save to the leaderboard.</div>
     <img id="lbPhotoPreview" class="lb-photo-preview" alt="Preview" src="">
-    <label class="lb-photo-label" for="lbPhotoInput">📷 Add a photo (optional)</label>
+    <label class="lb-photo-label" id="lbPhotoLabel" for="lbPhotoInput">📷 Add a photo (optional)</label>
     <input type="file" id="lbPhotoInput" accept="image/*" style="display:none">
     <input type="text" id="lbNameInput" class="lb-name-input" placeholder="Your name…" maxlength="24" autocomplete="off">
     <div class="lb-modal-actions">
@@ -1432,6 +1483,50 @@
 
 <!-- Admin mode badge (persistent indicator) -->
 <div id="adminBadge" class="admin-badge">⚡ Admin Mode Active</div>
+
+<!-- Account / Auth modal -->
+<div id="authModal" class="lb-modal" style="z-index:55;">
+  <div class="lb-modal-box" id="authBox" style="min-width:300px;">
+    <div class="title" id="authTitle" style="color:var(--neon);">👤 Account</div>
+    <!-- Tab navigation -->
+    <div class="auth-tabs" id="authTabs">
+      <div class="auth-tab active" data-view="login">Sign In</div>
+      <div class="auth-tab" data-view="register">Create Account</div>
+    </div>
+    <!-- Login view -->
+    <div id="authViewLogin">
+      <input type="email" id="authLoginEmail" class="auth-input" placeholder="Email address" autocomplete="email">
+      <input type="password" id="authLoginPw" class="auth-input" placeholder="Password" autocomplete="current-password">
+      <div id="authLoginErr" class="auth-msg"></div>
+      <div class="lb-modal-actions">
+        <div class="btn" id="authLoginBtn">Sign In</div>
+      </div>
+      <div class="auth-link" id="authForgotLink">Forgot password?</div>
+    </div>
+    <!-- Register view -->
+    <div id="authViewRegister" style="display:none;">
+      <input type="text" id="authRegName" class="auth-input" placeholder="Display name (shown on leaderboard)" maxlength="24" autocomplete="username">
+      <input type="email" id="authRegEmail" class="auth-input" placeholder="Email address" autocomplete="email">
+      <input type="password" id="authRegPw" class="auth-input" placeholder="Password (6+ characters)" autocomplete="new-password">
+      <div id="authRegErr" class="auth-msg"></div>
+      <div class="lb-modal-actions">
+        <div class="btn" id="authRegisterBtn">Create Account</div>
+      </div>
+    </div>
+    <!-- Profile view (shown when signed in) -->
+    <div id="authViewProfile" style="display:none;">
+      <div id="authProfileInfo" style="text-align:center;margin:8px 0 14px;"></div>
+      <div id="authVerifySection" style="display:none;text-align:center;margin-bottom:10px;"></div>
+      <div id="authSyncInfo" class="auth-msg" style="font-size:11px;opacity:.55;"></div>
+      <div class="lb-modal-actions">
+        <div class="btn" id="authSignOutBtn">Sign Out</div>
+        <div class="btn" id="authCloseProfileBtn">Close</div>
+      </div>
+    </div>
+    <!-- Cancel button (hidden in profile view) -->
+    <div class="btn" id="authCancelBtn" style="width:100%;margin-top:8px;opacity:.7;box-sizing:border-box;">Cancel</div>
+  </div>
+</div>
 
 <div id="introPanel" class="intro-panel">
   <div class="intro-box">
@@ -1523,6 +1618,7 @@
 <div id="slowmoOverlay" class="slowmo-overlay"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <audio id="menuMusic" src="menu.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
 <audio id="gameMusic" src="game.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
@@ -4552,14 +4648,18 @@
   let lbPendingPhoto = null;
   let lbEntries = [];   // local cache for fast re-render
   let lbDB = null;      // Firebase database reference (null = offline / not configured)
+  let fbAuth = null;    // Firebase auth instance
+  let authUser = null;  // currently signed-in Firebase user (null if guest)
 
   // Initialise Firebase once (safe to call multiple times)
   (function initFirebase(){
-    if (!FIREBASE_CONFIG.databaseURL) return;
+    if (!FIREBASE_CONFIG.apiKey) return;
     try {
       if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-      lbDB = firebase.database();
-    } catch(e){ lbDB = null; }
+      if (FIREBASE_CONFIG.databaseURL) lbDB = firebase.database();
+      fbAuth = firebase.auth();
+      fbAuth.onAuthStateChanged(handleAuthStateChanged);
+    } catch(e){ lbDB = null; fbAuth = null; }
   })();
 
   // Resize a photo dataURL to a 48×48 JPEG thumbnail (~2 KB) for online storage
@@ -4874,10 +4974,35 @@
     lbPendingScore = score;
     lbPendingPhoto = null;
     lbModalScoreEl.textContent = score.toLocaleString();
-    lbNameInputEl.value = "";
     lbPhotoPreviewEl.style.display = "none";
     lbPhotoPreviewEl.src = "";
     lbPhotoInputEl.value = "";
+
+    const signedInLabel = document.getElementById("lbSignedInLabel");
+    const submitHint = document.getElementById("lbSubmitHint");
+    const photoLabel = document.getElementById("lbPhotoLabel");
+
+    if (authUser && authUser.emailVerified){
+      // Pre-fill and lock the name when signed in with verified email
+      const displayName = authUser.displayName || authUser.email.split("@")[0];
+      lbNameInputEl.value = displayName;
+      lbNameInputEl.setAttribute("readonly", "true");
+      lbNameInputEl.style.opacity = ".7";
+      if (signedInLabel){
+        signedInLabel.textContent = `✓ Submitting as ${displayName}`;
+        signedInLabel.style.display = "block";
+      }
+      if (submitHint) submitHint.style.display = "none";
+      if (photoLabel) photoLabel.style.display = "none";
+    } else {
+      lbNameInputEl.value = "";
+      lbNameInputEl.removeAttribute("readonly");
+      lbNameInputEl.style.opacity = "";
+      if (signedInLabel) signedInLabel.style.display = "none";
+      if (submitHint) submitHint.style.display = "";
+      if (photoLabel) photoLabel.style.display = "";
+    }
+
     lbModalEl.classList.add("active");
   }
 
@@ -4895,6 +5020,11 @@
     function doSubmit(photo){
       const entry = { name, score, date: dateStr };
       if (photo) entry.photo = photo;
+      // Tag entry with account uid when signed in with verified email
+      if (authUser && authUser.emailVerified){
+        entry.uid = authUser.uid;
+        entry.verified = true;
+      }
       if (lbDB){
         lbDB.ref("leaderboard").push(entry).catch(() => {});
       }
@@ -4917,7 +5047,269 @@
     showLbModal(score);
   }
 
-  // ── Admin Mode ──────────────────────────────────────────────────────────────
+  // ── Account / Auth System ────────────────────────────────────────────────────
+  // Uses Firebase Authentication (email + password + email verification).
+  // Progress is synced to /users/{uid}/progress in Firebase Realtime DB when
+  // the user is signed in. Falls back gracefully to localStorage when offline
+  // or not signed in.
+  //
+  // Firebase DB rules needed for cloud save:
+  //   "users": { "$uid": { ".read": "auth.uid === $uid", ".write": "auth.uid === $uid" } }
+  // (In test mode the DB is open, so this works without rule changes.)
+
+  function handleAuthStateChanged(user){
+    authUser = user;
+    if (user){
+      // User just signed in or page reloaded while signed in
+      loadProgressFromCloud(() => {
+        updateAuthUI();
+        // Refresh leaderboard to show (You) badges
+        if (leaderboardPanelEl.classList.contains("active")) renderLeaderboard(false);
+      });
+    } else {
+      updateAuthUI();
+    }
+  }
+
+  function loadProgressFromCloud(callback){
+    if (!authUser || !lbDB){ if (callback) callback(); return; }
+    lbDB.ref("users/" + authUser.uid + "/progress").once("value")
+      .then(snap => {
+        const data = snap.val();
+        if (data){
+          // Cloud data wins — merge over local state
+          if (data.shards != null) state.shards = data.shards;
+          if (data.upgrades) state.upgrades = data.upgrades;
+          if (data.rebind) state.rebind = data.rebind;
+          if (data.stats) Object.assign(state.stats, data.stats);
+          if (data.achievementsUnlocked) state.achievementsUnlocked = data.achievementsUnlocked;
+          if (data.best != null && data.best > state.best){
+            state.best = data.best;
+            bestEl.textContent = state.best;
+            state.uiBest = state.best;
+            localStorage.setItem("neonBest", state.best);
+          }
+          for (const up of UPGRADES){
+            if (state.upgrades[up.id] == null) state.upgrades[up.id] = 0;
+            up.level = state.upgrades[up.id];
+          }
+          applyUpgrades();
+          updateUpgradeUI();
+          // Mirror back to localStorage
+          localStorage.setItem("neonProgress", JSON.stringify({
+            shards: state.shards, upgrades: state.upgrades,
+            rebind: state.rebind, stats: state.stats,
+            achievementsUnlocked: state.achievementsUnlocked
+          }));
+        }
+        if (callback) callback();
+      })
+      .catch(() => { if (callback) callback(); });
+  }
+
+  function syncProgressToCloud(){
+    if (!authUser || !lbDB) return;
+    lbDB.ref("users/" + authUser.uid + "/progress").set({
+      shards: state.shards,
+      upgrades: state.upgrades,
+      rebind: state.rebind,
+      stats: state.stats,
+      achievementsUnlocked: state.achievementsUnlocked,
+      best: state.best,
+      displayName: authUser.displayName || "",
+      lastSync: Date.now()
+    }).catch(() => {});
+  }
+
+  function updateAuthUI(){
+    const userBtnEl = document.getElementById("mainMenuUserBtn");
+    if (!userBtnEl) return;
+    if (authUser){
+      const displayName = authUser.displayName || authUser.email.split("@")[0];
+      const verified = authUser.emailVerified;
+      userBtnEl.textContent = "👤 " + displayName + (verified ? " ✓" : " ⚠");
+      userBtnEl.classList.toggle("signed-in", verified);
+      userBtnEl.title = verified ? "Verified account — click to manage" : "Email not verified — click to manage";
+    } else {
+      userBtnEl.textContent = "👤 Sign In / Register";
+      userBtnEl.classList.remove("signed-in");
+      userBtnEl.title = "";
+    }
+    // Refresh shard display
+    const mainMenuShardsEl = document.getElementById("mainMenuShards");
+    if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
+  }
+
+  function openAuthModal(view){
+    sfxClick();
+    document.getElementById("authModal").classList.add("active");
+    setAuthView(authUser ? "profile" : (view || "login"));
+  }
+
+  function closeAuthModal(){
+    document.getElementById("authModal").classList.remove("active");
+  }
+
+  function setAuthView(view){
+    const tabsEl = document.getElementById("authTabs");
+    const loginViewEl = document.getElementById("authViewLogin");
+    const registerViewEl = document.getElementById("authViewRegister");
+    const profileViewEl = document.getElementById("authViewProfile");
+    const cancelBtnEl = document.getElementById("authCancelBtn");
+
+    tabsEl.style.display = view === "profile" ? "none" : "flex";
+    loginViewEl.style.display = view === "login" ? "block" : "none";
+    registerViewEl.style.display = view === "register" ? "block" : "none";
+    profileViewEl.style.display = view === "profile" ? "block" : "none";
+    if (cancelBtnEl) cancelBtnEl.style.display = view === "profile" ? "none" : "block";
+
+    document.querySelectorAll(".auth-tab").forEach(t => {
+      t.classList.toggle("active", t.dataset.view === view);
+    });
+
+    // Populate profile view
+    if (view === "profile" && authUser){
+      const displayName = authUser.displayName || authUser.email.split("@")[0];
+      const verified = authUser.emailVerified;
+      const profileInfoEl = document.getElementById("authProfileInfo");
+      if (profileInfoEl){
+        profileInfoEl.innerHTML =
+          '<div style="font-size:28px;margin-bottom:8px;">👤</div>' +
+          '<div style="font-size:16px;font-weight:bold;color:var(--neon);margin-bottom:4px;">' + displayName + '</div>' +
+          '<div style="font-size:12px;opacity:.65;margin-bottom:8px;">' + authUser.email + '</div>' +
+          (verified
+            ? '<div class="auth-verified">✓ Email Verified</div>'
+            : '<div class="auth-unverified">⚠️ Email not verified</div>') +
+          '<div style="font-size:12px;opacity:.65;margin-top:10px;">Best Score: ' + state.best.toLocaleString() + '</div>' +
+          '<div style="font-size:12px;opacity:.65;">Neon Shards: ' + state.shards.toLocaleString() + '</div>';
+      }
+      const verifySec = document.getElementById("authVerifySection");
+      if (verifySec){
+        if (!verified){
+          verifySec.style.display = "block";
+          verifySec.innerHTML =
+            '<div class="hint" style="font-size:11px;margin-bottom:8px;">Verify your email to submit scores to the leaderboard.</div>' +
+            '<div class="btn" id="authResendBtn" style="font-size:11px;">Resend Verification Email</div>' +
+            '<div class="btn" id="authRefreshVerifyBtn" style="font-size:11px;margin-top:6px;">I\'ve Verified — Refresh</div>';
+          const resendBtn = document.getElementById("authResendBtn");
+          if (resendBtn){
+            resendBtn.addEventListener("click", () => {
+              authUser.sendEmailVerification()
+                .then(() => { resendBtn.textContent = "Sent! ✓"; resendBtn.style.opacity = ".5"; })
+                .catch(() => { resendBtn.textContent = "Error sending email"; });
+            });
+          }
+          const refreshBtn = document.getElementById("authRefreshVerifyBtn");
+          if (refreshBtn){
+            refreshBtn.addEventListener("click", () => {
+              authUser.reload().then(() => {
+                authUser = fbAuth.currentUser;
+                if (authUser.emailVerified){
+                  setAuthView("profile");
+                  updateAuthUI();
+                } else {
+                  refreshBtn.textContent = "Not verified yet";
+                  setTimeout(() => { if (refreshBtn) refreshBtn.textContent = "I've Verified — Refresh"; }, 2000);
+                }
+              });
+            });
+          }
+        } else {
+          verifySec.style.display = "none";
+        }
+      }
+      const syncInfoEl = document.getElementById("authSyncInfo");
+      if (syncInfoEl) syncInfoEl.textContent = lbDB ? "Progress syncs to cloud automatically." : "Cloud sync unavailable (offline mode).";
+    }
+
+    // Clear error fields when switching views
+    ["authLoginErr", "authRegErr"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el){ el.textContent = ""; el.className = "auth-msg"; }
+    });
+  }
+
+  function authSetError(fieldId, msg){
+    const el = document.getElementById(fieldId);
+    if (el){ el.textContent = msg; el.className = "auth-msg auth-err"; }
+  }
+
+  function authSetOk(fieldId, msg){
+    const el = document.getElementById(fieldId);
+    if (el){ el.textContent = msg; el.className = "auth-msg auth-ok"; }
+  }
+
+  function doAuthLogin(){
+    if (!fbAuth){ authSetError("authLoginErr", "Authentication not available."); return; }
+    const email = document.getElementById("authLoginEmail").value.trim();
+    const pw = document.getElementById("authLoginPw").value;
+    if (!email || !pw){ authSetError("authLoginErr", "Please fill in all fields."); return; }
+    const btn = document.getElementById("authLoginBtn");
+    btn.textContent = "Signing in…"; btn.style.opacity = ".6";
+    fbAuth.signInWithEmailAndPassword(email, pw)
+      .then(() => {
+        btn.textContent = "Sign In"; btn.style.opacity = "";
+        closeAuthModal();
+      })
+      .catch(err => {
+        btn.textContent = "Sign In"; btn.style.opacity = "";
+        const msg =
+          (err.code === "auth/wrong-password" || err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")
+            ? "Incorrect email or password."
+            : err.code === "auth/too-many-requests" ? "Too many attempts. Try again later."
+            : err.code === "auth/invalid-email" ? "Invalid email address."
+            : err.code === "auth/user-disabled" ? "This account has been disabled."
+            : "Sign-in failed. Please try again.";
+        authSetError("authLoginErr", msg);
+      });
+  }
+
+  function doAuthRegister(){
+    if (!fbAuth){ authSetError("authRegErr", "Authentication not available."); return; }
+    const name = document.getElementById("authRegName").value.trim().slice(0, 24);
+    const email = document.getElementById("authRegEmail").value.trim();
+    const pw = document.getElementById("authRegPw").value;
+    if (!name || !email || !pw){ authSetError("authRegErr", "Please fill in all fields."); return; }
+    if (pw.length < 6){ authSetError("authRegErr", "Password must be at least 6 characters."); return; }
+    const btn = document.getElementById("authRegisterBtn");
+    btn.textContent = "Creating…"; btn.style.opacity = ".6";
+    fbAuth.createUserWithEmailAndPassword(email, pw)
+      .then(cred =>
+        cred.user.updateProfile({ displayName: name })
+          .then(() => cred.user.sendEmailVerification())
+          .then(() => cred.user)
+      )
+      .then(() => {
+        btn.textContent = "Create Account"; btn.style.opacity = "";
+        authSetOk("authRegErr", "Account created! Check your email to verify.");
+        setTimeout(() => closeAuthModal(), 2200);
+      })
+      .catch(err => {
+        btn.textContent = "Create Account"; btn.style.opacity = "";
+        const msg =
+          err.code === "auth/email-already-in-use" ? "An account with this email already exists."
+            : err.code === "auth/invalid-email" ? "Invalid email address."
+            : err.code === "auth/weak-password" ? "Password is too weak."
+            : "Registration failed. Please try again.";
+        authSetError("authRegErr", msg);
+      });
+  }
+
+  function doAuthSignOut(){
+    if (!fbAuth) return;
+    fbAuth.signOut().then(() => { closeAuthModal(); sfxClick(); });
+  }
+
+  function doForgotPassword(){
+    if (!fbAuth) return;
+    const email = document.getElementById("authLoginEmail").value.trim();
+    if (!email){ authSetError("authLoginErr", "Enter your email address above first."); return; }
+    fbAuth.sendPasswordResetEmail(email)
+      .then(() => authSetOk("authLoginErr", "Password reset email sent!"))
+      .catch(() => authSetError("authLoginErr", "Could not send reset email."));
+  }
+  // ── End Auth System ──────────────────────────────────────────────────────────
+
   const ADMIN_PASSWORD = "Homesweet12345"; // UX gate only – client-side games cannot securely hide passwords
   let adminMode = false;
   let adminCurrentTab = "player";
