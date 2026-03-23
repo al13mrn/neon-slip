@@ -5476,6 +5476,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   let lbEntries = [];   // local cache for fast re-render
   let lbDB = null;      // Firebase database reference (null = offline / not configured)
   let lbStorage = null; // Firebase storage reference (for profile photos)
+  let lbStorageFallback = null; // Optional fallback bucket reference (appspot)
   let fbAuth = null;    // Firebase auth instance
   let authUser = null;  // currently signed-in Firebase user (null if guest)
 
@@ -5486,6 +5487,13 @@ const FIREBASE_CONFIG = firebaseConfig;
       if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
       if (FIREBASE_CONFIG.databaseURL) lbDB = firebase.database();
       if (FIREBASE_CONFIG.storageBucket) lbStorage = firebase.storage();
+      if (FIREBASE_CONFIG.projectId){
+        try {
+          lbStorageFallback = firebase.app().storage("gs://" + FIREBASE_CONFIG.projectId + ".appspot.com");
+        } catch (_e) {
+          lbStorageFallback = null;
+        }
+      }
       fbAuth = firebase.auth();
       fbAuth.onAuthStateChanged(handleAuthStateChanged);
       console.log("[Firebase] ✓ Initialized successfully. Auth enabled:", !!fbAuth);
@@ -5493,6 +5501,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       console.error("[Firebase] Initialization failed:", e);
       lbDB = null; 
       lbStorage = null;
+      lbStorageFallback = null;
       fbAuth = null; 
     }
   })();
@@ -5593,16 +5602,9 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
   }
 
-  function saveProfilePhotoToCloud(uid, photo){
-    if (!uid) return Promise.reject(new Error("No user id for profile photo upload."));
-    if (!lbStorage) return Promise.reject(new Error("Firebase Storage is not configured."));
-    if (!lbDB) return Promise.reject(new Error("Realtime Database is not configured."));
-    if (!photo) return lbDB.ref("users/" + uid + "/progress/profilePhoto").set("").then(() => ({ saved: "cloud", url: "" }));
-
-    const path = "profilePhotos/" + uid + ".jpg";
-    const ref = lbStorage.ref(path);
+  function uploadProfilePhotoWithTimeout(storageRef, uid, photo){
     return new Promise((resolve, reject) => {
-      const task = ref.putString(photo, "data_url", {
+      const task = storageRef.putString(photo, "data_url", {
         contentType: "image/jpeg",
         cacheControl: "public,max-age=604800"
       });
@@ -5612,7 +5614,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       }, AUTH_CLOUD_TIMEOUT_MS);
 
       task
-        .then(() => ref.getDownloadURL())
+        .then(() => storageRef.getDownloadURL())
         .then(url => lbDB.ref("users/" + uid + "/progress/profilePhoto").set(url).then(() => {
           clearTimeout(timeoutId);
           setCachedProfilePhoto(uid, url);
@@ -5623,6 +5625,26 @@ const FIREBASE_CONFIG = firebaseConfig;
           reject(err);
         });
     });
+  }
+
+  function saveProfilePhotoToCloud(uid, photo){
+    if (!uid) return Promise.reject(new Error("No user id for profile photo upload."));
+    if (!lbStorage) return Promise.reject(new Error("Firebase Storage is not configured."));
+    if (!lbDB) return Promise.reject(new Error("Realtime Database is not configured."));
+    if (!photo) return lbDB.ref("users/" + uid + "/progress/profilePhoto").set("").then(() => ({ saved: "cloud", url: "" }));
+
+    const path = "profilePhotos/" + uid + ".jpg";
+    const primaryRef = lbStorage.ref(path);
+    return uploadProfilePhotoWithTimeout(primaryRef, uid, photo)
+      .catch(async (err) => {
+        const shouldRetryOnFallback =
+          !!lbStorageFallback &&
+          (err && (err.message === "storage-upload-timeout" || err.code === "storage/unknown" || err.code === "storage/bucket-not-found"));
+        if (!shouldRetryOnFallback) throw err;
+        console.warn("[Auth] Primary storage upload failed; retrying appspot fallback bucket.", err && (err.code || err.message || err));
+        const fallbackRef = lbStorageFallback.ref(path);
+        return uploadProfilePhotoWithTimeout(fallbackRef, uid, photo);
+      });
   }
 
   function syncLeaderboardPhotoForCurrentUser(photo){
