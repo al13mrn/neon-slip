@@ -1097,13 +1097,17 @@
   }
   .friends-input:focus{ border-color:var(--neon); }
   .friends-msg{ font-size:11px; min-height:15px; opacity:.75; margin-bottom:6px; }
-  .friends-list{ flex:1 1 0; overflow:auto; min-height:0; }
+  .friends-list{ flex:1 1 0; overflow:auto; min-height:120px; }
   .friends-search-results{
     flex:0 0 auto;
     max-height:180px;
     overflow:auto;
     min-height:0;
     margin-bottom:8px;
+  }
+  .friends-tab-content[data-content="requests"] #friendsRequestsList{
+    flex:0 0 auto;
+    max-height:220px;
   }
   .friends-footer{
     display:flex;
@@ -6310,6 +6314,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (!friendsPanelEl || !friendsPanelEl.classList.contains("active")) return;
     if (!authUser || !lbDB){
       const msg = '<div class="friends-empty">Sign in to use friends and Neon Speech</div>';
+      setFriendsStatus(friendsReqMsgEl, "Sign in required.", true);
       if (friendsRequestsListEl) friendsRequestsListEl.innerHTML = msg;
       if (friendsSearchResultsEl) friendsSearchResultsEl.innerHTML = '<div class="friends-empty">Sign in to search registered players</div>';
       if (friendsListEl) friendsListEl.innerHTML = msg;
@@ -6333,6 +6338,10 @@ const FIREBASE_CONFIG = firebaseConfig;
     } catch (err) {
       console.error("[Friends] load failed:", err);
       setFriendsStatus(friendsReqMsgEl, "Could not load friends data.", true);
+      if (friendsRequestsListEl) friendsRequestsListEl.innerHTML = '<div class="friends-empty">Could not load requests</div>';
+      if (friendsSearchResultsEl) friendsSearchResultsEl.innerHTML = '<div class="friends-empty">Could not load player search</div>';
+      if (friendsListEl) friendsListEl.innerHTML = '<div class="friends-empty">Could not load friends list</div>';
+      if (friendsLeaderboardListEl) friendsLeaderboardListEl.innerHTML = '<div class="friends-empty">Could not load friend leaderboard</div>';
     }
   }
 
@@ -6503,6 +6512,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (!friendsPanelEl) return;
     friendsPanelEl.classList.add("active");
     setFriendsTab("requests");
+    if (friendsRequestsListEl) friendsRequestsListEl.innerHTML = '<div class="friends-empty">Loading requests...</div>';
+    if (friendsSearchResultsEl) friendsSearchResultsEl.innerHTML = '<div class="friends-empty">Search results will appear here</div>';
     loadFriendsData();
   }
 
