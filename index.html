@@ -1906,7 +1906,7 @@
     <div class="hint" id="lbSubmitHint" style="margin-bottom:8px;">Enter your name to save to the leaderboard.</div>
     <img id="lbPhotoPreview" class="lb-photo-preview" alt="Preview" src="">
     <label class="lb-photo-label" id="lbPhotoLabel" for="lbPhotoInput">📷 Add a photo (optional)</label>
-    <input type="file" id="lbPhotoInput" accept="image/*" style="display:none">
+    <input type="file" id="lbPhotoInput" accept="image/*,.heic,.heif,.avif,.webp,.bmp,.tif,.tiff,.svg,.ico" style="display:none">
     <input type="text" id="lbNameInput" class="lb-name-input" placeholder="Your name…" maxlength="24" autocomplete="off">
     <div class="lb-modal-actions">
       <div class="btn" id="lbSubmitBtn">Submit</div>
@@ -1977,7 +1977,7 @@
       <input type="password" id="authRegPw" class="auth-input" placeholder="Password (6+ characters)" autocomplete="new-password">
       <img id="authRegPhotoPreview" class="auth-avatar-preview" alt="Register profile preview" src="">
       <label class="auth-avatar-label" id="authRegPhotoLabel" for="authRegPhotoInput">📷 Add profile picture (optional)</label>
-      <input type="file" id="authRegPhotoInput" accept="image/*" style="display:none">
+      <input type="file" id="authRegPhotoInput" accept="image/*,.heic,.heif,.avif,.webp,.bmp,.tif,.tiff,.svg,.ico" style="display:none">
       <div id="authRegErr" class="auth-msg"></div>
       <div class="lb-modal-actions">
         <div class="btn" id="authRegisterBtn">Create Account</div>
@@ -1990,7 +1990,7 @@
         <div id="authProfilePhotoFallback" class="auth-avatar-fallback">👤</div>
       </div>
       <label class="auth-avatar-label" id="authProfilePhotoLabel" for="authProfilePhotoInput">📷 Change profile picture</label>
-      <input type="file" id="authProfilePhotoInput" accept="image/*" style="display:none">
+      <input type="file" id="authProfilePhotoInput" accept="image/*,.heic,.heif,.avif,.webp,.bmp,.tif,.tiff,.svg,.ico" style="display:none">
       <div id="authProfileInfo" style="text-align:center;margin:8px 0 14px;"></div>
       <div id="authProfilePhotoMsg" class="auth-msg" style="margin-top:0;"></div>
       <div id="authVerifySection" style="display:none;text-align:center;margin-bottom:10px;"></div>
@@ -2096,6 +2096,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
 <audio id="menuMusic" src="menu.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
 <audio id="gameMusic" src="game.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
@@ -5463,13 +5464,16 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   // Leaderboard (Firebase Realtime Database — falls back gracefully if not configured)
   const LB_MAX = 50;
-  const AUTH_MAX_PHOTO_BYTES = 512 * 1024;
+  const AUTH_MAX_PHOTO_BYTES = 12 * 1024 * 1024;
+  const AUTH_ACCEPTED_IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".avif", ".svg", ".ico", ".heic", ".heif", ".tif", ".tiff"];
+  const AUTH_ACCEPT_ATTR = "image/*,.heic,.heif,.avif,.webp,.bmp,.tif,.tiff,.svg,.ico";
   let lbPendingScore = 0;
   let lbPendingPhoto = null;
   let authPendingRegisterPhoto = null;
   let authProfilePhoto = null;
   let lbEntries = [];   // local cache for fast re-render
   let lbDB = null;      // Firebase database reference (null = offline / not configured)
+  let lbStorage = null; // Firebase storage reference (for profile photos)
   let fbAuth = null;    // Firebase auth instance
   let authUser = null;  // currently signed-in Firebase user (null if guest)
 
@@ -5479,12 +5483,14 @@ const FIREBASE_CONFIG = firebaseConfig;
     try {
       if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
       if (FIREBASE_CONFIG.databaseURL) lbDB = firebase.database();
+      if (FIREBASE_CONFIG.storageBucket) lbStorage = firebase.storage();
       fbAuth = firebase.auth();
       fbAuth.onAuthStateChanged(handleAuthStateChanged);
       console.log("[Firebase] ✓ Initialized successfully. Auth enabled:", !!fbAuth);
     } catch(e){ 
       console.error("[Firebase] Initialization failed:", e);
       lbDB = null; 
+      lbStorage = null;
       fbAuth = null; 
     }
   })();
@@ -5520,6 +5526,38 @@ const FIREBASE_CONFIG = firebaseConfig;
     }, delay);
   }
 
+  function maxPhotoMbText(){
+    return (AUTH_MAX_PHOTO_BYTES / (1024 * 1024)).toFixed(0);
+  }
+
+  function isSupportedImageFile(file){
+    if (!file) return false;
+    if (file.type && file.type.startsWith("image/")) return true;
+    const name = (file.name || "").toLowerCase();
+    return AUTH_ACCEPTED_IMAGE_EXTS.some(ext => name.endsWith(ext));
+  }
+
+  function getProfilePhotoCacheKey(uid){
+    return "neonProfilePhoto:" + uid;
+  }
+
+  function setCachedProfilePhoto(uid, photo){
+    if (!uid) return;
+    try {
+      if (photo) localStorage.setItem(getProfilePhotoCacheKey(uid), photo);
+      else localStorage.removeItem(getProfilePhotoCacheKey(uid));
+    } catch (_e) {}
+  }
+
+  function getCachedProfilePhoto(uid){
+    if (!uid) return null;
+    try {
+      return localStorage.getItem(getProfilePhotoCacheKey(uid)) || null;
+    } catch (_e) {
+      return null;
+    }
+  }
+
   function getAccountPhoto(){
     return authProfilePhoto || (authUser && authUser.photoURL) || null;
   }
@@ -5542,8 +5580,22 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function saveProfilePhotoToCloud(uid, photo){
-    if (!lbDB || !uid) return Promise.resolve();
-    return lbDB.ref("users/" + uid + "/progress/profilePhoto").set(photo || "");
+    if (!uid) return Promise.reject(new Error("No user id for profile photo upload."));
+    if (!lbStorage) return Promise.reject(new Error("Firebase Storage is not configured."));
+    if (!lbDB) return Promise.reject(new Error("Realtime Database is not configured."));
+    if (!photo) return lbDB.ref("users/" + uid + "/progress/profilePhoto").set("").then(() => ({ saved: "cloud", url: "" }));
+
+    const path = "profilePhotos/" + uid + ".jpg";
+    const ref = lbStorage.ref(path);
+    return ref.putString(photo, "data_url", {
+      contentType: "image/jpeg",
+      cacheControl: "public,max-age=604800"
+    })
+      .then(() => ref.getDownloadURL())
+      .then(url => lbDB.ref("users/" + uid + "/progress/profilePhoto").set(url).then(() => {
+        setCachedProfilePhoto(uid, url);
+        return { saved: "cloud", url };
+      }));
   }
 
   function syncLeaderboardPhotoForCurrentUser(photo){
@@ -5981,6 +6033,9 @@ const FIREBASE_CONFIG = firebaseConfig;
     authUser = user;
     authProfilePhoto = user && user.photoURL ? user.photoURL : null;
     if (user){
+      const cachedPhoto = getCachedProfilePhoto(user.uid);
+      if (cachedPhoto) authProfilePhoto = cachedPhoto;
+      updateAuthPhotoPreview(getAccountPhoto());
       // User just signed in or page reloaded while signed in
       loadProgressFromCloud(() => {
         updateAuthUI();
@@ -6007,6 +6062,7 @@ const FIREBASE_CONFIG = firebaseConfig;
           if (data.stats) Object.assign(state.stats, data.stats);
           if (data.achievementsUnlocked) state.achievementsUnlocked = data.achievementsUnlocked;
           if (data.profilePhoto != null) authProfilePhoto = data.profilePhoto || null;
+          setCachedProfilePhoto(authUser.uid, authProfilePhoto || "");
           if (data.best != null && data.best > state.best){
             state.best = data.best;
             bestEl.textContent = state.best;
@@ -6029,7 +6085,10 @@ const FIREBASE_CONFIG = firebaseConfig;
         }
         if (callback) callback();
       })
-      .catch(() => { if (callback) callback(); });
+      .catch(() => {
+        updateAuthPhotoPreview(getAccountPhoto());
+        if (callback) callback();
+      });
   }
 
   function syncProgressToCloud(){
@@ -6218,8 +6277,8 @@ const FIREBASE_CONFIG = firebaseConfig;
         console.log("[Auth] User created, updating profile...");
         await cred.user.updateProfile({ displayName: name });
         if (resizedRegisterPhoto){
-          await saveProfilePhotoToCloud(cred.user.uid, resizedRegisterPhoto).catch(() => {});
-          authProfilePhoto = resizedRegisterPhoto;
+          const saved = await saveProfilePhotoToCloud(cred.user.uid, resizedRegisterPhoto);
+          authProfilePhoto = saved.url || null;
         }
         console.log("[Auth] Profile updated, sending verification email...");
         await cred.user.sendEmailVerification();
@@ -6261,27 +6320,31 @@ const FIREBASE_CONFIG = firebaseConfig;
     try {
       // Store avatar in user progress instead of Firebase Auth photoURL.
       // Auth profile fields are not designed for larger data URLs.
-      await saveProfilePhotoToCloud(authUser.uid, resized);
-      authProfilePhoto = resized;
-      syncLeaderboardPhotoForCurrentUser(resized);
-      updateAuthPhotoPreview(resized);
+      const saveResult = await saveProfilePhotoToCloud(authUser.uid, resized);
+      authProfilePhoto = saveResult.url || null;
+      syncLeaderboardPhotoForCurrentUser(authProfilePhoto);
+      updateAuthPhotoPreview(authProfilePhoto);
       updateAuthUI();
-      authSetOk("authProfilePhotoMsg", "Profile picture updated.");
+      authSetOk("authProfilePhotoMsg", "Profile picture updated in cloud.");
       syncProgressToCloud();
     } catch (err) {
       console.error("[Auth] Failed to save profile picture:", err && (err.code || err.message || err));
-      authSetError("authProfilePhotoMsg", "Could not save profile picture.");
+      let msg = "Cloud save failed. Check Firebase Storage rules and bucket config.";
+      if (err && err.code === "storage/unauthorized") msg = "Storage permission denied. Update Firebase Storage rules.";
+      else if (err && err.code === "storage/bucket-not-found") msg = "Storage bucket not found. Check FIREBASE_CONFIG.storageBucket.";
+      else if (err && err.code === "storage/unknown") msg = "Storage upload failed. Check bucket and CORS/rules settings.";
+      authSetError("authProfilePhotoMsg", msg);
     }
   }
 
   function handlePhotoFileInput(file, labelEl, onLoad){
     if (!file) return;
-    if (!file.type || !file.type.startsWith("image/")){
-      flashPhotoLabel(labelEl, "⚠️ Please select an image file");
+    if (!isSupportedImageFile(file)){
+      flashPhotoLabel(labelEl, "⚠️ Unsupported file type");
       return;
     }
     if (file.size > AUTH_MAX_PHOTO_BYTES){
-      flashPhotoLabel(labelEl, "⚠️ Image too large (max 512 KB)");
+      flashPhotoLabel(labelEl, "⚠️ Image too large (max " + maxPhotoMbText() + " MB)");
       return;
     }
     const reader = new FileReader();
@@ -7019,15 +7082,18 @@ const FIREBASE_CONFIG = firebaseConfig;
   lbPhotoInputEl.addEventListener("change", () => {
     const file = lbPhotoInputEl.files[0];
     if (!file) return;
-    // Reject files larger than 512 KB to avoid localStorage quota issues
-    if (file.size > 512 * 1024){
+    if (!isSupportedImageFile(file)){
+      lbPhotoInputEl.value = "";
+      const label = lbPhotoInputEl.previousElementSibling;
+      flashPhotoLabel(label, "⚠️ Unsupported file type");
+      return;
+    }
+    if (file.size > AUTH_MAX_PHOTO_BYTES){
       lbPhotoInputEl.value = "";
       lbPendingPhoto = null;
       lbPhotoPreviewEl.style.display = "none";
       const label = lbPhotoInputEl.previousElementSibling;
-      const orig = label ? label.textContent : null;
-      if (label) label.textContent = "⚠️ Image too large (max 512 KB)";
-      setTimeout(() => { if (label && orig) label.textContent = orig; }, 2500);
+      flashPhotoLabel(label, "⚠️ Image too large (max " + maxPhotoMbText() + " MB)", 2500);
       return;
     }
     const reader = new FileReader();
@@ -7040,6 +7106,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   });
 
   if (authRegPhotoInputEl){
+    authRegPhotoInputEl.setAttribute("accept", AUTH_ACCEPT_ATTR);
     authRegPhotoInputEl.addEventListener("change", () => {
       const file = authRegPhotoInputEl.files[0];
       handlePhotoFileInput(file, authRegPhotoLabelEl, (dataUrl) => {
@@ -7054,6 +7121,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   if (authProfilePhotoInputEl){
+    authProfilePhotoInputEl.setAttribute("accept", AUTH_ACCEPT_ATTR);
     authProfilePhotoInputEl.addEventListener("change", () => {
       const file = authProfilePhotoInputEl.files[0];
       handlePhotoFileInput(file, authProfilePhotoLabelEl, (dataUrl) => {
