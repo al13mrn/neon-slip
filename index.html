@@ -1226,6 +1226,30 @@
     border-radius:6px; padding:4px 10px; margin-bottom:8px; text-align:center;
     display:none;
   }
+  .auth-avatar-wrap{
+    display:flex; align-items:center; justify-content:center;
+    width:72px; height:72px; margin:0 auto 8px;
+  }
+  .auth-avatar-preview{
+    width:72px; height:72px; border-radius:50%; object-fit:cover;
+    border:2px solid rgba(25,247,255,.5); display:none;
+    box-shadow: 0 0 14px rgba(25,247,255,.25);
+  }
+  .auth-avatar-fallback{
+    width:72px; height:72px; border-radius:50%;
+    border:1px solid rgba(25,247,255,.25);
+    background: rgba(25,247,255,.08);
+    display:flex; align-items:center; justify-content:center;
+    font-size:30px;
+  }
+  .auth-avatar-label{
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    color:rgba(215,249,255,.6); padding:8px 12px;
+    border:1px dashed rgba(25,247,255,.25); border-radius:8px;
+    margin:6px 0 8px; transition: all .15s ease;
+  }
+  .auth-avatar-label:hover{ border-color:var(--neon); color:var(--neon); }
   .user-btn{
     font-size:12px !important; letter-spacing:.5px !important;
     border-color:rgba(25,247,255,.3) !important;
@@ -1598,7 +1622,7 @@
   <div class="boot-ring ring-c"></div>
   <div class="boot-scanline"></div>
   <div class="boot-core">
-    <div class="boot-kicker">System Warmup</div>
+    <div class="boot-kicker">System Loading...</div>
     <div class="boot-title">Neon Slip</div>
     <div id="bootMessage" class="boot-msg">Initializing neon core...</div>
     <div id="bootStages" class="boot-stage-row">
@@ -1606,7 +1630,7 @@
       <div class="boot-stage">Gate Build</div>
       <div class="boot-stage">Engine Prime</div>
       <div class="boot-stage">Stabilize</div>
-      <div class="boot-stage">Launch</div>
+      <div class="boot-stage">LAUNCHING...</div>
     </div>
     <div class="boot-bar-wrap">
       <div id="bootBar" class="boot-bar"></div>
@@ -1951,6 +1975,9 @@
       <input type="text" id="authRegName" class="auth-input" placeholder="Display name (shown on leaderboard)" maxlength="24" autocomplete="username">
       <input type="email" id="authRegEmail" class="auth-input" placeholder="Email address" autocomplete="email">
       <input type="password" id="authRegPw" class="auth-input" placeholder="Password (6+ characters)" autocomplete="new-password">
+      <img id="authRegPhotoPreview" class="auth-avatar-preview" alt="Register profile preview" src="">
+      <label class="auth-avatar-label" id="authRegPhotoLabel" for="authRegPhotoInput">📷 Add profile picture (optional)</label>
+      <input type="file" id="authRegPhotoInput" accept="image/*" style="display:none">
       <div id="authRegErr" class="auth-msg"></div>
       <div class="lb-modal-actions">
         <div class="btn" id="authRegisterBtn">Create Account</div>
@@ -1958,7 +1985,14 @@
     </div>
     <!-- Profile view (shown when signed in) -->
     <div id="authViewProfile" style="display:none;">
+      <div class="auth-avatar-wrap">
+        <img id="authProfilePhotoPreview" class="auth-avatar-preview" alt="Profile picture" src="">
+        <div id="authProfilePhotoFallback" class="auth-avatar-fallback">👤</div>
+      </div>
+      <label class="auth-avatar-label" id="authProfilePhotoLabel" for="authProfilePhotoInput">📷 Change profile picture</label>
+      <input type="file" id="authProfilePhotoInput" accept="image/*" style="display:none">
       <div id="authProfileInfo" style="text-align:center;margin:8px 0 14px;"></div>
+      <div id="authProfilePhotoMsg" class="auth-msg" style="margin-top:0;"></div>
       <div id="authVerifySection" style="display:none;text-align:center;margin-bottom:10px;"></div>
       <div id="authSyncInfo" class="auth-msg" style="font-size:11px;opacity:.55;"></div>
       <div class="lb-modal-actions">
@@ -2198,6 +2232,13 @@ const FIREBASE_CONFIG = firebaseConfig;
   const lbPhotoPreviewEl = document.getElementById("lbPhotoPreview");
   const lbSubmitBtnEl = document.getElementById("lbSubmitBtn");
   const lbSkipBtnEl = document.getElementById("lbSkipBtn");
+  const authRegPhotoInputEl = document.getElementById("authRegPhotoInput");
+  const authRegPhotoPreviewEl = document.getElementById("authRegPhotoPreview");
+  const authRegPhotoLabelEl = document.getElementById("authRegPhotoLabel");
+  const authProfilePhotoInputEl = document.getElementById("authProfilePhotoInput");
+  const authProfilePhotoPreviewEl = document.getElementById("authProfilePhotoPreview");
+  const authProfilePhotoFallbackEl = document.getElementById("authProfilePhotoFallback");
+  const authProfilePhotoLabelEl = document.getElementById("authProfilePhotoLabel");
   const upgradeTabsEl = document.getElementById("upgradeTabs");
   const statsPanelEl = document.getElementById("statsPanel");
   const achievementsPanelEl = document.getElementById("achievementsPanel");
@@ -5422,8 +5463,11 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   // Leaderboard (Firebase Realtime Database — falls back gracefully if not configured)
   const LB_MAX = 50;
+  const AUTH_MAX_PHOTO_BYTES = 512 * 1024;
   let lbPendingScore = 0;
   let lbPendingPhoto = null;
+  let authPendingRegisterPhoto = null;
+  let authProfilePhoto = null;
   let lbEntries = [];   // local cache for fast re-render
   let lbDB = null;      // Firebase database reference (null = offline / not configured)
   let fbAuth = null;    // Firebase auth instance
@@ -5460,6 +5504,57 @@ const FIREBASE_CONFIG = firebaseConfig;
     };
     img.onerror = function(){ cb(null); };
     img.src = dataUrl;
+  }
+
+  function resizePhotoForUploadAsync(dataUrl){
+    return new Promise(resolve => resizePhotoForUpload(dataUrl, resolve));
+  }
+
+  function flashPhotoLabel(labelEl, text, delay = 2200){
+    if (!labelEl) return;
+    const original = labelEl.dataset.originalText || labelEl.textContent;
+    labelEl.dataset.originalText = original;
+    labelEl.textContent = text;
+    setTimeout(() => {
+      if (labelEl) labelEl.textContent = original;
+    }, delay);
+  }
+
+  function getAccountPhoto(){
+    return authProfilePhoto || (authUser && authUser.photoURL) || null;
+  }
+
+  function updateAuthPhotoPreview(photo){
+    if (authProfilePhotoPreviewEl && authProfilePhotoFallbackEl){
+      if (photo){
+        authProfilePhotoPreviewEl.src = photo;
+        authProfilePhotoPreviewEl.style.display = "block";
+        authProfilePhotoFallbackEl.style.display = "none";
+      } else {
+        authProfilePhotoPreviewEl.src = "";
+        authProfilePhotoPreviewEl.style.display = "none";
+        authProfilePhotoFallbackEl.style.display = "flex";
+      }
+    }
+    if (authProfilePhotoLabelEl){
+      authProfilePhotoLabelEl.textContent = photo ? "📷 Change profile picture" : "📷 Add profile picture";
+    }
+  }
+
+  function saveProfilePhotoToCloud(uid, photo){
+    if (!lbDB || !uid) return Promise.resolve();
+    return lbDB.ref("users/" + uid + "/progress/profilePhoto").set(photo || "");
+  }
+
+  function syncLeaderboardPhotoForCurrentUser(photo){
+    if (!authUser || !authUser.uid) return;
+    const idx = lbEntries.findIndex(e => e.uid === authUser.uid);
+    if (idx < 0) return;
+    lbEntries[idx].photo = photo || "";
+    const fbKey = lbEntries[idx].fbKey;
+    if (fbKey && lbDB) lbDB.ref("leaderboard/" + fbKey + "/photo").set(photo || "").catch(() => {});
+    if (leaderboardPanelEl.classList.contains("active")) renderLeaderboard(false);
+    renderLbSidebar();
   }
 
   let lbCategory = "alltime"; // current leaderboard filter
@@ -5519,10 +5614,11 @@ const FIREBASE_CONFIG = firebaseConfig;
       rank.textContent = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
       row.appendChild(rank);
       // Avatar
-      if (e.photo){
+      const avatarPhoto = e.photo || ((authUser && e.uid === authUser.uid) ? getAccountPhoto() : null);
+      if (avatarPhoto){
         const img = document.createElement("img");
         img.className = "lb-avatar";
-        img.src = e.photo;
+        img.src = avatarPhoto;
         img.alt = e.name;
         row.appendChild(img);
       } else {
@@ -5776,6 +5872,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (authUser && authUser.emailVerified){
       // Pre-fill and lock the name when signed in with verified email
       const displayName = authUser.displayName || authUser.email.split("@")[0];
+      const accountPhoto = getAccountPhoto();
       lbNameInputEl.value = displayName;
       lbNameInputEl.setAttribute("readonly", "true");
       lbNameInputEl.style.opacity = ".7";
@@ -5785,6 +5882,10 @@ const FIREBASE_CONFIG = firebaseConfig;
       }
       if (submitHint) submitHint.style.display = "none";
       if (photoLabel) photoLabel.style.display = "none";
+      if (accountPhoto){
+        lbPhotoPreviewEl.src = accountPhoto;
+        lbPhotoPreviewEl.style.display = "block";
+      }
     } else {
       lbNameInputEl.value = "";
       lbNameInputEl.removeAttribute("readonly");
@@ -5810,11 +5911,14 @@ const FIREBASE_CONFIG = firebaseConfig;
 
     function doSubmit(photo){
       const entry = { name, score, date: dateStr };
-      if (photo) entry.photo = photo;
       // Tag entry with account uid when signed in with verified email
       if (authUser && authUser.emailVerified){
+        const accountPhoto = getAccountPhoto();
+        if (accountPhoto) entry.photo = accountPhoto;
         entry.uid = authUser.uid;
         entry.verified = true;
+      } else if (photo) {
+        entry.photo = photo;
       }
       if (lbDB){
         // If logged in, check if user already has an entry on the leaderboard
@@ -5875,6 +5979,7 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   function handleAuthStateChanged(user){
     authUser = user;
+    authProfilePhoto = user && user.photoURL ? user.photoURL : null;
     if (user){
       // User just signed in or page reloaded while signed in
       loadProgressFromCloud(() => {
@@ -5883,6 +5988,8 @@ const FIREBASE_CONFIG = firebaseConfig;
         if (leaderboardPanelEl.classList.contains("active")) renderLeaderboard(false);
       });
     } else {
+      authPendingRegisterPhoto = null;
+      authProfilePhoto = null;
       updateAuthUI();
     }
   }
@@ -5899,6 +6006,7 @@ const FIREBASE_CONFIG = firebaseConfig;
           if (data.rebind) state.rebind = data.rebind;
           if (data.stats) Object.assign(state.stats, data.stats);
           if (data.achievementsUnlocked) state.achievementsUnlocked = data.achievementsUnlocked;
+          if (data.profilePhoto != null) authProfilePhoto = data.profilePhoto || null;
           if (data.best != null && data.best > state.best){
             state.best = data.best;
             bestEl.textContent = state.best;
@@ -5917,6 +6025,7 @@ const FIREBASE_CONFIG = firebaseConfig;
             rebind: state.rebind, stats: state.stats,
             achievementsUnlocked: state.achievementsUnlocked
           }));
+          updateAuthPhotoPreview(getAccountPhoto());
         }
         if (callback) callback();
       })
@@ -5933,6 +6042,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       achievementsUnlocked: state.achievementsUnlocked,
       best: state.best,
       displayName: authUser.displayName || "",
+      profilePhoto: getAccountPhoto() || "",
       lastSync: Date.now()
     }).catch(() => {});
   }
@@ -5990,10 +6100,11 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (view === "profile" && authUser){
       const displayName = authUser.displayName || authUser.email.split("@")[0];
       const verified = authUser.emailVerified;
+      const accountPhoto = getAccountPhoto();
+      updateAuthPhotoPreview(accountPhoto);
       const profileInfoEl = document.getElementById("authProfileInfo");
       if (profileInfoEl){
         profileInfoEl.innerHTML =
-          '<div style="font-size:28px;margin-bottom:8px;">👤</div>' +
           '<div style="font-size:16px;font-weight:bold;color:var(--neon);margin-bottom:4px;">' + displayName + '</div>' +
           '<div style="font-size:12px;opacity:.65;margin-bottom:8px;">' + authUser.email + '</div>' +
           (verified
@@ -6002,6 +6113,8 @@ const FIREBASE_CONFIG = firebaseConfig;
           '<div style="font-size:12px;opacity:.65;margin-top:10px;">Best Score: ' + state.best.toLocaleString() + '</div>' +
           '<div style="font-size:12px;opacity:.65;">Neon Shards: ' + state.shards.toLocaleString() + '</div>';
       }
+      const photoMsgEl = document.getElementById("authProfilePhotoMsg");
+      if (photoMsgEl){ photoMsgEl.textContent = ""; photoMsgEl.className = "auth-msg"; }
       const verifySec = document.getElementById("authVerifySection");
       if (verifySec){
         if (!verified){
@@ -6095,25 +6208,29 @@ const FIREBASE_CONFIG = firebaseConfig;
     const btn = document.getElementById("authRegisterBtn");
     btn.textContent = "Creating…"; btn.style.opacity = ".6";
     console.log("[Auth] Starting registration for:", email);
-    fbAuth.createUserWithEmailAndPassword(email, pw)
-      .then(cred => {
+
+    (async () => {
+      try {
+        const resizedRegisterPhoto = authPendingRegisterPhoto
+          ? await resizePhotoForUploadAsync(authPendingRegisterPhoto)
+          : null;
+        const cred = await fbAuth.createUserWithEmailAndPassword(email, pw);
         console.log("[Auth] User created, updating profile...");
-        return cred.user.updateProfile({ displayName: name })
-          .then(() => {
-            console.log("[Auth] Profile updated, sending verification email...");
-            return cred.user.sendEmailVerification();
-          })
-          .then(() => {
-            console.log("[Auth] Verification email sent");
-            return cred.user;
-          });
-      })
-      .then(() => {
+        await cred.user.updateProfile({ displayName: name, photoURL: resizedRegisterPhoto || null });
+        if (resizedRegisterPhoto){
+          await saveProfilePhotoToCloud(cred.user.uid, resizedRegisterPhoto).catch(() => {});
+          authProfilePhoto = resizedRegisterPhoto;
+        }
+        console.log("[Auth] Profile updated, sending verification email...");
+        await cred.user.sendEmailVerification();
+        console.log("[Auth] Verification email sent");
+        authPendingRegisterPhoto = null;
+        if (authRegPhotoPreviewEl){ authRegPhotoPreviewEl.src = ""; authRegPhotoPreviewEl.style.display = "none"; }
+        if (authRegPhotoInputEl) authRegPhotoInputEl.value = "";
         btn.textContent = "Create Account"; btn.style.opacity = "";
         authSetOk("authRegErr", "Account created! Check your email to verify.");
         setTimeout(() => closeAuthModal(), 2200);
-      })
-      .catch(err => {
+      } catch (err) {
         btn.textContent = "Create Account"; btn.style.opacity = "";
         console.error("[Auth] Registration error:", err.code, err.message, err);
         let msg = "Registration failed. Please try again.";
@@ -6126,7 +6243,48 @@ const FIREBASE_CONFIG = firebaseConfig;
         else if (err.code === "auth/too-many-requests") msg = "Too many attempts. Try again later.";
         else if (err.message) msg = err.message;
         authSetError("authRegErr", msg);
-      });
+      }
+    })();
+  }
+
+  async function applyAccountPhoto(dataUrl){
+    if (!authUser){
+      authSetError("authProfilePhotoMsg", "Sign in to update your picture.");
+      return;
+    }
+    authSetOk("authProfilePhotoMsg", "Saving picture...");
+    const resized = await resizePhotoForUploadAsync(dataUrl);
+    if (!resized){
+      authSetError("authProfilePhotoMsg", "Could not process that image.");
+      return;
+    }
+    try {
+      await authUser.updateProfile({ photoURL: resized });
+      authProfilePhoto = resized;
+      await saveProfilePhotoToCloud(authUser.uid, resized).catch(() => {});
+      syncLeaderboardPhotoForCurrentUser(resized);
+      updateAuthPhotoPreview(resized);
+      updateAuthUI();
+      authSetOk("authProfilePhotoMsg", "Profile picture updated.");
+      syncProgressToCloud();
+    } catch (_err) {
+      authSetError("authProfilePhotoMsg", "Could not save profile picture.");
+    }
+  }
+
+  function handlePhotoFileInput(file, labelEl, onLoad){
+    if (!file) return;
+    if (!file.type || !file.type.startsWith("image/")){
+      flashPhotoLabel(labelEl, "⚠️ Please select an image file");
+      return;
+    }
+    if (file.size > AUTH_MAX_PHOTO_BYTES){
+      flashPhotoLabel(labelEl, "⚠️ Image too large (max 512 KB)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => onLoad(ev.target.result);
+    reader.readAsDataURL(file);
   }
 
   function doAuthSignOut(){
@@ -6878,6 +7036,30 @@ const FIREBASE_CONFIG = firebaseConfig;
     };
     reader.readAsDataURL(file);
   });
+
+  if (authRegPhotoInputEl){
+    authRegPhotoInputEl.addEventListener("change", () => {
+      const file = authRegPhotoInputEl.files[0];
+      handlePhotoFileInput(file, authRegPhotoLabelEl, (dataUrl) => {
+        authPendingRegisterPhoto = dataUrl;
+        if (authRegPhotoPreviewEl){
+          authRegPhotoPreviewEl.src = dataUrl;
+          authRegPhotoPreviewEl.style.display = "block";
+        }
+      });
+      authRegPhotoInputEl.value = "";
+    });
+  }
+
+  if (authProfilePhotoInputEl){
+    authProfilePhotoInputEl.addEventListener("change", () => {
+      const file = authProfilePhotoInputEl.files[0];
+      handlePhotoFileInput(file, authProfilePhotoLabelEl, (dataUrl) => {
+        applyAccountPhoto(dataUrl);
+      });
+      authProfilePhotoInputEl.value = "";
+    });
+  }
   closeModsEl.addEventListener("click", () => {
     sfxClick();
     modsPanelEl.classList.remove("active");
