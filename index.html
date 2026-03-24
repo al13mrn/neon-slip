@@ -1150,6 +1150,48 @@
   .speech-bubble.them{ margin-right:auto; background:rgba(138,91,255,.14); border:1px solid rgba(138,91,255,.35); }
   .speech-meta{ font-size:9px; opacity:.55; margin-top:4px; letter-spacing:.5px; text-transform:uppercase; }
   .speech-compose{ display:flex; gap:8px; margin-top:8px; }
+  /* Neon Speech notification banners */
+  #speechNotifContainer{
+    position:fixed; bottom:20px; right:20px; z-index:200;
+    display:flex; flex-direction:column; gap:8px;
+    pointer-events:none;
+    max-width:min(340px, calc(100vw - 40px));
+  }
+  .speech-notif{
+    background: linear-gradient(135deg, rgba(18,26,52,.97), rgba(6,10,20,.99));
+    border:1px solid rgba(138,91,255,.6);
+    box-shadow: 0 0 20px rgba(138,91,255,.22), 0 4px 16px rgba(0,0,0,.55);
+    border-radius:12px; padding:10px 14px;
+    cursor:pointer; pointer-events:auto;
+    display:flex; align-items:flex-start; gap:10px;
+    animation: speechNotifIn .35s ease;
+    max-width:100%;
+  }
+  @keyframes speechNotifIn{
+    from{ opacity:0; transform:translateX(44px) scale(.92); }
+    to{   opacity:1; transform:translateX(0)    scale(1);   }
+  }
+  @keyframes speechNotifOut{
+    to{ opacity:0; transform:translateX(50px) scale(.88); }
+  }
+  .speech-notif-icon{ font-size:18px; line-height:1; flex-shrink:0; margin-top:2px; }
+  .speech-notif-body{ flex:1; min-width:0; }
+  .speech-notif-from{
+    font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--neon2); margin-bottom:3px;
+  }
+  .speech-notif-text{
+    font-size:12px; color:var(--text); letter-spacing:.3px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .speech-notif-close{
+    flex-shrink:0; width:18px; height:18px; border-radius:50%;
+    background:rgba(255,59,122,.18); border:1px solid rgba(255,59,122,.4);
+    color:var(--danger); font-size:11px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; line-height:1; margin-top:1px;
+  }
+  .speech-notif-close:hover{ background:rgba(255,59,122,.35); }
   /* Active modifier HUD bar during gameplay */
   .mod-hud{
     position:fixed; top:0; left:50%; transform:translateX(-50%);
@@ -1903,6 +1945,7 @@
 <div id="announcer" class="announcer">FLOW</div>
 <div id="scorePop" class="score-pop">+10</div>
 <div id="streakBanner" class="streak-banner">STREAK BONUS!</div>
+<div id="speechNotifContainer" role="region" aria-label="Notifications"></div>
 <div id="shieldIndicator" class="shield-indicator">🛡️ SHIELD</div>
 <div id="magnetIndicator" class="shield-indicator">🧲 MAGNET</div>
 <div id="slowmoIndicator" class="shield-indicator">⏰ SLOW-MO</div>
@@ -5650,6 +5693,9 @@ const FIREBASE_CONFIG = firebaseConfig;
   let activeSpeechFriendName = "";
   let speechRef = null;
   let speechHandler = null;
+  let speechGlobalRefs = {};     // chatId -> Firebase ref
+  let speechGlobalHandlers = {}; // chatId -> handler fn
+  let speechGlobalLastTs = {};   // chatId -> last known msg timestamp
 
   // Initialise Firebase once (safe to call multiple times)
   (function initFirebase(){
@@ -6118,6 +6164,95 @@ const FIREBASE_CONFIG = firebaseConfig;
     speechHandler = null;
   }
 
+  function tearDownSpeechGlobalListeners(){
+    Object.entries(speechGlobalRefs).forEach(([chatId, ref]) => {
+      if (speechGlobalHandlers[chatId]) ref.off("value", speechGlobalHandlers[chatId]);
+    });
+    speechGlobalRefs = {};
+    speechGlobalHandlers = {};
+    speechGlobalLastTs = {};
+  }
+
+  function setupSpeechGlobalListeners(){
+    if (!authUser || !lbDB) return;
+    const myUid = authUser.uid;
+    Object.keys(friendsMap || {}).forEach(uid => {
+      const chatId = getChatId(myUid, uid);
+      if (speechGlobalRefs[chatId]) return; // already listening
+      const ref = lbDB.ref("neonSpeech/" + chatId).limitToLast(1);
+      let isFirst = true;
+      const handler = (snap) => {
+        const raw = snap.val();
+        if (!raw){ isFirst = false; return; }
+        const msgs = Object.values(raw);
+        if (!msgs.length){ isFirst = false; return; }
+        const msg = msgs[0];
+        const ts = +(msg.ts || 0);
+        if (isFirst){
+          speechGlobalLastTs[chatId] = ts;
+          isFirst = false;
+          return;
+        }
+        if (msg.fromUid === myUid) return;
+        if (ts <= (speechGlobalLastTs[chatId] || 0)) return;
+        speechGlobalLastTs[chatId] = ts;
+        // Suppress if currently viewing this conversation
+        if (friendsPanelEl && friendsPanelEl.classList.contains("active") && activeSpeechFriendUid === uid) return;
+        // Suppress during an active run
+        if (state.mode === "play" || state.mode === "dying") return;
+        const friendName = (friendsMap[uid] && friendsMap[uid].name) || "Friend";
+        showSpeechNotif(uid, friendName, msg.text || "");
+      };
+      speechGlobalRefs[chatId] = ref;
+      speechGlobalHandlers[chatId] = handler;
+      ref.on("value", handler);
+    });
+  }
+
+  function initSpeechNotifListeners(){
+    if (!authUser || !lbDB) return;
+    lbDB.ref("friends/" + authUser.uid).once("value").then(snap => {
+      const all = snap.val() || {};
+      Object.assign(friendsMap, all);
+      setupSpeechGlobalListeners();
+    }).catch(err => {
+      console.warn("[Notif] Could not load friends for notifications:", err);
+    });
+  }
+
+  function showSpeechNotif(uid, name, text){
+    const container = document.getElementById("speechNotifContainer");
+    if (!container) return;
+    const el = document.createElement("div");
+    el.className = "speech-notif";
+    el.setAttribute("tabindex", "0");
+    el.setAttribute("role", "alert");
+    const preview = text.length > 80 ? text.slice(0, 80) + "\u2026" : text;
+    el.innerHTML =
+      '<div class="speech-notif-icon" role="img" aria-label="Message icon">💬</div>' +
+      '<div class="speech-notif-body">' +
+        '<div class="speech-notif-from">Neon Speech \u00b7 ' + escText(name) + '</div>' +
+        '<div class="speech-notif-text">' + escText(preview) + '</div>' +
+      '</div>' +
+      '<div class="speech-notif-close" title="Dismiss" tabindex="0" role="button" aria-label="Dismiss notification">\u2715</div>';
+    const closeBtn = el.querySelector(".speech-notif-close");
+    const dismiss = (e) => { e.stopPropagation(); dismissSpeechNotif(el); };
+    closeBtn.addEventListener("click", dismiss);
+    closeBtn.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dismiss(e); } });
+    const open = () => { dismissSpeechNotif(el); openFriendsPanel(null); openSpeechWithFriend(uid, name); };
+    el.addEventListener("click", open);
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    container.appendChild(el);
+    setTimeout(() => dismissSpeechNotif(el), 8000);
+  }
+
+  function dismissSpeechNotif(el){
+    if (!el || !el.parentNode) return;
+    el.style.animation = "speechNotifOut .3s ease forwards";
+    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+  }
+
+
   function setFriendsTab(tab){
     friendsTab = tab;
     if (!friendsTabsEl) return;
@@ -6340,6 +6475,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       renderFriendsList();
       renderFriendSearchResults();
       if (friendsTab === "board") renderFriendsLeaderboard();
+      setupSpeechGlobalListeners();
     } catch (err) {
       console.error("[Friends] load failed:", err);
       setFriendsStatus(friendsReqMsgEl, "Could not load friends data.", true);
@@ -6756,12 +6892,14 @@ const FIREBASE_CONFIG = firebaseConfig;
         updateAuthUI();
         syncPublicProfileToCloud();
         if (friendsPanelEl && friendsPanelEl.classList.contains("active")) loadFriendsData();
+        initSpeechNotifListeners();
         // Refresh leaderboard to show (You) badges
         if (leaderboardPanelEl.classList.contains("active")) renderLeaderboard(false);
       });
     } else {
       authPendingRegisterPhoto = null;
       authProfilePhoto = null;
+      tearDownSpeechGlobalListeners();
       clearSpeechSubscription();
       activeSpeechFriendUid = null;
       activeSpeechFriendName = "";
