@@ -6068,6 +6068,19 @@ const FIREBASE_CONFIG = firebaseConfig;
     return false;
   }
 
+  // For authenticated users who may have one entry per day, keep only the
+  // highest-scoring entry per uid so each user appears once per view.
+  // Guest entries (no uid) are always kept.
+  function deduplicateByUid(arr){
+    const seen = new Set();
+    return arr.filter(e => {
+      if (!e.uid) return true;
+      if (seen.has(e.uid)) return false;
+      seen.add(e.uid);
+      return true;
+    });
+  }
+
   function renderLeaderboard(loading){
     const lbYourScoreEl = document.getElementById("lbYourScore");
     lbYourScoreEl.textContent = lbPendingScore > 0 ? `Your last run: ${lbPendingScore.toLocaleString()}` : "";
@@ -6085,10 +6098,11 @@ const FIREBASE_CONFIG = firebaseConfig;
       }
       return;
     }
-    // Apply category filter
-    let filtered = lbEntries;
-    if (lbCategory === "today") filtered = lbEntries.filter(e => isToday(e.date));
-    else if (lbCategory === "thisweek") filtered = lbEntries.filter(e => isThisWeek(e.date));
+    // Apply category filter and deduplicate authenticated users by uid
+    let filtered;
+    if (lbCategory === "today") filtered = deduplicateByUid(lbEntries.filter(e => isToday(e.date)));
+    else if (lbCategory === "thisweek") filtered = deduplicateByUid(lbEntries.filter(e => isThisWeek(e.date)));
+    else filtered = deduplicateByUid(lbEntries);
     if (!filtered.length){
       leaderboardListEl.innerHTML = '<div class="lb-empty">No entries for this period.</div>';
       return;
@@ -6204,8 +6218,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Only show on start screen
     if (state.mode !== "start"){ sidebarEl.classList.remove("active"); return; }
     const entries = lbSidebarTab === "today"
-      ? lbEntries.filter(e => isToday(e.date))
-      : lbEntries.slice(0, 8);
+      ? deduplicateByUid(lbEntries.filter(e => isToday(e.date)))
+      : deduplicateByUid(lbEntries.slice(0, 50));
     if (titleEl) titleEl.textContent = lbSidebarTab === "today" ? "Today's Top Players" : "All-Time Best";
     if (!entries.length){
       listEl.innerHTML = `<div class="lb-sidebar-empty">No scores ${lbSidebarTab === "today" ? "today" : "yet"}</div>`;
@@ -7486,25 +7500,32 @@ const FIREBASE_CONFIG = firebaseConfig;
         entry.photo = photo;
       }
       if (lbDB){
-        // If logged in, check if user already has an entry on the leaderboard
+        // If logged in, track one entry per user per day so each leaderboard
+        // period (Today / This Week / All Time) works independently.
         if (authUser && authUser.emailVerified){
-          let existingIdx = lbEntries.findIndex(e => e.uid === authUser.uid);
-          if (existingIdx >= 0){
-            // User already has an entry — only update if new score is better
-            if (score > lbEntries[existingIdx].score){
-              const fbKey = lbEntries[existingIdx].fbKey;
-              if (fbKey){
-                // Update existing entry in Firebase
-                lbDB.ref("leaderboard/" + fbKey).update(entry).catch(() => {});
-                // Update local cache
-                lbEntries[existingIdx] = {...entry, fbKey: fbKey};
-              }
+          const uid = authUser.uid;
+          // Find this user's best entry specifically for today
+          let todayBestIdx = -1;
+          let todayBest = 0;
+          for (let i = 0; i < lbEntries.length; i++){
+            if (lbEntries[i].uid === uid && isToday(lbEntries[i].date) && lbEntries[i].score > todayBest){
+              todayBest = lbEntries[i].score;
+              todayBestIdx = i;
             }
-          } else {
-            // New entry for this user
-            lbDB.ref("leaderboard").push(entry).catch(() => {});
-            // Add to local cache
-            lbEntries.push(entry);
+          }
+          if (score > todayBest){
+            if (todayBestIdx >= 0){
+              // Update today's entry with the better score
+              const fbKey = lbEntries[todayBestIdx].fbKey;
+              if (fbKey){
+                lbDB.ref("leaderboard/" + fbKey).update(entry).catch(() => {});
+                lbEntries[todayBestIdx] = {...entry, fbKey};
+              }
+            } else {
+              // No entry for today — create one
+              lbDB.ref("leaderboard").push(entry).catch(() => {});
+              lbEntries.push(entry);
+            }
           }
         } else {
           // Guest (not logged in) — always create new entry
@@ -7528,7 +7549,17 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   // Leaderboard hook: show submit modal after game over.
+  // For authenticated users, skip the modal when the score can't improve
+  // any period: since today is contained within this-week which is contained
+  // within all-time, beating today's personal best is the minimum requirement.
+  // If today has no entry yet, todayBest is 0, so any positive score qualifies.
   function submitScore(score){
+    if (authUser && authUser.emailVerified){
+      const uid = authUser.uid;
+      const todayBest = lbEntries.reduce((best, e) =>
+        (e.uid === uid && isToday(e.date) && e.score > best) ? e.score : best, 0);
+      if (score <= todayBest) return;
+    }
     showLbModal(score);
   }
 
