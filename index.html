@@ -6284,6 +6284,15 @@ const FIREBASE_CONFIG = firebaseConfig;
     el.style.color = msg ? (isErr ? "var(--danger)" : "#7dffb2") : "";
   }
 
+  function explainFriendsError(err, fallback){
+    const code = String(err && err.code || "").toLowerCase();
+    const msg = String(err && err.message || "");
+    if (code.includes("permission-denied") || msg.toLowerCase().includes("permission denied")){
+      return "Blocked by Firebase rules. Please allow this path in your DB rules.";
+    }
+    return fallback;
+  }
+
   function getDmThreadId(uidA, uidB){
     return [uidA, uidB].sort().join("__");
   }
@@ -6516,14 +6525,31 @@ const FIREBASE_CONFIG = firebaseConfig;
     const rows = [];
     const threadMap = {};
     const dmFriendIds = Object.keys(friendsMap || {});
-    const groupMembershipSnap = await lbDB.ref("neonSpeechMemberships/" + myUid).once("value").catch(() => ({ val: () => ({}) }));
-    const membership = groupMembershipSnap.val() || {};
+    let membership = {};
+    let membershipDenied = false;
+    try {
+      const groupMembershipSnap = await lbDB.ref("neonSpeechMemberships/" + myUid).once("value");
+      membership = groupMembershipSnap.val() || {};
+    } catch (_err) {
+      membershipDenied = true;
+      membership = {};
+    }
     const threadIds = [];
 
     dmFriendIds.forEach(uid => threadIds.push(getDmThreadId(myUid, uid)));
     Object.keys(membership).forEach(threadId => {
       if (!threadIds.includes(threadId)) threadIds.push(threadId);
     });
+
+    if (membershipDenied){
+      try {
+        const ownedGroupsSnap = await lbDB.ref("neonSpeechThreads").orderByChild("createdBy").equalTo(myUid).once("value");
+        const owned = ownedGroupsSnap.val() || {};
+        Object.keys(owned).forEach(threadId => {
+          if (String(threadId).startsWith("group__") && !threadIds.includes(threadId)) threadIds.push(threadId);
+        });
+      } catch (_err) {}
+    }
 
     if (!threadIds.length){
       speechInboxRows = [];
@@ -6532,12 +6558,12 @@ const FIREBASE_CONFIG = firebaseConfig;
       return;
     }
 
-    const messageSnaps = await Promise.all(threadIds.map(tid => lbDB.ref("neonSpeech/" + tid).limitToLast(1).once("value")));
-    const threadSnaps = await Promise.all(threadIds.map(tid => lbDB.ref("neonSpeechThreads/" + tid).once("value")));
+    const messageSnaps = await Promise.allSettled(threadIds.map(tid => lbDB.ref("neonSpeech/" + tid).limitToLast(1).once("value")));
+    const threadSnaps = await Promise.allSettled(threadIds.map(tid => lbDB.ref("neonSpeechThreads/" + tid).once("value")));
 
     threadIds.forEach((threadId, i) => {
-      const meta = threadSnaps[i].val() || {};
-      const msgRaw = messageSnaps[i].val() || {};
+      const meta = threadSnaps[i] && threadSnaps[i].status === "fulfilled" ? (threadSnaps[i].value.val() || {}) : {};
+      const msgRaw = messageSnaps[i] && messageSnaps[i].status === "fulfilled" ? (messageSnaps[i].value.val() || {}) : {};
       const lastMsg = Object.values(msgRaw)[0] || meta.lastMessage || null;
       const isDm = isDmThreadId(threadId);
       const dmParts = String(threadId).split("__");
@@ -6622,20 +6648,10 @@ const FIREBASE_CONFIG = firebaseConfig;
       setFriendsStatus(speechMsgEl, "", false);
       if (speechCreateGroupAreaEl) speechCreateGroupAreaEl.style.display = "none";
       if (speechManageGroupAreaEl) speechManageGroupAreaEl.style.display = "none";
-      refreshSpeechInbox(true).catch(() => {});
+      refreshSpeechInbox(true).catch(() => {
+        if (speechInboxListEl) speechInboxListEl.innerHTML = '<div class="friends-empty">Conversations unavailable right now</div>';
+      });
     }
-  }
-
-  function setFriendsTab(tab){
-    friendsTab = tab;
-    if (!friendsTabsEl) return;
-    friendsTabsEl.querySelectorAll(".friends-tab").forEach(el => {
-      el.classList.toggle("active", el.dataset.tab === tab);
-    });
-    document.querySelectorAll(".friends-tab-content").forEach(el => {
-      el.classList.toggle("active", el.dataset.content === tab);
-    });
-    if (tab === "board") renderFriendsLeaderboard();
   }
 
   function renderFriendRequests(){
@@ -6727,7 +6743,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       setFriendsStatus(friendsReqMsgEl, friendSearchResults.length ? `Found ${friendSearchResults.length} player(s).` : "No players found.", false);
     } catch (err) {
       console.error("[Friends] Search failed:", err);
-      setFriendsStatus(friendsReqMsgEl, "Could not search players. Check Firebase rules/index.", true);
+      setFriendsStatus(friendsReqMsgEl, explainFriendsError(err, "Could not search players. Check Firebase rules/index."), true);
       friendSearchResults = [];
       renderFriendSearchResults();
     }
@@ -6886,27 +6902,27 @@ const FIREBASE_CONFIG = firebaseConfig;
       const f = friendsMap[uid] || {};
       members[uid] = { role: "member", name: f.name || uid, photo: f.photo || "", joinedAt: now };
     });
-    const updates = {};
-    updates["neonSpeechThreads/" + threadId] = {
-      type: "group",
-      title: name,
-      createdBy: authUser.uid,
-      createdAt: now,
-      updatedAt: now,
-      members
-    };
-    Object.keys(members).forEach(uid => {
-      updates["neonSpeechMemberships/" + uid + "/" + threadId] = { joinedAt: now, role: members[uid].role };
-    });
     try {
-      await lbDB.ref().update(updates);
+      await lbDB.ref("neonSpeechThreads/" + threadId).set({
+        type: "group",
+        title: name,
+        createdBy: authUser.uid,
+        createdAt: now,
+        updatedAt: now,
+        members
+      });
+      const membershipWrites = Object.keys(members).map(uid =>
+        lbDB.ref("neonSpeechMemberships/" + uid + "/" + threadId).set({ joinedAt: now, role: members[uid].role })
+      );
+      const membershipResults = await Promise.allSettled(membershipWrites);
+      const membershipFailed = membershipResults.some(r => r.status !== "fulfilled");
       closeSpeechCreateGroupArea();
-      setFriendsStatus(speechMsgEl, "Group created.", false);
+      setFriendsStatus(speechMsgEl, membershipFailed ? "Group created, but membership syncing is limited by current rules." : "Group created.", membershipFailed);
       await refreshSpeechInbox(false);
       openSpeechThread(threadId);
     } catch (err) {
       console.error("[Neon Speech] Group creation failed:", err);
-      setFriendsStatus(speechMsgEl, "Could not create group.", true);
+      setFriendsStatus(speechMsgEl, explainFriendsError(err, "Could not create group."), true);
     }
   }
 
@@ -6974,7 +6990,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       refreshSpeechInbox(true);
     } catch (err) {
       console.error("[Neon Speech] Group update failed:", err);
-      setFriendsStatus(speechMsgEl, "Could not update group members.", true);
+      setFriendsStatus(speechMsgEl, explainFriendsError(err, "Could not update group members."), true);
     }
   }
 
@@ -7035,9 +7051,11 @@ const FIREBASE_CONFIG = firebaseConfig;
   async function loadFriendsData(){
     if (!friendsPanelEl || !friendsPanelEl.classList.contains("active")){
       if (authUser && lbDB){
-        await loadSpeechReads();
-        await refreshSpeechInbox(true);
-        setupSpeechGlobalListeners();
+        try {
+          await loadSpeechReads();
+          await refreshSpeechInbox(true);
+          setupSpeechGlobalListeners();
+        } catch (_err) {}
       }
       return;
     }
@@ -7053,32 +7071,46 @@ const FIREBASE_CONFIG = firebaseConfig;
       return;
     }
     try {
-      const [friendsSnap, inSnap, outSnap] = await Promise.all([
+      const [friendsRes, inRes, outRes] = await Promise.allSettled([
         lbDB.ref("friends/" + authUser.uid).once("value"),
         lbDB.ref("friendRequests/" + authUser.uid).once("value"),
         lbDB.ref("friendRequestsSent/" + authUser.uid).once("value")
       ]);
-      friendsMap = friendsSnap.val() || {};
-      friendRequestsIncoming = inSnap.val() || {};
-      friendRequestsOutgoing = outSnap.val() || {};
+      friendsMap = friendsRes.status === "fulfilled" ? (friendsRes.value.val() || {}) : {};
+      friendRequestsIncoming = inRes.status === "fulfilled" ? (inRes.value.val() || {}) : {};
+      friendRequestsOutgoing = outRes.status === "fulfilled" ? (outRes.value.val() || {}) : {};
       renderFriendRequests();
-      await loadSpeechReads();
-      await refreshSpeechInbox(true);
-      if (friendsTab === "speech" && activeSpeechThreadId && !speechRef){
-        openSpeechThread(activeSpeechThreadId);
+      const requestsBlocked = inRes.status !== "fulfilled" || outRes.status !== "fulfilled";
+      if (requestsBlocked){
+        if (friendsReqMsgEl && !friendSearchResults.length){
+          const reqErr = inRes.status !== "fulfilled" ? inRes.reason : outRes.reason;
+          setFriendsStatus(friendsReqMsgEl, explainFriendsError(reqErr, "Friend request inbox unavailable right now."), true);
+        }
+      } else {
+        setFriendsStatus(friendsReqMsgEl, "", false);
       }
       renderFriendsList();
       renderFriendSearchResults();
       if (friendsTab === "board") renderFriendsLeaderboard();
-      setupSpeechGlobalListeners();
+      try {
+        await loadSpeechReads();
+        await refreshSpeechInbox(true);
+        if (friendsTab === "speech" && activeSpeechThreadId && !speechRef){
+          openSpeechThread(activeSpeechThreadId);
+        }
+        setupSpeechGlobalListeners();
+      } catch (_speechErr) {
+        if (speechInboxListEl) speechInboxListEl.innerHTML = '<div class="friends-empty">Neon Speech unavailable (check Firebase permissions)</div>';
+        if (friendsTab === "speech") setFriendsStatus(speechMsgEl, "Neon Speech unavailable right now.", true);
+      }
     } catch (err) {
       console.error("[Friends] load failed:", err);
       setFriendsStatus(friendsReqMsgEl, "Could not load friends data.", true);
       if (friendsRequestsListEl) friendsRequestsListEl.innerHTML = '<div class="friends-empty">Could not load requests</div>';
-      if (friendsSearchResultsEl) friendsSearchResultsEl.innerHTML = '<div class="friends-empty">Could not load player search</div>';
+      if (friendsSearchResultsEl) friendsSearchResultsEl.innerHTML = '<div class="friends-empty">Search results will appear here</div>';
       if (friendsListEl) friendsListEl.innerHTML = '<div class="friends-empty">Could not load friends list</div>';
       if (friendsLeaderboardListEl) friendsLeaderboardListEl.innerHTML = '<div class="friends-empty">Could not load friend leaderboard</div>';
-      if (speechInboxListEl) speechInboxListEl.innerHTML = '<div class="friends-empty">Could not load conversations</div>';
+      if (speechInboxListEl) speechInboxListEl.innerHTML = '<div class="friends-empty">Conversations unavailable right now</div>';
     }
   }
 
@@ -7135,8 +7167,27 @@ const FIREBASE_CONFIG = firebaseConfig;
       loadFriendsData();
     } catch (err) {
       console.error("[Friends] request send failed:", err);
-      setFriendsStatus(friendsReqMsgEl, "Could not send request.", true);
+      try {
+        await addFriendLocalOnly(targetUid, targetName, targetPhoto);
+        friendAddInputEl.value = "";
+        setFriendsStatus(friendsReqMsgEl, "Request path blocked by rules. Added to your local friends list.", false);
+        loadFriendsData();
+      } catch (fallbackErr){
+        setFriendsStatus(friendsReqMsgEl, explainFriendsError(fallbackErr, "Could not send request."), true);
+      }
     }
+  }
+
+  async function addFriendLocalOnly(targetUid, targetName, targetPhoto){
+    if (!authUser || !lbDB || !targetUid) throw new Error("Missing auth or target user");
+    const record = {
+      uid: targetUid,
+      name: targetName || targetUid,
+      photo: targetPhoto || "",
+      since: Date.now()
+    };
+    await lbDB.ref("friends/" + authUser.uid + "/" + targetUid).set(record);
+    friendsMap[targetUid] = record;
   }
 
   async function sendFriendRequestTo(targetUid, targetName, targetPhoto){
