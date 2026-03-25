@@ -7918,7 +7918,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   function handlePhotoFileInput(file, labelEl, onLoad){
     if (!file) return;
     if (!isSupportedImageFile(file)){
-      flashPhotoLabel(labelEl, "⚠️ Unsupported file type");
+      flashPhotoLabel(labelEl, "⚠️ Unsupported file type! Use JPG, PNG, or WEBP.");
       return;
     }
     if (file.size > AUTH_MAX_PHOTO_BYTES){
