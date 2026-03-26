@@ -3573,6 +3573,7 @@ const FIREBASE_CONFIG = firebaseConfig;
           up.level += 1;
           state.upgrades[up.id] = up.level;
           saveProgress();
+          syncProgressToCloud();
           updateUpgradeUI();
           sfxClick();
         });
@@ -4082,6 +4083,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     state.stats.totalNearMisses = (state.stats.totalNearMisses || 0) + state.nearCount;
     checkAchievements();
     saveProgress();
+    syncProgressToCloud();
     finalScoreEl.textContent = state.score;
     finalBestEl.textContent = state.best;
     scoreEl.textContent = state.score;
@@ -5809,6 +5811,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   let lbStorageFallback = null; // Optional fallback bucket reference (appspot)
   let fbAuth = null;    // Firebase auth instance
   let authUser = null;  // currently signed-in Firebase user (null if guest)
+  let cloudSyncIntervalId = null; // periodic cloud sync interval
   let friendsTab = "requests";
   let friendsMap = {};
   let friendRequestsIncoming = {};
@@ -7599,9 +7602,12 @@ const FIREBASE_CONFIG = firebaseConfig;
         // Refresh leaderboard to show (You) badges
         if (leaderboardPanelEl.classList.contains("active")) renderLeaderboard(false);
       });
+      if (cloudSyncIntervalId) clearInterval(cloudSyncIntervalId);
+      cloudSyncIntervalId = setInterval(syncProgressToCloud, 30000);
     } else {
       authPendingRegisterPhoto = null;
       authProfilePhoto = null;
+      if (cloudSyncIntervalId){ clearInterval(cloudSyncIntervalId); cloudSyncIntervalId = null; }
       tearDownSpeechGlobalListeners();
       tearDownSpeechMembershipListener();
       clearSpeechSubscription();
