@@ -1182,12 +1182,27 @@
     background: rgba(8,12,20,.65); padding:10px;
   }
   .speech-bubble{
-    max-width:72%; padding:6px 8px; border-radius:9px; margin-bottom:6px;
+    display:flex; flex-direction:column; max-width:72%; padding:6px 8px; border-radius:9px; margin-bottom:6px;
     font-size:11px; letter-spacing:.25px; line-height:1.3;
   }
   .speech-bubble.me{ margin-left:auto; background:rgba(25,247,255,.16); border:1px solid rgba(25,247,255,.35); }
   .speech-bubble.them{ margin-right:auto; background:rgba(138,91,255,.14); border:1px solid rgba(138,91,255,.35); }
-  .speech-meta{ font-size:8px; opacity:.55; margin-top:3px; letter-spacing:.45px; text-transform:uppercase; }
+  .speech-bubble-header{ display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+  .speech-bubble-avatar{ width:20px; height:20px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+  .speech-bubble-avatar-ph{ width:20px; height:20px; border-radius:50%; background:rgba(138,91,255,.3); display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+  .speech-bubble-name{ font-size:9px; font-weight:bold; }
+  .speech-bubble-role{ font-size:8px; opacity:.65; text-transform:uppercase; letter-spacing:.5px; margin-left:auto; }
+  .speech-bubble-content{ margin:4px 0; }
+  .speech-mention{ color:#7dffb2; text-shadow:0 0 8px rgba(125,255,178,.4); font-weight:bold; }
+  .speech-meta{ font-size:8px; opacity:.55; margin-top:3px; letter-spacing:.45px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .speech-read-receipt{ font-size:8px; opacity:.45; }
+  .speech-reactions{ display:flex; gap:4px; margin-top:4px; flex-wrap:wrap; }
+  .speech-reaction{ background:rgba(25,247,255,.12); border:1px solid rgba(25,247,255,.25); border-radius:6px; padding:3px 6px; font-size:9px; cursor:pointer; transition:all .2s; }
+  .speech-reaction:hover{ background:rgba(25,247,255,.22); }
+  .speech-typing{ font-size:10px; opacity:.65; font-style:italic; padding:4px 0; animation: typing 1.4s infinite; }
+  @keyframes typing{ 0%, 60%, 100%{opacity:.65} 30%{opacity:1} }
+  .speech-pinned-banner{ background:rgba(255,200,50,.12); border:1px solid rgba(255,200,50,.3); border-radius:6px; padding:8px; margin:8px 0 0 0; font-size:10px; letter-spacing:.5px; color:#ffd840; }
+  .speech-pinned-banner::before{ content:'📌 '; }
   .speech-compose{ display:flex; gap:8px; margin-top:8px; }
   .speech-member-list{ max-height:180px; overflow:auto; margin-top:8px; }
   .speech-member-row{
@@ -1225,6 +1240,12 @@
     display:flex; align-items:flex-start; gap:10px;
     animation: speechNotifIn .35s ease;
     max-width:100%;
+    transition: all .2s ease;
+    cursor: pointer;
+  }
+  .speech-notif:hover{
+    background:rgba(25,247,255,.08);
+    transform: translateX(6px);
   }
   @keyframes speechNotifIn{
     from{ opacity:0; transform:translateX(44px) scale(.92); }
@@ -1233,15 +1254,31 @@
   @keyframes speechNotifOut{
     to{ opacity:0; transform:translateX(50px) scale(.88); }
   }
-  .speech-notif-icon{ font-size:18px; line-height:1; flex-shrink:0; margin-top:2px; }
+  @keyframes iconPulse{
+    0%, 100%{ transform: scale(1); opacity: 1; filter: drop-shadow(0 0 0 rgba(25,247,255,0)); }
+    50%{ transform: scale(1.15); opacity: 0.8; filter: drop-shadow(0 0 8px rgba(25,247,255,.6)); }
+  }
+  .speech-notif-icon{ 
+    font-size:18px; line-height:1; flex-shrink:0; margin-top:2px;
+    animation: iconPulse 2s ease-in-out infinite;
+  }
   .speech-notif-body{ flex:1; min-width:0; }
   .speech-notif-from{
     font-size:11px; letter-spacing:1px; text-transform:uppercase;
     color:var(--neon2); margin-bottom:3px;
+    transition: color .2s ease;
+  }
+  .speech-notif:hover .speech-notif-from{
+    color:var(--neon1);
+    text-shadow: 0 0 8px rgba(25,247,255,.5);
   }
   .speech-notif-text{
     font-size:12px; color:var(--text); letter-spacing:.3px;
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    transition: color .2s ease;
+  }
+  .speech-notif:hover .speech-notif-text{
+    color:rgba(255,255,255,.95);
   }
   .speech-notif-close{
     flex-shrink:0; width:18px; height:18px; border-radius:50%;
@@ -1249,8 +1286,15 @@
     color:var(--danger); font-size:11px;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer; line-height:1; margin-top:1px;
+    transition: all .2s ease;
   }
-  .speech-notif-close:hover{ background:rgba(255,59,122,.35); }
+  .speech-notif-close:hover{ 
+    background:rgba(255,59,122,.35);
+    transform: scale(1.2) rotate(90deg);
+  }
+  .speech-notif-close:active{
+    transform: scale(0.95) rotate(90deg);
+  }
   /* Active modifier HUD bar during gameplay */
   .mod-hud{
     position:fixed; top:0; left:50%; transform:translateX(-50%);
@@ -2137,6 +2181,7 @@
             <div class="speech-title" id="speechActiveTitle">Neon Speech: Choose a conversation</div>
             <div class="speech-actions">
               <div id="speechManageGroupBtn" class="speech-action-btn" style="display:none;">Manage Group</div>
+              <div id="speechLeaveGroupBtn" class="speech-action-btn danger" style="display:none;">Leave Group</div>
             </div>
           </div>
           <div id="speechMessages" class="speech-messages"></div>
@@ -5757,6 +5802,12 @@ const FIREBASE_CONFIG = firebaseConfig;
   function sfxClick(){
     playTone(520, 0.04, "triangle", 0.05);
   }
+  function sfxNotification(){
+    // Pleasant notification sound: ascending tones with a chime-like quality
+    playTone(740, 0.06, "sine", 0.06);
+    setTimeout(() => playTone(880, 0.07, "sine", 0.07), 40);
+    setTimeout(() => playTone(1100, 0.08, "sine", 0.05), 80);
+  }
 
   function handleVisibilityChange(){
     input.activePointer = false;
@@ -6285,6 +6336,38 @@ const FIREBASE_CONFIG = firebaseConfig;
     return authUser.displayName || (authUser.email ? authUser.email.split("@")[0] : "Player");
   }
 
+  function getMemberColor(uid){
+    const colors = [
+      'rgba(25,247,255,.6)',    // cyan
+      'rgba(138,91,255,.6)',    // purple
+      'rgba(125,255,178,.6)',   // green
+      'rgba(255,216,107,.6)',   // yellow
+      'rgba(255,157,0,.6)',     // orange
+      'rgba(255,59,122,.6)',    // pink
+      'rgba(100,200,255,.6)',   // light blue
+      'rgba(200,100,255,.6)'    // light purple
+    ];
+    const hash = uid.split('').reduce((h, c) => h + c.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+  }
+
+  function getMemberRole(uid, threadMeta){
+    if (!threadMeta || threadMeta.type !== "group") return "";
+    const member = (threadMeta.members || {})[uid];
+    return member && member.role ? member.role.toUpperCase() : "";
+  }
+
+  function parseMentions(text, threadMeta){
+    if (!threadMeta || !threadMeta.members) return escText(text || "");
+    let html = escText(text || "");
+    Object.entries(threadMeta.members || {}).forEach(([uid, m]) => {
+      const nameToFind = m.name || uid;
+      const regex = new RegExp(`@${escText(nameToFind).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'g');
+      html = html.replace(regex, `<span class="speech-mention">@${escText(nameToFind)}</span>`);
+    });
+    return html;
+  }
+
   function setFriendsStatus(el, msg, isErr){
     if (!el) return;
     el.textContent = msg || "";
@@ -6439,6 +6522,11 @@ const FIREBASE_CONFIG = firebaseConfig;
     el.addEventListener("click", open);
     el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     container.appendChild(el);
+    // Play notification sound if audio is unlocked
+    if (state.audioUnlocked && !state.audioMuted){
+      initAudio();
+      sfxNotification();
+    }
     setTimeout(() => dismissSpeechNotif(el), 8000);
   }
 
@@ -7010,6 +7098,24 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
   }
 
+  async function leaveGroup(){
+    if (!authUser || !lbDB || !activeSpeechThreadMeta || activeSpeechThreadMeta.type !== "group") return;
+    const threadId = activeSpeechThreadMeta.threadId;
+    try {
+      const updates = {};
+      updates["neonSpeechThreads/" + threadId + "/members/" + authUser.uid] = null;
+      updates["neonSpeechMemberships/" + authUser.uid + "/" + threadId] = null;
+      await lbDB.ref().update(updates);
+      activeSpeechThreadId = null;
+      activeSpeechThreadMeta = null;
+      setFriendsStatus(speechMsgEl, "Left group chat.", false);
+      await refreshSpeechInbox(true);
+    } catch (err) {
+      console.error("[Neon Speech] Failed to leave group:", err);
+      setFriendsStatus(speechMsgEl, "Could not leave group.", true);
+    }
+  }
+
   async function openSpeechWithFriend(uid, name){
     if (!authUser || !lbDB || !uid) return;
     await ensureDmThreadMeta(uid);
@@ -7025,8 +7131,13 @@ const FIREBASE_CONFIG = firebaseConfig;
     const title = fallbackName || getThreadTitle(activeSpeechThreadMeta);
     if (speechActiveTitleEl) speechActiveTitleEl.textContent = "Neon Speech: " + title;
     if (speechMessagesEl) speechMessagesEl.innerHTML = '<div class="friends-empty">Loading messages...</div>';
+    const isGroup = activeSpeechThreadMeta.type === "group";
     if (speechManageGroupBtnEl){
-      speechManageGroupBtnEl.style.display = activeSpeechThreadMeta.type === "group" ? "inline-flex" : "none";
+      speechManageGroupBtnEl.style.display = isGroup ? "inline-flex" : "none";
+    }
+    const leaveGroupBtn = document.getElementById("speechLeaveGroupBtn");
+    if (leaveGroupBtn){
+      leaveGroupBtn.style.display = isGroup && !isSpeechGroupAdmin(activeSpeechThreadMeta) ? "inline-flex" : "none";
     }
     if (speechManageGroupAreaEl) speechManageGroupAreaEl.style.display = "none";
     if (speechCreateGroupAreaEl) speechCreateGroupAreaEl.style.display = "none";
@@ -7042,9 +7153,17 @@ const FIREBASE_CONFIG = firebaseConfig;
       const latestTs = +((list[list.length - 1] && list[list.length - 1].ts) || 0);
       speechMessagesEl.innerHTML = list.map(m => {
         const mine = m.fromUid === authUser.uid;
-        return `<div class="speech-bubble ${mine ? "me" : "them"}">
-          ${escText(m.text || "")}
-          <div class="speech-meta">${escText(m.fromName || "Unknown")} · ${escText(formatShortDateTime(m.ts))}</div>
+        const isGroup = activeSpeechThreadMeta.type === "group";
+        const member = (activeSpeechThreadMeta.members || {})[m.fromUid] || {};
+        const memberColor = getMemberColor(m.fromUid);
+        const memberRole = getMemberRole(m.fromUid, activeSpeechThreadMeta);
+        const memberAvatar = member.photo || `<div class="speech-bubble-avatar-ph">👤</div>`;
+        const avatarHtml = isGroup && !mine ? (member.photo ? `<img class="speech-bubble-avatar" src="${escText(member.photo)}">` : `<div class="speech-bubble-avatar-ph">👤</div>`) : "";
+        const headerHtml = isGroup && !mine ? `<div class="speech-bubble-header" style="border-bottom:1px solid ${memberColor};"><span class="speech-bubble-avatar">${avatarHtml}</span><span class="speech-bubble-name" style="color:${memberColor};">${escText(m.fromName || "Unknown")}</span>${memberRole ? `<span class="speech-bubble-role">${memberRole}</span>` : ""}</div>` : "";
+        return `<div class="speech-bubble ${mine ? "me" : "them"}" style="${!mine && isGroup ? `border-left:3px solid ${memberColor};` : ""}">
+          ${headerHtml}
+          <div class="speech-bubble-content">${parseMentions(m.text || "", activeSpeechThreadMeta)}</div>
+          <div class="speech-meta"><span>${escText(formatShortDateTime(m.ts))}</span>${m.readBy && Object.keys(m.readBy).length > 0 ? `<span class="speech-read-receipt">✓ Read</span>` : ""}</div>
         </div>`;
       }).join("");
       speechMessagesEl.scrollTop = speechMessagesEl.scrollHeight;
@@ -8766,6 +8885,15 @@ const FIREBASE_CONFIG = firebaseConfig;
       if (speechCreateGroupAreaEl) speechCreateGroupAreaEl.style.display = "none";
       if (speechManageGroupAreaEl) speechManageGroupAreaEl.style.display = "block";
       renderSpeechManageGroup();
+    });
+  }
+  const speechLeaveGroupBtnEl = document.getElementById("speechLeaveGroupBtn");
+  if (speechLeaveGroupBtnEl){
+    speechLeaveGroupBtnEl.addEventListener("click", () => {
+      sfxClick();
+      if (confirm("Leave this group chat?")) {
+        leaveGroup();
+      }
     });
   }
   if (speechManageCloseEl){
