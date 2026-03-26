@@ -1073,7 +1073,7 @@
     border:1px solid rgba(25,247,255,.4);
     box-shadow: 0 0 40px rgba(25,247,255,.2), inset 0 1px 0 rgba(25,247,255,.2);
     padding:22px 24px 16px; border-radius:16px;
-    width:min(96vw, 760px); height:min(88vh, 720px); max-height:88vh;
+    width:min(98vw, 980px); height:90vh; max-height:90vh;
     display:flex; flex-direction:column;
     overflow:hidden;
   }
@@ -1086,7 +1086,7 @@
     position:relative;
   }
   .friends-tab.active{ background:rgba(25,247,255,.2); border-color:var(--neon); color:var(--neon); box-shadow:0 0 8px rgba(25,247,255,.25); }
-  @media (max-width: 760px){
+  @media (max-width: 980px){
     .friends-tab{ flex:1 1 calc(50% - 8px); min-width:140px; }
   }
   .friends-tab-content{ display:none; flex:1 1 auto; min-height:220px; }
@@ -1102,14 +1102,14 @@
   .friends-list{ flex:1 1 0; overflow:auto; min-height:120px; }
   .friends-search-results{
     flex:0 0 auto;
-    max-height:180px;
+    max-height:260px;
     overflow:auto;
     min-height:0;
     margin-bottom:8px;
   }
   .friends-tab-content[data-content="requests"] #friendsRequestsList{
     flex:0 0 auto;
-    max-height:220px;
+    max-height:300px;
   }
   .friends-footer{
     display:flex;
@@ -1117,8 +1117,8 @@
     margin-top:10px;
     flex-shrink:0;
   }
-  @media (max-width: 760px){
-    .friends-box{ height:min(92vh, 760px); padding:16px 14px 12px; }
+  @media (max-width: 980px){
+    .friends-box{ height:min(92vh, 900px); padding:16px 14px 12px; }
     .friends-tab-content{ min-height:180px; }
   }
   .friends-row{
