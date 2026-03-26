@@ -1,5 +1,41 @@
 # Firebase Setup Guide — Neon Slip
 
+---
+
+## Already have the existing `neon-slip` project? Here's what to enable
+
+The `firebaseConfig` in `index.html` is already fully filled in for the `neon-slip` project.
+You only need to make sure the following are enabled in the Firebase console
+(**console.firebase.google.com → project: neon-slip**):
+
+| What | Where in the console | Status |
+|------|----------------------|--------|
+| **Email/Password auth** | Build → Authentication → Sign-in method → Email/Password → Enable | Required |
+| **Realtime Database** | Build → Realtime Database (already created with the URL in the config) | Required |
+| **Database rules** | Deploy via CI (add `FIREBASE_TOKEN` secret) or paste `database.rules.json` manually into the Rules tab | Required |
+| **Firebase Storage** | Build → Storage → Get started (same region as DB) | Enables profile photo uploads |
+
+That's it — the `storageBucket` field is now set to `neon-slip.appspot.com` so profile photos
+upload to Firebase Storage automatically once Storage is enabled.
+
+### Getting the CI auto-deploy working
+
+Add a `FIREBASE_TOKEN` secret to your GitHub repository so the workflow can deploy
+`database.rules.json` automatically on every push to `main`:
+
+```sh
+npm install -g firebase-tools
+firebase login:ci   # prints a token — copy it
+```
+
+GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**
+- **Name:** `FIREBASE_TOKEN`
+- **Value:** the token printed above
+
+---
+
+## Setting up a brand-new Firebase project (different account)
+
 Follow these steps to set up a brand-new Firebase project that replicates the original
 Neon Slip backend exactly (Realtime Database rules, Authentication, CI auto-deploy).
 
@@ -126,13 +162,13 @@ with your actual project ID (visible in the Firebase console under **Project set
      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.REGION.firebasedatabase.app",
      projectId: "YOUR_PROJECT_ID",
-     storageBucket: "",          // leave blank unless you enable Storage
+     storageBucket: "YOUR_PROJECT_ID.appspot.com",
      messagingSenderId: "YOUR_SENDER_ID",
      appId: "YOUR_APP_ID"
    };
    ```
 
-> **Note:** `storageBucket` can stay as `""` unless you enable Firebase Storage for avatar uploads.
+> **Note:** `storageBucket` enables profile photo uploads to Firebase Storage. Leave it as `""` only if you skip step 7.
 
 ---
 
