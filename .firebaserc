@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "neon-slip"
+    "default": "YOUR_FIREBASE_PROJECT_ID"
   }
 }
