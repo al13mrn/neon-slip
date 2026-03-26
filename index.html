@@ -2396,26 +2396,16 @@
   // =====================================================================
   // ONLINE LEADERBOARD — FIREBASE CONFIGURATION
   // =====================================================================
-  // To enable the online leaderboard:
+  // To enable the online leaderboard, friends, and group chat features:
   //   1. Go to https://console.firebase.google.com and create a project.
   //   2. Click "Realtime Database" → Create database (start in test mode).
-  //   3. After creation, go to Rules and paste these rules:
-  //      {
-  //        "rules": {
-  //          "leaderboard": {
-  //            ".read": true,
-  //            "$entry": {
-  //              ".write": "!data.exists()",
-  //              ".validate": "newData.hasChildren(['name','score','date'])
-  //                && newData.child('score').isNumber()
-  //                && newData.child('score').val() >= 0
-  //                && newData.child('score').val() <= 10000000
-  //                && newData.child('name').isString()
-  //                && newData.child('name').val().length <= 24"
-  //            }
-  //          }
-  //        }
-  //      }
+  //   3. Deploy the database rules automatically (no Firebase console needed):
+  //        a. Add your FIREBASE_TOKEN to GitHub repository secrets
+  //           (get it by running: firebase login:ci)
+  //        b. The .github/workflows/deploy-firebase-rules.yml workflow will
+  //           automatically deploy database.rules.json on every push to main.
+  //      OR deploy manually with: firebase deploy --only database
+  //      OR paste database.rules.json contents into the Firebase console Rules tab.
   //   4. Under Project Settings → Your apps → Web, copy your config object.
   //   5. Fill in the values below and save.
   // Leave databaseURL as "" to fall back to local-only mode.
@@ -7584,9 +7574,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   // the user is signed in. Falls back gracefully to localStorage when offline
   // or not signed in.
   //
-  // Firebase DB rules needed for cloud save:
-  //   "users": { "$uid": { ".read": "auth.uid === $uid", ".write": "auth.uid === $uid" } }
-  // (In test mode the DB is open, so this works without rule changes.)
+  // Firebase DB rules needed for cloud save, friends, and group chat are defined in
+  // database.rules.json and deployed automatically via .github/workflows/deploy-firebase-rules.yml.
 
   function handleAuthStateChanged(user){
     authUser = user;

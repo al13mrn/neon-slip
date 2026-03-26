@@ -1,0 +1,61 @@
+{
+  "rules": {
+    "leaderboard": {
+      ".read": true,
+      "$entry": {
+        ".write": "!data.exists()",
+        ".validate": "newData.hasChildren(['name','score','date']) && newData.child('score').isNumber() && newData.child('score').val() >= 0 && newData.child('score').val() <= 10000000 && newData.child('name').isString() && newData.child('name').val().length <= 24"
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth.uid === $uid"
+      }
+    },
+    "publicProfiles": {
+      ".read": "auth != null",
+      ".indexOn": ["displayNameLower"],
+      "$uid": {
+        ".write": "auth.uid === $uid"
+      }
+    },
+    "friends": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    },
+    "friendRequests": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    },
+    "friendRequestsSent": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    },
+    "neonSpeechThreads": {
+      ".indexOn": ["createdBy"],
+      "$threadId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "neonSpeechMemberships": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    },
+    "neonSpeech": {
+      "$threadId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}

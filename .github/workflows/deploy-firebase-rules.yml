@@ -1,0 +1,26 @@
+name: Deploy Firebase Database Rules
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'database.rules.json'
+      - 'firebase.json'
+
+jobs:
+  deploy-rules:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Deploy Firebase Database Rules
+        run: npx firebase-tools@latest deploy --only database --non-interactive
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
