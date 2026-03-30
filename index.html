@@ -9321,8 +9321,6 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
   document.addEventListener("click", unlockOnInteraction, { once: true });
   document.addEventListener("keydown", unlockOnInteraction, { once: true });
-  // Try to unlock immediately in case music needs to play right away
-  setTimeout(unlockAudio, 50);
   
   initBootLoader().finally(() => {
     requestAnimationFrame(loop);
