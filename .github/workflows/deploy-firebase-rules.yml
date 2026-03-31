@@ -20,7 +20,24 @@ jobs:
         with:
           node-version: '20'
 
+      # Write the service account key JSON to a temporary file.
+      # Required GitHub secret: FIREBASE_SERVICE_ACCOUNT_JSON
+      #   - Contents of a Google Cloud service account key JSON file with
+      #     Firebase Admin / RTDB deploy permissions.
+      - name: Write service account credentials
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > "${{ runner.temp }}/gcp-key.json"
+        shell: bash
+
       - name: Deploy Firebase Database Rules
-        run: npx firebase-tools@latest deploy --only database --non-interactive
+        # Required GitHub variable or secret: FIREBASE_PROJECT_ID
+        #   - Your Firebase/GCP project ID (e.g. "my-app-12345").
+        #   - Set as a repository variable (Settings → Variables) or secret.
+        run: npx firebase-tools@latest deploy --only database --non-interactive --project "${{ vars.FIREBASE_PROJECT_ID || secrets.FIREBASE_PROJECT_ID }}"
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          # Authenticates the Firebase CLI via the service account key.
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcp-key.json
+
+      - name: Remove service account credentials
+        if: always()
+        run: rm -f "${{ runner.temp }}/gcp-key.json"
+        shell: bash
