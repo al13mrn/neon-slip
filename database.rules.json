@@ -2,6 +2,7 @@
   "rules": {
     "leaderboard": {
       ".read": true,
+      ".indexOn": ["score"],
       "$entryId": {
         ".write": "!data.exists() || (auth != null && data.child('uid').val() === auth.uid)",
         ".validate": "newData.hasChildren(['name','score','date']) && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24"
