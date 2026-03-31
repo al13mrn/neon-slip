@@ -1,5 +1,5 @@
 {
-  "projects": { "default": "<neon-slip>" }
+  "projects": { "default": "neon-slip" },
   "database": {
     "rules": "database.rules.json"
   }
