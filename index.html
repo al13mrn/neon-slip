@@ -7644,17 +7644,24 @@ const FIREBASE_CONFIG = firebaseConfig;
               if (fbKey){
                 lbDB.ref("leaderboard/" + fbKey).update(entry).catch(() => {});
                 lbEntries[todayBestIdx] = {...entry, fbKey};
+              } else {
+                // No key stored — push a new entry and store the key
+                const newRef = lbDB.ref("leaderboard").push(entry);
+                newRef.catch(() => {});
+                lbEntries[todayBestIdx] = {...entry, fbKey: newRef.key};
               }
             } else {
-              // No entry for today — create one
-              lbDB.ref("leaderboard").push(entry).catch(() => {});
-              lbEntries.push(entry);
+              // No entry for today — create one and store the key
+              const newRef = lbDB.ref("leaderboard").push(entry);
+              newRef.catch(() => {});
+              lbEntries.push({...entry, fbKey: newRef.key});
             }
           }
         } else {
-          // Guest (not logged in) — always create new entry
-          lbDB.ref("leaderboard").push(entry).catch(() => {});
-          lbEntries.push(entry);
+          // Guest (not logged in) — always create new entry and store the key
+          const newRef = lbDB.ref("leaderboard").push(entry);
+          newRef.catch(() => {});
+          lbEntries.push({...entry, fbKey: newRef.key});
         }
       } else {
         // No database — just add to local cache
@@ -7662,7 +7669,13 @@ const FIREBASE_CONFIG = firebaseConfig;
       }
       lbEntries.sort((a, b) => b.score - a.score);
       if (lbEntries.length > LB_MAX) lbEntries.length = LB_MAX;
-      openLeaderboard(null);
+      // Open the leaderboard immediately showing the locally-updated entries.
+      // Avoid re-fetching from Firebase here to prevent a race condition where
+      // the push hasn't been committed yet and the fetch would overwrite the
+      // newly-added local entry with stale data.
+      leaderboardPanelEl.classList.add("active");
+      renderLeaderboard(false);
+      renderLbSidebar();
     }
 
     if (lbPendingPhoto){
