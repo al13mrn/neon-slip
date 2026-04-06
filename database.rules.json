@@ -4,7 +4,7 @@
       ".read": true,
       ".indexOn": ["score"],
       "$entryId": {
-        ".write": "!data.exists() || (auth != null && data.child('uid').val() === auth.uid)",
+        ".write": "auth != null && (root.child('adminAccess').child(auth.uid).val() === true || (!data.exists() && newData.child('uid').val() === auth.uid))",
         ".validate": "newData.hasChildren(['name','score','date']) && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24"
       }
     },
@@ -58,6 +58,17 @@
       "$threadId": {
         ".read": "auth != null",
         ".write": "auth != null"
+      }
+    },
+    "adminActions": {
+      ".read": "auth != null && root.child('adminAccess').child(auth.uid).val() === true",
+      ".write": "auth != null && root.child('adminAccess').child(auth.uid).val() === true"
+    },
+    "adminAccess": {
+      "$uid": {
+        ".read": "auth != null && (root.child('adminAccess').child(auth.uid).val() === true || auth.uid === $uid)",
+        ".write": "auth != null && ((root.child('adminAccess').child(auth.uid).val() === true) || (!data.exists() && auth.uid === $uid && auth.token.email_verified === true && auth.token.email === 'al116im24@ast.kevibham.org'))",
+        ".validate": "newData.val() === true"
       }
     }
   }

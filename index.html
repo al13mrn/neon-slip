@@ -2236,15 +2236,14 @@
   </div>
 </div>
 
-<!-- Admin password modal -->
+<!-- Admin access modal -->
 <div id="adminPasswordModal" class="lb-modal" style="z-index:65;">
   <div class="lb-modal-box" style="border-color:rgba(138,91,255,.5);box-shadow:0 0 40px rgba(138,91,255,.25);">
     <div class="title" style="color:var(--neon2);">⚡ Admin Mode</div>
-    <div class="hint" style="margin-bottom:12px;">Enter the admin password to continue.</div>
-    <input type="password" id="adminPasswordInput" class="lb-name-input" placeholder="Password…" autocomplete="off">
+    <div class="hint" id="adminAccessHint" style="margin-bottom:12px;">Sign in with an account that has admin access. If needed, contact the game administrator.</div>
     <div id="adminPasswordError" style="color:var(--danger);font-size:11px;min-height:16px;margin:4px 0;letter-spacing:1px;"></div>
     <div class="lb-modal-actions">
-      <div class="btn" id="adminPasswordSubmit" style="border-color:rgba(138,91,255,.5);color:var(--neon2);">Enter</div>
+      <div class="btn" id="adminAccessSubmit" style="border-color:rgba(138,91,255,.5);color:var(--neon2);">Continue</div>
       <div class="btn" id="adminPasswordCancel">Cancel</div>
     </div>
   </div>
@@ -2432,6 +2431,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.local.js"></script>
 
 <audio id="menuMusic" src="menu.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
 <audio id="gameMusic" src="game.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
@@ -2452,19 +2452,11 @@
   //      OR deploy manually with: firebase deploy --only database
   //      OR paste database.rules.json contents into the Firebase console Rules tab.
   //   4. Under Project Settings → Your apps → Web, copy your config object.
-  //   5. Fill in the values below and save.
+  //   5. Create firebase-config.local.js (not committed) from
+  //      firebase-config.example.js and fill in your values.
   // Leave databaseURL as "" to fall back to local-only mode.
   // =====================================================================
-const firebaseConfig = {
-  apiKey: "AIzaSyA57Z7MCDV8rFk1XRE18jo0CAjGjd5Hy6U",
-  authDomain: "neon-slip.firebaseapp.com",
-  databaseURL: "https://neon-slip-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "neon-slip",
-  storageBucket: "",
-  messagingSenderId: "892329479553",
-  appId: "1:892329479553:web:388d1e47da11b02d8fac80",
-  measurementId: "G-HD7W635F9B"
-};
+const firebaseConfig = window.__NEON_FIREBASE_CONFIG__ || {};
 const FIREBASE_CONFIG = firebaseConfig;
   
   // =====================================================================
@@ -5852,6 +5844,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   let lbStorageFallback = null; // Optional fallback bucket reference (appspot)
   let fbAuth = null;    // Firebase auth instance
   let authUser = null;  // currently signed-in Firebase user (null if guest)
+  let authHasAdminClaim = false; // true when /adminAccess/{uid} is enabled
   let cloudSyncIntervalId = null; // periodic cloud sync interval
   let friendsTab = "requests";
   let friendsMap = {};
@@ -7711,8 +7704,10 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   function handleAuthStateChanged(user){
     authUser = user;
+    authHasAdminClaim = false;
     authProfilePhoto = user && user.photoURL ? user.photoURL : null;
     if (user){
+      refreshAdminAccessFromAuth();
       const cachedPhoto = getCachedProfilePhoto(user.uid);
       if (cachedPhoto) authProfilePhoto = cachedPhoto;
       updateAuthPhotoPreview(getAccountPhoto());
@@ -7743,7 +7738,53 @@ const FIREBASE_CONFIG = firebaseConfig;
       updateSpeechUnreadBadges();
       if (friendsPanelEl && friendsPanelEl.classList.contains("active")) loadFriendsData();
       updateAuthUI();
+      if (adminMode) deactivateAdminMode();
     }
+  }
+
+  function ensureDefaultAdminAccess(user){
+    const normalizedEmail = String((user && user.email) || "").trim().toLowerCase();
+    if (!lbDB || !user || !user.uid || !user.emailVerified || normalizedEmail !== "al116im24@ast.kevibham.org") return Promise.resolve(false);
+    return lbDB.ref("adminAccess/" + user.uid).set(true)
+      .then(() => true)
+      .catch((err) => {
+        console.warn("[Auth] Admin bootstrap write was rejected or failed:", err && (err.code || err.message || err));
+        return false;
+      });
+  }
+
+  function refreshAdminAccessFromAuth(){
+    if (!authUser){
+      authHasAdminClaim = false;
+      updateAdminButtonState();
+      return;
+    }
+    if (!lbDB){
+      authHasAdminClaim = false;
+      if (adminMode) deactivateAdminMode();
+      updateAdminButtonState();
+      return;
+    }
+    const uid = authUser.uid;
+    lbDB.ref("adminAccess/" + uid).once("value")
+      .then((snap) => {
+        if (snap && snap.val() === true) return true;
+        return ensureDefaultAdminAccess(authUser).then(() =>
+          lbDB.ref("adminAccess/" + uid).once("value").then(snap2 => !!(snap2 && snap2.val() === true))
+        );
+      })
+      .then((hasAccess) => {
+        authHasAdminClaim = !!hasAccess;
+        if (!authHasAdminClaim && adminMode) deactivateAdminMode();
+        updateAdminButtonState();
+      })
+      .catch((err) => {
+        const detail = err && (err.code || err.message);
+        console.warn("[Auth] Failed to refresh admin access check" + (detail ? ": " + detail : "."));
+        authHasAdminClaim = false;
+        if (adminMode) deactivateAdminMode();
+        updateAdminButtonState();
+      });
   }
 
   function loadProgressFromCloud(callback){
@@ -7837,6 +7878,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Refresh shard display
     const mainMenuShardsEl = document.getElementById("mainMenuShards");
     if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
+    updateAdminButtonState();
   }
 
   function openAuthModal(view){
@@ -7961,7 +8003,7 @@ const FIREBASE_CONFIG = firebaseConfig;
         btn.textContent = "Sign In"; btn.style.opacity = "";
         console.error("[Auth] Login error:", err.code, err.message);
         let msg = "Sign-in failed. Please try again.";
-        if (err.code === "auth/api-key-not-valid") msg = "Firebase API key is invalid. Update FIREBASE_CONFIG.apiKey in index.html.";
+        if (err.code === "auth/api-key-not-valid") msg = "Firebase API key is invalid. Update firebase-config.local.js.";
         else if (err.code === "auth/app-not-authorized") msg = "This domain is not authorized for Firebase Auth. Add it in Firebase console.";
         else if (err.code === "auth/wrong-password" || err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") msg = "Incorrect email or password.";
         else if (err.code === "auth/too-many-requests") msg = "Too many attempts. Try again later.";
@@ -8008,7 +8050,7 @@ const FIREBASE_CONFIG = firebaseConfig;
         btn.textContent = "Create Account"; btn.style.opacity = "";
         console.error("[Auth] Registration error:", err.code, err.message, err);
         let msg = "Registration failed. Please try again.";
-        if (err.code === "auth/api-key-not-valid") msg = "Firebase API key is invalid. Update FIREBASE_CONFIG.apiKey in index.html.";
+        if (err.code === "auth/api-key-not-valid") msg = "Firebase API key is invalid. Update firebase-config.local.js.";
         else if (err.code === "auth/app-not-authorized") msg = "This domain is not authorized for Firebase Auth. Add it in Firebase console.";
         else if (err.code === "auth/email-already-in-use") msg = "An account with this email already exists.";
         else if (err.code === "auth/invalid-email") msg = "Invalid email address.";
@@ -8084,18 +8126,20 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
   // ── End Auth System ──────────────────────────────────────────────────────────
 
-  const ADMIN_PASSWORD = "Homesweet12345"; // UX gate only – client-side games cannot securely hide passwords
   let adminMode = false;
   let adminCurrentTab = "player";
   let adminHighlightIdx = -1; // entry index to scroll to after rendering leaderboard tab
 
   function openAdminPasswordPrompt(){
-    const inp = document.getElementById("adminPasswordInput");
+    const hint = document.getElementById("adminAccessHint");
     const err = document.getElementById("adminPasswordError");
-    inp.value = "";
+    if (hint){
+      hint.textContent = authUser
+        ? "Your account is signed in, but admin access is not enabled. Ask an existing admin to grant your UID."
+        : "Sign in first, then ask an existing admin to grant your UID.";
+    }
     err.textContent = "";
     document.getElementById("adminPasswordModal").classList.add("active");
-    setTimeout(() => inp.focus(), 80);
   }
 
   function closeAdminPasswordPrompt(){
@@ -8103,19 +8147,20 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function submitAdminPassword(){
-    const pw = document.getElementById("adminPasswordInput").value;
-    if (pw === ADMIN_PASSWORD){
+    if (authHasAdminClaim){
       closeAdminPasswordPrompt();
       activateAdminMode();
-    } else {
-      const err = document.getElementById("adminPasswordError");
-      err.textContent = "Incorrect password.";
-      document.getElementById("adminPasswordInput").value = "";
-      setTimeout(() => { err.textContent = ""; }, 2000);
+      return;
     }
+    closeAdminPasswordPrompt();
+    openAuthModal(authUser ? "profile" : "login");
   }
 
   function activateAdminMode(){
+    if (!authHasAdminClaim){
+      openAdminPasswordPrompt();
+      return;
+    }
     adminMode = true;
     document.body.classList.add("admin-active");
     document.getElementById("adminBadge").classList.add("active");
@@ -8136,6 +8181,23 @@ const FIREBASE_CONFIG = firebaseConfig;
     btn.style.background = "";
     closeAdminPanel();
     sfxClick();
+    updateAdminButtonState();
+  }
+
+  function updateAdminButtonState(){
+    const btn = document.getElementById("adminModeBtn");
+    if (!btn) return;
+    if (adminMode){
+      btn.textContent = "Active ✓";
+      btn.style.background = "rgba(138,91,255,.2)";
+      btn.title = "Admin mode active";
+      return;
+    }
+    btn.textContent = authHasAdminClaim ? "Activate" : "Locked";
+    btn.style.background = "";
+    btn.title = authHasAdminClaim
+      ? "Activate admin mode"
+      : "Sign in and request admin access from an existing admin";
   }
 
   function openAdminPanel(){
@@ -8212,6 +8274,16 @@ const FIREBASE_CONFIG = firebaseConfig;
         <div class="admin-btn" id="adminGrantInvBtn">🌟 Invincible</div>
         <div class="admin-btn" id="adminGrantSlowmoBtn">⏰ Slow-Mo</div>
       </div>
+      <div class="admin-section-title">Admin Access</div>
+      <div style="font-size:10px;opacity:.5;margin-bottom:8px;letter-spacing:.5px;">Grant admin by UID.</div>
+      <div class="admin-row">
+        <span>Target UID</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="admin-input" id="adminGrantUid" type="text" maxlength="128" placeholder="Paste user UID">
+          <div class="admin-btn" id="adminGrantAccessBtn">Grant</div>
+        </div>
+      </div>
+      <div id="adminGrantAccessMsg" style="min-height:16px;font-size:10px;opacity:.75;margin:2px 0 8px;"></div>
       <div class="admin-section-title">Danger Zone</div>
       <div style="display:flex;flex-wrap:wrap;gap:7px;margin:8px 0;">
         <div class="admin-btn danger" id="adminDelBestBtn">🗑️ Delete Best</div>
@@ -8288,6 +8360,29 @@ const FIREBASE_CONFIG = firebaseConfig;
       if (!inPlay) return;
       state.slowMo = 1;
       sfxClick();
+    });
+    document.getElementById("adminGrantAccessBtn").addEventListener("click", () => {
+      if (!authHasAdminClaim || !lbDB) return;
+      const uidInput = document.getElementById("adminGrantUid");
+      const msgEl = document.getElementById("adminGrantAccessMsg");
+      if (!uidInput || !msgEl) return;
+      const uid = String(uidInput.value || "").trim();
+      if (!/^[A-Za-z0-9_-]{20,128}$/.test(uid)){
+        msgEl.style.color = "var(--danger)";
+        msgEl.textContent = "Enter a valid Firebase UID (20-128 chars: letters, numbers, _ or -).";
+        return;
+      }
+      lbDB.ref("adminAccess/" + uid).set(true)
+        .then(() => {
+          msgEl.style.color = "var(--ok)";
+          msgEl.textContent = "Admin granted to UID: " + uid;
+          uidInput.value = "";
+          sfxClick();
+        })
+        .catch((err) => {
+          msgEl.style.color = "var(--danger)";
+          msgEl.textContent = "Grant failed: " + (err && (err.code || err.message) || "unknown error");
+        });
     });
     document.getElementById("adminDelBestBtn").addEventListener("click", () => {
       if (!confirm("Delete best score?")) return;
@@ -9185,11 +9280,13 @@ const FIREBASE_CONFIG = firebaseConfig;
     e.stopPropagation();
     if (adminMode){
       openAdminPanel();
+    } else if (authHasAdminClaim) {
+      activateAdminMode();
     } else {
       openAdminPasswordPrompt();
     }
   });
-  document.getElementById("adminPasswordSubmit").addEventListener("click", (e) => {
+  document.getElementById("adminAccessSubmit").addEventListener("click", (e) => {
     e.stopPropagation();
     submitAdminPassword();
   });
@@ -9198,11 +9295,6 @@ const FIREBASE_CONFIG = firebaseConfig;
     sfxClick();
     closeAdminPasswordPrompt();
   });
-  document.getElementById("adminPasswordInput").addEventListener("keydown", (e) => {
-    if (e.code === "Enter") submitAdminPassword();
-    e.stopPropagation();
-  });
-  document.getElementById("adminPasswordInput").addEventListener("keyup", (e) => e.stopPropagation());
   document.getElementById("adminPasswordModal").addEventListener("click", (e) => e.stopPropagation());
   document.getElementById("adminPanel").addEventListener("click", (e) => e.stopPropagation());
   document.getElementById("adminCloseBtn").addEventListener("click", (e) => {
