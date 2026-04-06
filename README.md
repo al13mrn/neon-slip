@@ -13,7 +13,8 @@ Local override setup:
 2. Fill in your Firebase web app config in `firebase-config.local.js`
 3. Keep `firebase-config.local.js` uncommitted (it is ignored by `.gitignore`)
 
-If your local override has an empty `apiKey`, the game falls back to local-only mode.
+If your local override has an empty `apiKey`, Firebase is not initialized (auth/cloud features disabled).  
+If `apiKey` is set but `databaseURL` is empty, auth still works but leaderboard/cloud database features stay local-only.
 
 ## Admin mode access
 
