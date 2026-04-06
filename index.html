@@ -2431,6 +2431,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script src="firebase-config.local.js"></script>
 
 <audio id="menuMusic" src="menu.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
@@ -2452,9 +2453,10 @@
   //      OR deploy manually with: firebase deploy --only database
   //      OR paste database.rules.json contents into the Firebase console Rules tab.
   //   4. Under Project Settings → Your apps → Web, copy your config object.
-  //   5. Create firebase-config.local.js (not committed) from
-  //      firebase-config.example.js and fill in your values.
-  // Leave databaseURL as "" to fall back to local-only mode.
+  //   5. Production uses firebase-config.js (committed for deployed builds).
+  //   6. For local overrides, create firebase-config.local.js (not committed)
+  //      from firebase-config.example.js and fill in your values.
+  // Leave databaseURL as "" in a local override to force local-only mode.
   // =====================================================================
 const firebaseConfig = window.__NEON_FIREBASE_CONFIG__ || {};
 const FIREBASE_CONFIG = firebaseConfig;
