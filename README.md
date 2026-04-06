@@ -17,7 +17,7 @@ If your local override has an empty `apiKey`, Firebase is not initialized (auth/
 If `apiKey` is set but `databaseURL` is empty, auth still works but leaderboard/cloud database features stay local-only.
 
 Security note:
-- Firebase web API keys are client identifiers (not secrets), but should still be restricted in Google Cloud Console (allowed referrer domains + API restrictions).
+- Firebase web API keys are client identifiers (not secrets), but should still be restricted in Firebase/Google Cloud console settings (allowed referrer domains + API restrictions).
 - Ensure Firebase Authentication authorized domains include your production host(s) (for this repo: `neonslip.me`, and `www.neonslip.me` if used).
 - Keep Realtime Database rules restrictive (this repo deploys `database.rules.json` via workflow).
 
