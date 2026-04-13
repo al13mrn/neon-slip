@@ -340,7 +340,7 @@
     width:min(94vw, 540px);
     max-height:88vh; overflow-y:auto;
   }
-  .credits-panel, .legal-consent-panel{
+  .credits-panel, .legal-consent-panel, .challenge-panel{
     position:fixed; inset:0;
     display:flex; align-items:center; justify-content:center;
     background: rgba(4,6,12,.75);
@@ -348,10 +348,10 @@
     transition: opacity .25s ease;
     z-index:28;
   }
-  .credits-panel.active, .legal-consent-panel.active{
+  .credits-panel.active, .legal-consent-panel.active, .challenge-panel.active{
     pointer-events:auto; opacity:1;
   }
-  .credits-box, .legal-consent-box{
+  .credits-box, .legal-consent-box, .challenge-box{
     background: linear-gradient(160deg, rgba(12,20,38,.98), rgba(6,10,20,.98));
     border:1px solid rgba(25,247,255,.4);
     box-shadow: 0 0 40px rgba(25,247,255,.22), 0 0 64px rgba(138,91,255,.16), inset 0 1px 0 rgba(25,247,255,.2);
@@ -400,6 +400,55 @@
   .credits-contact a{
     color:var(--neon);
     text-decoration:none;
+  }
+  .challenge-copy{
+    font-size:12px;
+    line-height:1.55;
+    opacity:.92;
+    margin:8px 0 10px;
+  }
+  .challenge-message{
+    width:100%;
+    min-height:110px;
+    resize:none;
+    border:1px solid rgba(25,247,255,.26);
+    border-radius:12px;
+    background:rgba(6,13,24,.88);
+    color:var(--text);
+    padding:12px 13px;
+    font: inherit;
+    font-size:12px;
+    line-height:1.6;
+    box-shadow: inset 0 0 18px rgba(25,247,255,.08);
+  }
+  .challenge-actions{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:8px;
+    margin-top:12px;
+  }
+  .challenge-actions .btn{
+    margin-top:0;
+    padding:9px 10px;
+    font-size:10px;
+  }
+  .challenge-note,
+  .challenge-status{
+    font-size:10px;
+    letter-spacing:.8px;
+    line-height:1.5;
+    margin-top:10px;
+    text-transform:uppercase;
+  }
+  .challenge-note{
+    color:rgba(210,252,255,.72);
+  }
+  .challenge-status{
+    min-height:15px;
+    color:var(--neon);
+  }
+  .challenge-status.error{
+    color:var(--danger);
   }
   .legal-consent-box{
     text-align:center;
@@ -633,6 +682,80 @@
   .skip-text{
     font-size:10px; opacity:.7; margin-top:7px; letter-spacing:.8px;
   }
+  .run-brief-theme{
+    margin-bottom:10px;
+    font-size:10px;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    color:rgba(210,248,255,.66);
+  }
+  .run-brief-grid{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:8px;
+    text-align:left;
+  }
+  .run-brief-column{
+    border-radius:12px;
+    padding:12px;
+    border:1px solid rgba(25,247,255,.24);
+    background:rgba(9,14,24,.78);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .run-brief-column.modifiers{
+    border-color:rgba(25,247,255,.34);
+    background:linear-gradient(180deg, rgba(25,247,255,.09), rgba(10,16,30,.9));
+  }
+  .run-brief-column.missions{
+    border-color:rgba(255,216,107,.34);
+    background:linear-gradient(180deg, rgba(255,216,107,.08), rgba(10,16,30,.9));
+  }
+  .run-brief-label{
+    margin:0 0 8px 0;
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+  }
+  .run-brief-column.modifiers .run-brief-label{ color:var(--neon); }
+  .run-brief-column.missions .run-brief-label{ color:#ffd86b; }
+  .run-brief-item{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    padding:8px 0;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .run-brief-item:last-child{ border-bottom:none; padding-bottom:0; }
+  .run-brief-icon{
+    font-size:16px;
+    line-height:1;
+    margin-top:1px;
+    min-width:18px;
+    text-align:center;
+  }
+  .run-brief-item strong{
+    display:block;
+    font-size:12px;
+    letter-spacing:.4px;
+  }
+  .run-brief-item span{
+    display:block;
+    margin-top:3px;
+    font-size:10px;
+    line-height:1.45;
+    opacity:.78;
+  }
+  .run-brief-reward{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    margin-top:5px;
+    color:#7dffb2;
+    font-size:10px;
+    letter-spacing:.5px;
+  }
   @keyframes slideshowGlow{
     0%, 100%{ box-shadow: 0 0 50px rgba(25,247,255,.35), 0 0 100px rgba(25,247,255,.12), inset 0 1px 0 rgba(25,247,255,.15); }
     50%{ box-shadow: 0 0 60px rgba(138,91,255,.4), 0 0 120px rgba(138,91,255,.15), inset 0 1px 0 rgba(138,91,255,.18); }
@@ -685,6 +808,46 @@
     padding:8px 12px; border-radius:10px;
     font-size:10px; letter-spacing:1px; opacity:.85;
     max-width:180px;
+  }
+  .live-shard-counter{
+    position:fixed;
+    top:calc(var(--safe-top) + 88px);
+    right:calc(var(--safe-right) + 18px);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:14px;
+    border:1px solid rgba(25,247,255,.3);
+    background:linear-gradient(160deg, rgba(6,14,28,.9), rgba(8,12,22,.82));
+    box-shadow:0 0 24px rgba(25,247,255,.18), inset 0 1px 0 rgba(255,255,255,.06);
+    font-size:14px;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    color:#dfffff;
+    text-shadow:0 0 10px rgba(25,247,255,.45);
+    opacity:0;
+    transform:translateY(-8px) scale(.96);
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:11;
+  }
+  .live-shard-counter strong{
+    font-size:17px;
+    color:var(--neon);
+    text-shadow:0 0 14px rgba(25,247,255,.75);
+  }
+  .live-shard-counter.bump{
+    animation:shardCounterPulse .28s ease;
+  }
+  body[data-state="play"] .live-shard-counter{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+  @keyframes shardCounterPulse{
+    0%{ transform:translateY(0) scale(1); }
+    45%{ transform:translateY(0) scale(1.12); }
+    100%{ transform:translateY(0) scale(1); }
   }
   .mission-item{
     margin:4px 0; display:flex; justify-content:space-between;
@@ -914,7 +1077,7 @@
   .lb-category-tab:hover:not(.active){ background:rgba(25,247,255,.12); }
   /* Leaderboard sidebar on main menu */
   .lb-sidebar{
-    position:fixed; top:50%; right:20px; transform:translateY(-50%);
+    position:fixed; top:50%; right:max(20px, calc(25vw - 265px)); transform:translateY(-50%);
     background: linear-gradient(160deg, rgba(18,26,52,.97), rgba(6,10,20,.99));
     border:1px solid rgba(25,247,255,.45);
     box-shadow: 0 0 32px rgba(25,247,255,.2), 0 0 60px rgba(138,91,255,.12), inset 0 1px 0 rgba(25,247,255,.2);
@@ -960,7 +1123,7 @@
   .sidebar-section.active{ display:block; }
   /* Left sidebar (Stats + Guide) */
   .left-sidebar{
-    position:fixed; top:50%; left:20px; transform:translateY(-50%);
+    position:fixed; top:50%; left:max(20px, calc(25vw - 235px)); transform:translateY(-50%);
     background: linear-gradient(160deg, rgba(18,26,52,.97), rgba(6,10,20,.99));
     border:1px solid rgba(138,91,255,.45);
     box-shadow: 0 0 32px rgba(138,91,255,.2), 0 0 60px rgba(25,247,255,.12), inset 0 1px 0 rgba(138,91,255,.2);
@@ -2006,19 +2169,19 @@
     pointer-events:none;
     z-index:4;
     padding:
-      calc(var(--safe-top) + 10px)
-      calc(var(--safe-right) + 12px)
-      calc(var(--safe-bottom) + 10px)
-      calc(var(--safe-left) + 12px);
+      calc(var(--safe-top) + 8px)
+      calc(var(--safe-right) + 10px)
+      calc(var(--safe-bottom) + 6px)
+      calc(var(--safe-left) + 10px);
   }
   .site-topbar{
     pointer-events:auto;
     display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:10px 14px;
-    border-radius:14px;
-    border:1px solid rgba(25,247,255,.35);
-    background: linear-gradient(160deg, rgba(10,16,30,.9), rgba(6,10,20,.9));
-    box-shadow: 0 0 24px rgba(25,247,255,.18), inset 0 1px 0 rgba(25,247,255,.22);
+    padding:8px 12px;
+    border-radius:12px;
+    border:1px solid rgba(25,247,255,.26);
+    background: linear-gradient(160deg, rgba(8,12,24,.76), rgba(5,8,18,.78));
+    box-shadow: 0 0 16px rgba(25,247,255,.1), inset 0 1px 0 rgba(25,247,255,.14);
   }
   .site-brand{
     display:flex; align-items:center; gap:9px;
@@ -2055,8 +2218,8 @@
     background:rgba(25,247,255,.08);
     color:var(--text);
     text-decoration:none;
-    padding:7px 12px;
-    font-size:11px;
+    padding:6px 10px;
+    font-size:10px;
     letter-spacing:1px;
     text-transform:uppercase;
     cursor:pointer;
@@ -2072,20 +2235,25 @@
   }
   .site-footer{
     pointer-events:auto;
-    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-    padding:10px 14px;
-    border-radius:14px;
-    border:1px solid rgba(25,247,255,.25);
-    background: linear-gradient(165deg, rgba(8,12,24,.85), rgba(4,8,16,.9));
-    box-shadow: 0 0 16px rgba(25,247,255,.12), inset 0 1px 0 rgba(25,247,255,.16);
-    font-size:11px;
-    letter-spacing:.8px;
+    display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+    padding:4px 8px;
+    border-radius:999px;
+    border:1px solid rgba(25,247,255,.12);
+    background: rgba(5,9,18,.42);
+    box-shadow: inset 0 1px 0 rgba(25,247,255,.05);
+    font-size:8px;
+    letter-spacing:.6px;
+    width:max-content;
+    max-width:calc(100vw - 24px);
+    margin-left:auto;
+    margin-right:auto;
   }
   .site-footer-main{
-    color:rgba(220,252,255,.86);
+    color:rgba(220,252,255,.44);
+    font-size:8px;
   }
   .site-footer-links{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    display:flex; align-items:center; gap:7px; flex-wrap:wrap;
   }
   .site-footer-links a{
     color:rgba(25,247,255,.95);
@@ -2093,41 +2261,24 @@
     border-bottom:1px solid transparent;
     transition: border-color .15s ease, color .15s ease;
     text-transform:uppercase;
-    font-size:10px;
-    letter-spacing:1.2px;
+    font-size:8px;
+    letter-spacing:.9px;
   }
   .site-footer-links a:hover{
     color:#bfffff;
     border-bottom-color:rgba(25,247,255,.7);
   }
   .site-owner-mark{
-    position:fixed;
-    right:14px;
-    bottom:14px;
-    z-index:5;
-    pointer-events:none;
-    font-size:10px;
-    letter-spacing:1px;
-    color:rgba(205,248,255,.62);
-    text-shadow:0 0 8px rgba(25,247,255,.3);
-    padding:4px 8px;
-    border-radius:999px;
-    border:1px solid rgba(25,247,255,.22);
-    background:rgba(5,10,18,.5);
+    display:none;
   }
   /* Start panel layout polish */
   .start-panel{
-    width:min(88vw, 560px);
-    max-width:560px;
-    max-height:72vh;
-    overflow-y:auto;
-    padding:14px 12px 10px;
-    scrollbar-width:thin;
-    scrollbar-color:rgba(25,247,255,.35) transparent;
+    width:min(86vw, 520px);
+    max-width:520px;
+    max-height:none;
+    overflow:visible;
+    padding:16px 16px 14px;
   }
-  .start-panel::-webkit-scrollbar{ width:4px; }
-  .start-panel::-webkit-scrollbar-track{ background:transparent; }
-  .start-panel::-webkit-scrollbar-thumb{ background:rgba(25,247,255,.35); border-radius:4px; }
   .start-panel::after{
     display:none;
   }
@@ -2161,13 +2312,13 @@
   }
   .start-action-grid{
     display:grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap:6px;
-    margin-top:6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:8px;
+    margin-top:8px;
   }
   .start-action-grid .btn{
     margin-top:0;
-    padding:8px 10px;
+    padding:10px 12px;
     font-size:11px;
   }
   .start-action-grid .btn-start{
@@ -2177,50 +2328,38 @@
     letter-spacing:.08em;
     padding:10px 12px;
   }
-  .start-feature-grid{
-    margin-top:7px;
-    display:grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap:6px;
-    text-align:left;
+  .start-utility-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:12px;
   }
-  .start-feature-card{
-    border:1px solid rgba(25,247,255,.2);
-    border-radius:12px;
-    padding:8px;
-    background: linear-gradient(155deg, rgba(25,247,255,.06), rgba(138,91,255,.08));
-    box-shadow: inset 0 1px 0 rgba(25,247,255,.2);
-  }
-  .start-feature-card h2{
-    margin:0 0 4px 0;
-    font-size:10px;
-    letter-spacing:1.1px;
-    text-transform:uppercase;
-    color:var(--neon);
-  }
-  .start-feature-card p{
-    margin:0 0 6px 0;
-    font-size:10px;
-    line-height:1.3;
-    opacity:.88;
-  }
-  .start-mini-btn{
-    width:100%;
-    margin-top:0;
-    text-align:center;
+  .start-utility-link{
+    border:1px solid rgba(25,247,255,.24);
+    border-radius:999px;
+    background:rgba(25,247,255,.05);
+    color:rgba(225,250,255,.9);
+    padding:6px 10px;
     font-size:9px;
-    letter-spacing:.8px;
+    letter-spacing:1px;
     text-transform:uppercase;
-    padding:6px 8px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .start-utility-link:hover{
+    color:var(--neon);
+    border-color:rgba(25,247,255,.55);
   }
   .start-ownership{
-    margin-top:8px;
+    margin-top:10px;
     font-size:9px;
     letter-spacing:.8px;
     text-transform:uppercase;
     color:rgba(210,252,255,.68);
-    border-top:1px solid rgba(25,247,255,.2);
-    padding-top:9px;
+    border-top:1px solid rgba(25,247,255,.16);
+    padding-top:8px;
   }
   .lb-sidebar-subtitle{
     font-size:10px;
@@ -2257,9 +2396,9 @@
     opacity:.92;
   }
   body[data-state="start"] .ui{
-    align-items:flex-start;
-    padding-top: calc(var(--safe-top) + 66px);
-    padding-bottom: calc(var(--safe-bottom) + 62px);
+    align-items:center;
+    padding-top: calc(var(--safe-top) + 34px);
+    padding-bottom: calc(var(--safe-bottom) + 18px);
   }
   body[data-state="play"] .site-shell,
   body[data-state="dying"] .site-shell{
@@ -2271,7 +2410,6 @@
     opacity:.16;
   }
   @media (max-width: 980px){
-    .start-feature-grid{ grid-template-columns:1fr; }
     .start-action-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
     .start-action-grid .btn-start{ grid-column:1 / -1; }
     .site-topbar{ flex-direction:column; align-items:flex-start; }
@@ -2279,23 +2417,33 @@
   }
   @media (max-width: 760px){
     .site-footer{
-      gap:7px;
-      padding:9px 10px;
-      font-size:10px;
-    }
-    .site-footer-links{ gap:8px; }
-    .site-footer-links a{ font-size:9px; }
-    .site-owner-mark{
-      bottom:calc(var(--safe-bottom) + 66px);
-      right:10px;
-      font-size:9px;
+      gap:5px;
+      padding:4px 8px;
+      font-size:8px;
     }
     .start-panel{
-      width:min(92vw, 520px);
-      max-height:76vh;
-      padding:12px 10px 10px;
+      width:min(92vw, 500px);
+      padding:14px 12px 12px;
     }
-    .start-action-grid{ grid-template-columns:1fr; }
+    .site-footer-main,
+    .site-footer-links a{
+      font-size:7px;
+    }
+    .challenge-actions{
+      grid-template-columns:1fr;
+    }
+    .run-brief-grid{
+      grid-template-columns:1fr;
+    }
+    .live-shard-counter{
+      top:calc(var(--safe-top) + 78px);
+      right:calc(var(--safe-right) + 10px);
+      padding:8px 11px;
+      font-size:11px;
+    }
+    .live-shard-counter strong{
+      font-size:14px;
+    }
   }
   @media (max-height: 760px){
     .slideshow-box{ max-height:88vh; }
@@ -2319,15 +2467,11 @@
     <nav class="site-nav" aria-label="Primary navigation">
       <button id="siteNavPlay" class="site-nav-btn" type="button">Play Now</button>
       <button id="siteNavLeaderboard" class="site-nav-btn" type="button">Leaderboard</button>
-      <button id="siteNavHowTo" class="site-nav-btn" type="button">How to Play</button>
-      <button id="siteNavFriends" class="site-nav-btn" type="button">Challenge Friends</button>
-      <button id="siteNavCredits" class="site-nav-btn" type="button">Credits</button>
-      <a class="site-nav-link" href="about.html">About</a>
-      <a class="site-nav-link" href="contact.html">Contact</a>
+      <button id="siteNavCredits" class="site-nav-btn" type="button">Credits &amp; More</button>
     </nav>
   </header>
   <footer class="site-footer">
-    <div class="site-footer-main">Copyright &copy; Ali Imran 2025-2026. All rights reserved.</div>
+    <div class="site-footer-main">&copy; Ali Imran 2025-2026</div>
     <nav class="site-footer-links" aria-label="Footer legal links">
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
@@ -2430,24 +2574,11 @@
     <div class="btn" id="openAchievements">🎖️ Achievements</div>
     <div class="btn" id="openStats">📊 Stats</div>
     <div class="btn" id="openSettings">Settings</div>
-    <div class="btn" id="openCredits">Credits</div>
     </div>
-    <div class="start-feature-grid">
-      <section class="start-feature-card" aria-label="How to play section">
-        <h2>How to Play</h2>
-        <p>Learn controls, scoring, modifiers, and run strategy before your next attempt.</p>
-        <button id="openHowToPlayQuick" class="btn start-mini-btn" type="button">Open Guide</button>
-      </section>
-      <section class="start-feature-card" aria-label="Challenge your friends section">
-        <h2>Challenge Your Friends</h2>
-        <p>Send friend requests, compare scores, and use Neon Speech to coordinate rival runs.</p>
-        <button id="startChallengeFriends" class="btn start-mini-btn" type="button">Open Friends</button>
-      </section>
-      <section class="start-feature-card" aria-label="Leaderboard section">
-        <h2>Leaderboard</h2>
-        <p>Can you beat the high score? Track top players and push for first place today.</p>
-        <button id="startLeaderboardCta" class="btn start-mini-btn" type="button">View Leaderboard</button>
-      </section>
+    <div class="start-utility-row">
+      <button id="openHowToPlayQuick" class="start-utility-link" type="button">How to Play</button>
+      <button id="startChallengeFriends" class="start-utility-link" type="button">Challenge Friends</button>
+      <button id="openCredits" class="start-utility-link" type="button">Credits &amp; More</button>
     </div>
     <div class="start-ownership">Original game and site by Ali Imran | &copy; Ali Imran 2025-2026</div>
     <div class="hint">Terms, Privacy, and License acceptance is required before first play.</div>
@@ -2557,8 +2688,8 @@
 
 <div id="creditsPanel" class="credits-panel">
   <div class="credits-box">
-    <div class="title">Credits</div>
-    <div class="credits-copy">Neon Slip is an original game and site by Ali Imran. Use this panel to access core project pages directly from inside Neon Slip.</div>
+    <div class="title">Credits &amp; More</div>
+    <div class="credits-copy">Neon Slip is an original game and site by Ali Imran. Use this panel for project pages, contact details, and ownership information without crowding the main menu.</div>
     <div class="credits-link-list">
       <a class="credits-link" href="about.html">About Neon Slip</a>
       <a class="credits-link" href="contact.html">Contact</a>
@@ -2571,24 +2702,51 @@
       Discord: add <strong>24_7gamer_</strong>
     </div>
     <div class="settings-actions">
+      <div id="openChallengeFromCredits" class="btn">Challenge Friends</div>
       <div id="closeCredits" class="btn">Close</div>
     </div>
+  </div>
+</div>
+
+<div id="challengePanel" class="challenge-panel">
+  <div class="challenge-box">
+    <div class="title">Challenge Friends</div>
+    <div class="challenge-copy">Send your ready-made Neon Slip challenge. Copy it, email it, or open Discord with the message prepared for you.</div>
+    <textarea id="challengeMessage" class="challenge-message" readonly>HEY!! BET YOU CAN'T BEAT MY HIGH SCORE ON NEON SLIP! COME PLAY AT https://neonslip.me so I can DESTROY YOU!!</textarea>
+    <div class="challenge-actions">
+      <div id="challengeCopyBtn" class="btn">Copy Message</div>
+      <div id="challengeEmailBtn" class="btn">Email</div>
+      <div id="challengeDiscordBtn" class="btn">Discord</div>
+      <div id="challengeSmsBtn" class="btn">SMS</div>
+      <div id="challengeShareBtn" class="btn">Share</div>
+      <div id="closeChallenge" class="btn danger-btn">Close</div>
+    </div>
+    <div class="challenge-note">Discord cannot be prefilled from a website, so Neon Slip will copy the message first and then open Discord.</div>
+    <div id="challengeStatus" class="challenge-status"></div>
   </div>
 </div>
 
 <div id="legalConsentPanel" class="legal-consent-panel">
   <div class="legal-consent-box">
     <div class="title">Before You Play</div>
-    <div class="legal-consent-copy">You must accept Neon Slip legal terms before starting gameplay.</div>
+    <div class="legal-consent-copy">You must explicitly accept the Terms of Use, Privacy Policy, and License before starting gameplay.</div>
     <div class="legal-links">
       <a href="terms.html" target="_blank" rel="noopener">Terms</a>
       <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy</a>
       <a href="license.html" target="_blank" rel="noopener">License</a>
       <a href="contact.html" target="_blank" rel="noopener">Contact</a>
     </div>
-    <label class="legal-check" for="legalConsentCheck">
-      <input id="legalConsentCheck" type="checkbox">
-      <span>I have read and accept the Terms of Use, Privacy Policy, and License for Neon Slip.</span>
+    <label class="legal-check" for="legalConsentTermsCheck">
+      <input id="legalConsentTermsCheck" type="checkbox">
+      <span>I have read and accept the Neon Slip Terms of Use.</span>
+    </label>
+    <label class="legal-check" for="legalConsentPrivacyCheck">
+      <input id="legalConsentPrivacyCheck" type="checkbox">
+      <span>I have read and accept the Neon Slip Privacy Policy.</span>
+    </label>
+    <label class="legal-check" for="legalConsentLicenseCheck">
+      <input id="legalConsentLicenseCheck" type="checkbox">
+      <span>I understand the Neon Slip License and ownership restrictions.</span>
     </label>
     <div id="legalConsentError" class="legal-error"></div>
     <div class="settings-actions">
@@ -2630,6 +2788,8 @@
   <div style="font-weight:bold; margin-bottom:6px;">MISSIONS</div>
   <div id="missionList"></div>
 </div>
+
+<div id="liveShardCounter" class="live-shard-counter"><img src="shard.png" alt="Shard" class="shard-icon-sm"><span>Shards</span><strong id="liveShardValue">0</strong></div>
 
 <div id="modifierSlideshow" class="modifier-slideshow">
   <div class="slideshow-box">
@@ -2965,7 +3125,8 @@
       <div class="btn" id="nextIntroSlide">Next</div>
     </div>
     <div class="settings-actions">
-      <div id="closeIntro" class="btn">Start Run</div>
+      <div id="closeIntro" class="btn">Close</div>
+      <div id="introStartRun" class="btn">Start Run</div>
     </div>
   </div>
 </div>
@@ -3100,11 +3261,13 @@ const FIREBASE_CONFIG = firebaseConfig;
   const nextIntroSlideEl = document.getElementById("nextIntroSlide");
   const slideDotsEl = document.getElementById("slideDots");
   const closeIntroEl = document.getElementById("closeIntro");
+  const introStartRunEl = document.getElementById("introStartRun");
   const modifierSlideshowEl = document.getElementById("modifierSlideshow");
   const slideshowContentEl = document.getElementById("slideshowContent");
   const slideshowProgressEl = document.getElementById("slideshowProgress");
   const skipSlideshowEl = document.getElementById("skipSlideshow");
   const nextSlideshowSlideEl = document.getElementById("nextSlide");
+  const slideshowHintEl = document.querySelector(".skip-text");
   const streakBannerEl = document.getElementById("streakBanner");
   const shieldIndicatorEl = document.getElementById("shieldIndicator");
   const magnetIndicatorEl = document.getElementById("magnetIndicator");
@@ -3114,6 +3277,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   const invincibleIndicatorEl = document.getElementById("invincibleIndicator");
   const missionTrackerEl = document.getElementById("missionTracker");
   const missionListEl = document.getElementById("missionList");
+  const liveShardCounterEl = document.getElementById("liveShardCounter");
+  const liveShardValueEl = document.getElementById("liveShardValue");
   const leaderboardPanelEl = document.getElementById("leaderboardPanel");
   const leaderboardListEl = document.getElementById("leaderboardList");
   const closeLeaderboardEl = document.getElementById("closeLeaderboard");
@@ -3189,24 +3354,34 @@ const FIREBASE_CONFIG = firebaseConfig;
   const bootParticleFieldEl = document.getElementById("bootParticleField");
   const siteNavPlayEl = document.getElementById("siteNavPlay");
   const siteNavLeaderboardEl = document.getElementById("siteNavLeaderboard");
-  const siteNavHowToEl = document.getElementById("siteNavHowTo");
-  const siteNavFriendsEl = document.getElementById("siteNavFriends");
   const siteNavCreditsEl = document.getElementById("siteNavCredits");
   const openHowToPlayQuickEl = document.getElementById("openHowToPlayQuick");
   const startChallengeFriendsEl = document.getElementById("startChallengeFriends");
-  const startLeaderboardCtaEl = document.getElementById("startLeaderboardCta");
   const lbSidebarOpenBoardEl = document.getElementById("lbSidebarOpenBoard");
   const openCreditsEl = document.getElementById("openCredits");
   const creditsPanelEl = document.getElementById("creditsPanel");
   const closeCreditsEl = document.getElementById("closeCredits");
+  const openChallengeFromCreditsEl = document.getElementById("openChallengeFromCredits");
+  const challengePanelEl = document.getElementById("challengePanel");
+  const closeChallengeEl = document.getElementById("closeChallenge");
+  const challengeMessageEl = document.getElementById("challengeMessage");
+  const challengeStatusEl = document.getElementById("challengeStatus");
+  const challengeCopyBtnEl = document.getElementById("challengeCopyBtn");
+  const challengeEmailBtnEl = document.getElementById("challengeEmailBtn");
+  const challengeDiscordBtnEl = document.getElementById("challengeDiscordBtn");
+  const challengeSmsBtnEl = document.getElementById("challengeSmsBtn");
+  const challengeShareBtnEl = document.getElementById("challengeShareBtn");
   const legalConsentPanelEl = document.getElementById("legalConsentPanel");
-  const legalConsentCheckEl = document.getElementById("legalConsentCheck");
+  const legalConsentTermsCheckEl = document.getElementById("legalConsentTermsCheck");
+  const legalConsentPrivacyCheckEl = document.getElementById("legalConsentPrivacyCheck");
+  const legalConsentLicenseCheckEl = document.getElementById("legalConsentLicenseCheck");
   const legalConsentErrorEl = document.getElementById("legalConsentError");
   const legalConsentAcceptBtnEl = document.getElementById("legalConsentAcceptBtn");
   const legalConsentCancelBtnEl = document.getElementById("legalConsentCancelBtn");
 
-  const LEGAL_ACCEPT_KEY = "neonLegalAcceptedV1";
-  let pendingStartAfterConsent = false;
+  const LEGAL_ACCEPT_KEY = "neonLegalAcceptedV2";
+  const CHALLENGE_SHARE_MESSAGE = "HEY!! BET YOU CAN'T BEAT MY HIGH SCORE ON NEON SLIP! COME PLAY AT https://neonslip.me so I can DESTROY YOU!!";
+  let pendingConsentAction = null;
 
   let w, h, dpr;
   function resize(){
@@ -3276,6 +3451,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     upgradeEffects: { controlBoost: 1, comboExtend: 1, glowBoost: 1, trailShift: 0, gatePulse: 0 },
     announceCooldown: 0,
     introRequired: true,
+    introOpenMode: "manual",
     slideIndex: 0,
     hasShield: false,
     magnetActive: false,
@@ -3303,6 +3479,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     streakBonusCount: 0,
     stats: { totalRuns: 0, totalGates: 0, totalTime: 0, totalNearMisses: 0, totalShardsEarned: 0 }
   };
+
+  let renderedShardCount = null;
 
   const player = {
     x: w * 0.5,
@@ -4125,11 +4303,20 @@ const FIREBASE_CONFIG = firebaseConfig;
     }));
   }
 
-  function updateUpgradeUI(){
-    currencyEl.innerHTML = `${PROGRESSION.currencyName}: ${state.shards} <img src="shard.png" alt="Shard" class="shard-icon">`;
-    // Update main menu shard display
+  function refreshShardDisplays(animateLive = false){
+    if (currencyEl) currencyEl.innerHTML = `${PROGRESSION.currencyName}: ${state.shards} <img src="shard.png" alt="Shard" class="shard-icon">`;
     const mainMenuShardsEl = document.getElementById("mainMenuShards");
     if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
+    if (liveShardValueEl) liveShardValueEl.textContent = state.shards.toLocaleString();
+    if (liveShardCounterEl && animateLive){
+      liveShardCounterEl.classList.remove("bump");
+      void liveShardCounterEl.offsetWidth;
+      liveShardCounterEl.classList.add("bump");
+    }
+  }
+
+  function updateUpgradeUI(){
+    refreshShardDisplays();
     const activeCat = document.querySelector(".upgrade-tab.active")?.dataset.cat || "all";
     const filtered = activeCat === "all" ? UPGRADES : UPGRADES.filter(u => u.category === activeCat);
     // Summary stats
@@ -4406,6 +4593,72 @@ const FIREBASE_CONFIG = firebaseConfig;
     startGame();
   }
 
+  function showModifierSlideshow(){
+    state.slideshowActive = true;
+    state.slideshowIndex = 0;
+
+    const modifierItems = [];
+    if (state.runMods.pos){
+      modifierItems.push(`
+        <div class="run-brief-item">
+          <div class="run-brief-icon">${state.runMods.pos.icon || "+"}</div>
+          <div><strong>${state.runMods.pos.name}</strong><span>${state.runMods.pos.desc}</span></div>
+        </div>
+      `);
+    }
+    if (state.runMods.neg){
+      modifierItems.push(`
+        <div class="run-brief-item">
+          <div class="run-brief-icon">${state.runMods.neg.icon || "-"}</div>
+          <div><strong>${state.runMods.neg.name}</strong><span>${state.runMods.neg.desc}</span></div>
+        </div>
+      `);
+    }
+    if (!modifierItems.length){
+      modifierItems.push(`<div class="run-brief-item"><div><strong>Standard Run</strong><span>No extra modifiers this time.</span></div></div>`);
+    }
+
+    const missionItems = missions.length
+      ? missions.map(m => `
+          <div class="run-brief-item">
+            <div><strong>${m.name}</strong><span>${m.desc || "Complete this objective during the run."}</span><div class="run-brief-reward">${m.reward} <img src="shard.png" alt="Shard" class="shard-icon-sm"></div></div>
+          </div>
+        `).join("")
+      : `<div class="run-brief-item"><div><strong>No missions</strong><span>This run is focused purely on score.</span></div></div>`;
+
+    state.slideshowSlides = [{
+      title: "RUN BRIEF",
+      content: `
+        <div class="run-brief-theme">Theme: ${state.theme ? state.theme.name : "Default"}${state.theme && state.theme.tagline ? ` • ${state.theme.tagline}` : ""}</div>
+        <div class="run-brief-grid">
+          <section class="run-brief-column modifiers">
+            <div class="run-brief-label">Modifiers</div>
+            ${modifierItems.join("")}
+          </section>
+          <section class="run-brief-column missions">
+            <div class="run-brief-label">Missions</div>
+            ${missionItems}
+          </section>
+        </div>
+      `
+    }];
+    updateSlideshowDisplay();
+    modifierSlideshowEl.classList.add("active");
+  }
+
+  function updateSlideshowDisplay(){
+    const slide = state.slideshowSlides[state.slideshowIndex];
+    slideshowContentEl.innerHTML = `
+      <div class="title" style="margin-bottom:16px;">${slide.title}</div>
+      ${slide.content}
+    `;
+    slideshowProgressEl.innerHTML = "";
+    slideshowProgressEl.style.display = "none";
+    skipSlideshowEl.style.display = "none";
+    if (slideshowHintEl) slideshowHintEl.style.display = "none";
+    if (nextSlideshowSlideEl) nextSlideshowSlideEl.textContent = "Start Run";
+  }
+
   function announce(text){
     if (!FEATURE_FLAGS.announcer || SETTINGS.streamer) return;
     announcerEl.textContent = text;
@@ -4621,7 +4874,9 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   function openLegalConsentPanel(){
     if (!legalConsentPanelEl) return;
-    if (legalConsentCheckEl) legalConsentCheckEl.checked = false;
+    if (legalConsentTermsCheckEl) legalConsentTermsCheckEl.checked = false;
+    if (legalConsentPrivacyCheckEl) legalConsentPrivacyCheckEl.checked = false;
+    if (legalConsentLicenseCheckEl) legalConsentLicenseCheckEl.checked = false;
     if (legalConsentErrorEl) legalConsentErrorEl.textContent = "";
     legalConsentPanelEl.classList.add("active");
   }
@@ -4631,11 +4886,23 @@ const FIREBASE_CONFIG = firebaseConfig;
     legalConsentPanelEl.classList.remove("active");
   }
 
-  function ensureLegalConsentForGameplay(){
+  function ensureLegalConsentForGameplay(action = "start-game"){
     if (hasAcceptedLegalTerms()) return true;
-    pendingStartAfterConsent = true;
+    pendingConsentAction = action;
     openLegalConsentPanel();
     return false;
+  }
+
+  function openIntroPanel(mode = "manual"){
+    state.introOpenMode = mode;
+    state.slideIndex = 0;
+    if (slidesEl){
+      slidesEl.scrollTo({ left: 0, behavior: "auto" });
+      updateIntroDots();
+    }
+    if (introStartRunEl) introStartRunEl.style.display = mode === "gate" ? "" : "none";
+    if (closeIntroEl) closeIntroEl.textContent = mode === "gate" ? "Close" : "Close";
+    introPanelEl.classList.add("active");
   }
 
   function shakeScale(){
@@ -4655,7 +4922,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     initAudio();
     unlockAudio();
     if (state.introRequired){
-      introPanelEl.classList.add("active");
+      openIntroPanel("gate");
       return;
     }
     resetGame();
@@ -5413,6 +5680,10 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function updateHud(dt){
+    if (renderedShardCount !== state.shards){
+      refreshShardDisplays(state.mode === "play" && renderedShardCount != null && state.shards > renderedShardCount);
+      renderedShardCount = state.shards;
+    }
     state.uiScore += (state.score - state.uiScore) * POLISH.uiEase;
     state.uiBest += (state.best - state.uiBest) * POLISH.uiEase;
     state.uiIntensity += (intensity() - state.uiIntensity) * POLISH.uiEase;
@@ -8146,7 +8417,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     breakdownPanelEl.classList.remove("active");
     if (creditsPanelEl) creditsPanelEl.classList.remove("active");
     closeLegalConsentPanel();
-    pendingStartAfterConsent = false;
+    pendingConsentAction = null;
     setMode("start");
     overPanel.classList.add("hidden");
     startPanel.classList.remove("hidden");
@@ -9388,6 +9659,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     initAudio();
     unlockAudio();
     sfxClick();
+    if (!ensureLegalConsentForGameplay("open-mods")) return;
     modsPanelEl.classList.add("active");
   });
   document.getElementById("tryAgainBtn").addEventListener("click", (e) => {
@@ -9433,18 +9705,130 @@ const FIREBASE_CONFIG = firebaseConfig;
     sfxClick();
     if (creditsPanelEl) creditsPanelEl.classList.remove("active");
   }
+  function setChallengeStatus(message, isError = false){
+    if (!challengeStatusEl) return;
+    challengeStatusEl.textContent = message || "";
+    challengeStatusEl.classList.toggle("error", !!isError);
+  }
+  function getChallengeMessage(){
+    return CHALLENGE_SHARE_MESSAGE;
+  }
+  async function copyChallengeMessage(showStatus = true){
+    const message = getChallengeMessage();
+    try{
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(message);
+      }else if (challengeMessageEl){
+        challengeMessageEl.focus();
+        challengeMessageEl.select();
+        document.execCommand("copy");
+      }else{
+        throw new Error("Clipboard unavailable");
+      }
+      if (showStatus) setChallengeStatus("Challenge copied. Send it anywhere you want.");
+      return true;
+    }catch(err){
+      console.warn("[Challenge] copy failed:", err);
+      if (showStatus) setChallengeStatus("Copy failed. Select the text and copy it manually.", true);
+      return false;
+    }
+  }
+  function openChallengePanel(e){
+    if (e) e.stopPropagation();
+    sfxClick();
+    if (challengeMessageEl) challengeMessageEl.value = getChallengeMessage();
+    setChallengeStatus("");
+    if (challengePanelEl) challengePanelEl.classList.add("active");
+  }
+  function closeChallengePanel(e){
+    if (e) e.stopPropagation();
+    sfxClick();
+    setChallengeStatus("");
+    if (challengePanelEl) challengePanelEl.classList.remove("active");
+  }
   openSettingsEl.addEventListener("click", openSettings);
   openSettingsOverEl.addEventListener("click", openSettings);
   openUpgradesEl.addEventListener("click", openUpgrades);
   openUpgradesOverEl.addEventListener("click", openUpgrades);
   if (openCreditsEl) openCreditsEl.addEventListener("click", openCreditsPanel);
   if (siteNavCreditsEl) siteNavCreditsEl.addEventListener("click", openCreditsPanel);
+  if (openChallengeFromCreditsEl) openChallengeFromCreditsEl.addEventListener("click", (e) => {
+    if (e) e.stopPropagation();
+    sfxClick();
+    if (creditsPanelEl) creditsPanelEl.classList.remove("active");
+    if (challengeMessageEl) challengeMessageEl.value = getChallengeMessage();
+    setChallengeStatus("");
+    if (challengePanelEl) challengePanelEl.classList.add("active");
+  });
   if (closeCreditsEl) closeCreditsEl.addEventListener("click", closeCreditsPanel);
   if (creditsPanelEl){
     creditsPanelEl.addEventListener("click", (e) => {
       if (e.target === creditsPanelEl) closeCreditsPanel(e);
     });
   }
+  if (closeChallengeEl) closeChallengeEl.addEventListener("click", closeChallengePanel);
+  if (challengePanelEl){
+    challengePanelEl.addEventListener("click", (e) => {
+      if (e.target === challengePanelEl) closeChallengePanel(e);
+    });
+  }
+  if (challengeCopyBtnEl){
+    challengeCopyBtnEl.addEventListener("click", async (e) => {
+      if (e) e.stopPropagation();
+      sfxClick();
+      await copyChallengeMessage();
+    });
+  }
+  if (challengeEmailBtnEl){
+    challengeEmailBtnEl.addEventListener("click", (e) => {
+      if (e) e.stopPropagation();
+      sfxClick();
+      const subject = encodeURIComponent("Can you beat me on Neon Slip?");
+      const body = encodeURIComponent(getChallengeMessage());
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    });
+  }
+  if (challengeDiscordBtnEl){
+    challengeDiscordBtnEl.addEventListener("click", async (e) => {
+      if (e) e.stopPropagation();
+      sfxClick();
+      const copied = await copyChallengeMessage(false);
+      setChallengeStatus(copied ? "Challenge copied. Paste it into Discord." : "Discord opened. Copy the message manually if needed.", !copied);
+      window.open("https://discord.com/channels/@me", "_blank", "noopener");
+    });
+  }
+  if (challengeSmsBtnEl){
+    challengeSmsBtnEl.addEventListener("click", (e) => {
+      if (e) e.stopPropagation();
+      sfxClick();
+      const body = encodeURIComponent(getChallengeMessage());
+      window.location.href = `sms:?&body=${body}`;
+    });
+  }
+  if (challengeShareBtnEl){
+    if (navigator.share){
+      challengeShareBtnEl.addEventListener("click", async (e) => {
+        if (e) e.stopPropagation();
+        sfxClick();
+        try{
+          await navigator.share({
+            title: "Neon Slip Challenge",
+            text: getChallengeMessage(),
+            url: "https://neonslip.me"
+          });
+          setChallengeStatus("Challenge shared.");
+        }catch(err){
+          if (err && err.name !== "AbortError"){
+            console.warn("[Challenge] share failed:", err);
+            setChallengeStatus("Share failed. Use copy or email instead.", true);
+          }
+        }
+      });
+    }else{
+      challengeShareBtnEl.style.display = "none";
+    }
+  }
+  if (introStartRunEl) introStartRunEl.style.display = "none";
   document.getElementById("openStats").addEventListener("click", openStats);
   document.getElementById("closeStats").addEventListener("click", (e) => { e.stopPropagation(); sfxClick(); statsPanelEl.classList.remove("active"); });
   document.getElementById("openAchievements").addEventListener("click", openAchievements);
@@ -9506,12 +9890,11 @@ const FIREBASE_CONFIG = firebaseConfig;
   openLeaderboardEl.addEventListener("click", openLeaderboard);
   closeLeaderboardEl.addEventListener("click", closeLeaderboard);
   document.getElementById("leaderboardCloseX").addEventListener("click", closeLeaderboard);
-  if (startLeaderboardCtaEl) startLeaderboardCtaEl.addEventListener("click", openLeaderboard);
   if (lbSidebarOpenBoardEl) lbSidebarOpenBoardEl.addEventListener("click", openLeaderboard);
 
   // Friends + Neon Speech
   if (openFriendsEl) openFriendsEl.addEventListener("click", openFriendsPanel);
-  if (startChallengeFriendsEl) startChallengeFriendsEl.addEventListener("click", openFriendsPanel);
+  if (startChallengeFriendsEl) startChallengeFriendsEl.addEventListener("click", openChallengePanel);
   if (closeFriendsEl) closeFriendsEl.addEventListener("click", closeFriendsPanel);
   if (friendsPanelEl){
     friendsPanelEl.addEventListener("click", (e) => {
@@ -9545,9 +9928,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   function openHowToPlayPanel(e){
     if (e) e.stopPropagation();
     sfxClick();
-    introPanelEl.classList.add("active");
+    openIntroPanel("manual");
   }
-  if (siteNavHowToEl) siteNavHowToEl.addEventListener("click", openHowToPlayPanel);
   if (openHowToPlayQuickEl) openHowToPlayQuickEl.addEventListener("click", openHowToPlayPanel);
 
   function openRunModifiersFromSite(e){
@@ -9555,36 +9937,39 @@ const FIREBASE_CONFIG = firebaseConfig;
     initAudio();
     unlockAudio();
     sfxClick();
+    if (!ensureLegalConsentForGameplay("open-mods")) return;
     modsPanelEl.classList.add("active");
   }
   if (siteNavPlayEl) siteNavPlayEl.addEventListener("click", openRunModifiersFromSite);
   if (siteNavLeaderboardEl) siteNavLeaderboardEl.addEventListener("click", openLeaderboard);
-  if (siteNavFriendsEl) siteNavFriendsEl.addEventListener("click", openFriendsPanel);
   if (legalConsentAcceptBtnEl){
     legalConsentAcceptBtnEl.addEventListener("click", () => {
-      if (!legalConsentCheckEl || !legalConsentCheckEl.checked){
-        if (legalConsentErrorEl) legalConsentErrorEl.textContent = "Please confirm acceptance before playing.";
+      if (!legalConsentTermsCheckEl?.checked || !legalConsentPrivacyCheckEl?.checked || !legalConsentLicenseCheckEl?.checked){
+        if (legalConsentErrorEl) legalConsentErrorEl.textContent = "Accept Terms, Privacy, and License before playing.";
         return;
       }
       localStorage.setItem(LEGAL_ACCEPT_KEY, "1");
       closeLegalConsentPanel();
       if (legalConsentErrorEl) legalConsentErrorEl.textContent = "";
-      if (pendingStartAfterConsent){
-        pendingStartAfterConsent = false;
+      if (pendingConsentAction === "open-mods"){
+        pendingConsentAction = null;
+        modsPanelEl.classList.add("active");
+      } else if (pendingConsentAction === "start-game"){
+        pendingConsentAction = null;
         startGame();
       }
     });
   }
   if (legalConsentCancelBtnEl){
     legalConsentCancelBtnEl.addEventListener("click", () => {
-      pendingStartAfterConsent = false;
+      pendingConsentAction = null;
       closeLegalConsentPanel();
     });
   }
   if (legalConsentPanelEl){
     legalConsentPanelEl.addEventListener("click", (e) => {
       if (e.target === legalConsentPanelEl){
-        pendingStartAfterConsent = false;
+        pendingConsentAction = null;
         closeLegalConsentPanel();
       }
     });
@@ -9928,6 +10313,10 @@ const FIREBASE_CONFIG = firebaseConfig;
     scrollToSlide(1);
   });
   closeIntroEl.addEventListener("click", () => {
+    state.introRequired = false;
+    introPanelEl.classList.remove("active");
+  });
+  if (introStartRunEl) introStartRunEl.addEventListener("click", () => {
     state.introRequired = false;
     introPanelEl.classList.remove("active");
     startGame();
