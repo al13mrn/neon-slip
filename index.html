@@ -196,22 +196,38 @@
   .btn:active{ transform: translateY(0px) scale(0.97); }
   .btn-start{
     display:block; width:100%; text-align:center;
-    font-size:1.15rem; font-weight:700; letter-spacing:.12em;
-    padding:14px 26px; margin-top:10px;
+    font-size:1.22rem; font-weight:800; letter-spacing:.18em;
+    padding:16px 28px; margin-top:10px;
     border:2px solid rgba(25,247,255,.9);
-    background: linear-gradient(135deg, rgba(25,247,255,.22) 0%, rgba(138,91,255,.18) 100%);
-    box-shadow: 0 0 18px rgba(25,247,255,.42), 0 0 36px rgba(25,247,255,.2), inset 0 1px 0 rgba(25,247,255,.35);
-    animation: startBtnPulse 2s ease-in-out infinite;
-    text-shadow: 0 0 12px rgba(25,247,255,.9), 0 0 24px rgba(25,247,255,.5);
+    background: linear-gradient(135deg, rgba(25,247,255,.28) 0%, rgba(138,91,255,.2) 52%, rgba(255,59,122,.14) 100%);
+    box-shadow: 0 0 24px rgba(25,247,255,.48), 0 0 54px rgba(25,247,255,.24), 0 0 84px rgba(138,91,255,.18), inset 0 1px 0 rgba(25,247,255,.45);
+    animation: startBtnPulse 1.65s ease-in-out infinite;
+    text-shadow: 0 0 12px rgba(25,247,255,.95), 0 0 28px rgba(25,247,255,.62), 0 0 40px rgba(255,255,255,.18);
+  }
+  .btn-start::after{
+    content:"";
+    position:absolute;
+    inset:-30% auto -30% -20%;
+    width:44%;
+    background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.32), rgba(255,255,255,0));
+    transform:skewX(-20deg) translateX(-180%);
+    animation:startBtnSweep 2.4s linear infinite;
+    pointer-events:none;
   }
   .btn-start:hover{
-    transform: translateY(-2px);
-    box-shadow: 0 0 34px rgba(25,247,255,.62), 0 0 66px rgba(25,247,255,.35), 0 4px 14px rgba(25,247,255,.22), inset 0 1px 0 rgba(25,247,255,.45);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 0 40px rgba(25,247,255,.7), 0 0 86px rgba(25,247,255,.42), 0 8px 18px rgba(25,247,255,.22), inset 0 1px 0 rgba(25,247,255,.5);
   }
   .btn-start:active{ transform: translateY(0px) scale(0.97); }
   @keyframes startBtnPulse{
-    0%,100%{ box-shadow: 0 0 30px rgba(25,247,255,.55), 0 0 70px rgba(25,247,255,.25), inset 0 1px 0 rgba(25,247,255,.4); }
-    50%{ box-shadow: 0 0 55px rgba(25,247,255,.85), 0 0 120px rgba(25,247,255,.5), 0 0 6px rgba(255,255,255,.25), inset 0 1px 0 rgba(25,247,255,.5); }
+    0%,100%{ box-shadow: 0 0 34px rgba(25,247,255,.58), 0 0 86px rgba(25,247,255,.28), inset 0 1px 0 rgba(25,247,255,.42); }
+    50%{ box-shadow: 0 0 68px rgba(25,247,255,.92), 0 0 136px rgba(25,247,255,.55), 0 0 10px rgba(255,255,255,.3), inset 0 1px 0 rgba(25,247,255,.56); }
+  }
+  @keyframes startBtnSweep{
+    0%{ transform:skewX(-20deg) translateX(-180%); opacity:0; }
+    20%{ opacity:.85; }
+    55%{ opacity:.35; }
+    100%{ transform:skewX(-20deg) translateX(340%); opacity:0; }
   }
   .hint{ font-size:12px; opacity:.8; margin-top:8px; }
   .hidden{ opacity:0; transform: translateY(14px) scale(0.98); pointer-events:none; position:absolute; }
@@ -638,6 +654,8 @@
   .slideshow-content{
     min-height:clamp(96px, 22vh, 150px); display:flex; flex-direction:column; justify-content:center; align-items:center;
     animation: slideIn .4s ease;
+    width:100%;
+    text-align:center;
   }
   @keyframes slideIn{
     0%{ opacity:0; transform: translateX(20px); }
@@ -695,7 +713,7 @@
     grid-template-columns:1fr 1fr;
     gap:10px;
     margin-top:8px;
-    text-align:left;
+    text-align:center;
   }
   .run-brief-column{
     border-radius:12px;
@@ -703,6 +721,7 @@
     border:1px solid rgba(25,247,255,.24);
     background:rgba(9,14,24,.78);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    text-align:center;
   }
   .run-brief-column.modifiers{
     border-color:rgba(25,247,255,.34);
@@ -722,10 +741,12 @@
   .run-brief-column.missions .run-brief-label{ color:#ffd86b; }
   .run-brief-item{
     display:flex;
-    align-items:flex-start;
-    gap:8px;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
     padding:8px 0;
     border-bottom:1px solid rgba(255,255,255,.06);
+    text-align:center;
   }
   .run-brief-item:last-child{ border-bottom:none; padding-bottom:0; }
   .run-brief-icon{
@@ -746,6 +767,29 @@
     font-size:10px;
     line-height:1.45;
     opacity:.78;
+  }
+  .run-brief-kind{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:6px;
+    padding:4px 8px;
+    border-radius:999px;
+    font-size:9px;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    border:1px solid rgba(25,247,255,.26);
+    background:rgba(25,247,255,.08);
+  }
+  .run-brief-kind.pos{
+    border-color:rgba(125,255,178,.34);
+    background:rgba(125,255,178,.12);
+    color:#9cffc6;
+  }
+  .run-brief-kind.neg{
+    border-color:rgba(255,59,122,.34);
+    background:rgba(255,59,122,.12);
+    color:#ff9db8;
   }
   .run-brief-reward{
     display:inline-flex;
@@ -811,17 +855,17 @@
   }
   .live-shard-counter{
     position:fixed;
-    top:calc(var(--safe-top) + 88px);
-    right:calc(var(--safe-right) + 18px);
+    top:calc(var(--safe-top) + 112px);
+    left:calc(var(--safe-left) + 18px);
     display:flex;
     align-items:center;
     gap:8px;
-    padding:10px 14px;
+    padding:9px 13px;
     border-radius:14px;
     border:1px solid rgba(25,247,255,.3);
     background:linear-gradient(160deg, rgba(6,14,28,.9), rgba(8,12,22,.82));
     box-shadow:0 0 24px rgba(25,247,255,.18), inset 0 1px 0 rgba(255,255,255,.06);
-    font-size:14px;
+    font-size:13px;
     letter-spacing:1.2px;
     text-transform:uppercase;
     color:#dfffff;
@@ -833,7 +877,7 @@
     z-index:11;
   }
   .live-shard-counter strong{
-    font-size:17px;
+    font-size:16px;
     color:var(--neon);
     text-shadow:0 0 14px rgba(25,247,255,.75);
   }
@@ -1228,26 +1272,29 @@
     overflow:hidden;
   }
   .slides{
-    display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory;
-    padding:8px 4px; scroll-behavior:smooth;
+    display:flex; gap:0; overflow-x:hidden; scroll-snap-type:x mandatory;
+    padding:0; scroll-behavior:smooth;
     flex:1 1 auto; min-height:0;
     scrollbar-width:none;
+    overscroll-behavior-x:contain;
   }
   .slides::-webkit-scrollbar{ display:none; }
   .slide{
-    min-width:min(360px, 78vw); max-width:min(360px, 78vw); scroll-snap-align:center;
+    flex:0 0 100%;
+    min-width:100%; max-width:100%; width:100%; scroll-snap-align:start; scroll-snap-stop:always;
     background:
       radial-gradient(110% 90% at 50% -10%, rgba(25,247,255,.14), rgba(25,247,255,0) 58%),
       linear-gradient(165deg, rgba(25,247,255,.09), rgba(138,91,255,.08) 55%, rgba(255,59,122,.06));
     border:1px solid rgba(25,247,255,.3);
     box-shadow: 0 0 20px rgba(25,247,255,.14), inset 0 0 24px rgba(25,247,255,.06);
-    border-radius:14px; padding:12px 10px 10px;
+    border-radius:14px; padding:16px 14px 14px;
     max-height:min(50vh, 420px);
     overflow-y:auto;
     text-transform:uppercase; letter-spacing:1px;
-    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center;
     position:relative;
+    box-sizing:border-box;
   }
   .slide::before{
     content:""; position:absolute; left:12%; right:12%; top:0; height:1px;
@@ -1301,7 +1348,7 @@
   }
   @media (max-width:700px){
     .intro-box{ width:min(96vw, 470px); max-height:86vh; }
-    .slide{ min-width:min(310px, 82vw); max-width:min(310px, 82vw); max-height:min(52vh, 380px); padding:10px 8px; }
+    .slide{ min-width:100%; max-width:100%; max-height:min(52vh, 380px); padding:10px 8px; }
     .slide h3{ font-size:13px; letter-spacing:1.6px; }
     .slide p{ font-size:10px; }
     .slide p:first-of-type{ font-size:11px; }
@@ -1320,11 +1367,191 @@
   .dot.active{ opacity:1; background: rgba(25,247,255,.7); }
   .breakdown-panel.active{ pointer-events:auto; opacity:1; }
   .breakdown-box{
-    background: linear-gradient(180deg, rgba(10,16,30,.95), rgba(6,10,20,.95));
+    background: linear-gradient(180deg, rgba(10,16,30,.98), rgba(6,10,20,.97));
     border:1px solid rgba(25,247,255,.35);
-    box-shadow: 0 0 28px rgba(25,247,255,.25);
-    padding:18px 20px; border-radius:14px; min-width:260px;
+    box-shadow: 0 0 34px rgba(25,247,255,.22), 0 0 70px rgba(138,91,255,.12), inset 0 1px 0 rgba(255,255,255,.05);
+    padding:20px 22px 18px; border-radius:16px;
+    width:min(94vw, 620px);
+    max-height:88vh;
+    overflow-y:auto;
     text-align:center;
+  }
+  .breakdown-lead{
+    margin:6px 0 12px;
+    font-size:12px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:rgba(220,248,255,.8);
+  }
+  .breakdown-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+    margin:12px 0;
+  }
+  .breakdown-card{
+    border:1px solid rgba(25,247,255,.18);
+    border-radius:12px;
+    background:linear-gradient(180deg, rgba(25,247,255,.06), rgba(9,14,24,.84));
+    padding:12px 10px;
+  }
+  .breakdown-card-value{
+    font-size:22px;
+    font-weight:bold;
+    color:var(--neon);
+    text-shadow:0 0 12px rgba(25,247,255,.42);
+  }
+  .breakdown-card-label{
+    margin-top:5px;
+    font-size:10px;
+    letter-spacing:1.1px;
+    text-transform:uppercase;
+    opacity:.74;
+  }
+  .breakdown-strip{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin:10px 0 0;
+  }
+  .breakdown-pill{
+    border:1px solid rgba(25,247,255,.24);
+    border-radius:999px;
+    padding:6px 10px;
+    font-size:10px;
+    letter-spacing:.9px;
+    text-transform:uppercase;
+    background:rgba(25,247,255,.06);
+  }
+  .breakdown-pill.neg{
+    border-color:rgba(255,59,122,.28);
+    color:#ff9db8;
+    background:rgba(255,59,122,.08);
+  }
+  .breakdown-pill.pos{
+    border-color:rgba(125,255,178,.28);
+    color:#9cffc6;
+    background:rgba(125,255,178,.08);
+  }
+  .breakdown-shards{
+    margin-top:12px;
+    padding:12px 14px;
+    border-radius:14px;
+    border:1px solid rgba(125,255,178,.2);
+    background:linear-gradient(180deg, rgba(125,255,178,.08), rgba(6,10,20,.72));
+  }
+  .breakdown-shards-title{
+    font-size:11px;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    color:#9cffc6;
+    margin-bottom:8px;
+  }
+  .breakdown-shards-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:5px 0;
+    font-size:11px;
+    letter-spacing:.5px;
+  }
+  .breakdown-shards-row.total{
+    margin-top:6px;
+    padding-top:8px;
+    border-top:1px solid rgba(125,255,178,.16);
+    font-weight:bold;
+    color:#dffff0;
+  }
+  .breakdown-sections{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:12px;
+    margin-top:12px;
+    text-align:left;
+  }
+  .breakdown-section{
+    border:1px solid rgba(25,247,255,.16);
+    border-radius:14px;
+    padding:14px 14px 12px;
+    background:linear-gradient(180deg, rgba(18,30,48,.58), rgba(7,11,20,.88));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .breakdown-section-title{
+    margin:0 0 10px;
+    font-size:11px;
+    letter-spacing:1.4px;
+    text-transform:uppercase;
+    color:var(--neon);
+  }
+  .breakdown-list{
+    display:grid;
+    gap:8px;
+  }
+  .breakdown-list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    padding:8px 0;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  .breakdown-list-item:first-child{
+    border-top:none;
+    padding-top:0;
+  }
+  .breakdown-list-copy{
+    min-width:0;
+  }
+  .breakdown-list-copy strong{
+    display:block;
+    font-size:12px;
+    letter-spacing:.5px;
+    color:#f1fdff;
+  }
+  .breakdown-list-copy span{
+    display:block;
+    margin-top:4px;
+    font-size:10px;
+    line-height:1.45;
+    color:rgba(214,246,255,.74);
+  }
+  .breakdown-list-value{
+    flex-shrink:0;
+    text-align:right;
+    font-size:10px;
+    letter-spacing:.8px;
+    text-transform:uppercase;
+    color:rgba(214,246,255,.76);
+  }
+  .breakdown-list-value strong{
+    display:block;
+    font-size:11px;
+    color:#dffff0;
+  }
+  .breakdown-list-value.complete strong{
+    color:#9cffc6;
+  }
+  .breakdown-list-value.pending strong{
+    color:#ffb4ca;
+  }
+  .breakdown-note{
+    margin-top:12px;
+    font-size:10px;
+    line-height:1.5;
+    letter-spacing:.5px;
+    color:rgba(214,246,255,.72);
+  }
+  .breakdown-actions{
+    margin-top:14px;
+  }
+  @media (max-width:700px){
+    .breakdown-grid{
+      grid-template-columns:1fr;
+    }
+    .breakdown-sections{
+      grid-template-columns:1fr;
+    }
   }
   .feature-toggle{
     display:flex; align-items:center; justify-content:space-between;
@@ -2436,13 +2663,13 @@
       grid-template-columns:1fr;
     }
     .live-shard-counter{
-      top:calc(var(--safe-top) + 78px);
-      right:calc(var(--safe-right) + 10px);
-      padding:8px 11px;
+      top:calc(var(--safe-top) + 96px);
+      left:calc(var(--safe-left) + 10px);
+      padding:8px 10px;
       font-size:11px;
     }
     .live-shard-counter strong{
-      font-size:14px;
+      font-size:13px;
     }
   }
   @media (max-height: 760px){
@@ -2841,8 +3068,24 @@
 <div id="breakdownPanel" class="breakdown-panel">
   <div class="breakdown-box">
     <div class="title">Run Breakdown</div>
-    <div id="breakdownStats" class="hint">---</div>
-    <div id="breakdownShards" class="shards-earned" style="margin-top:6px;"></div>
+    <div class="breakdown-lead">Detailed results from your last run.</div>
+    <div id="breakdownStats" class="breakdown-grid">---</div>
+    <div id="breakdownShards" class="breakdown-shards"></div>
+    <div class="breakdown-sections">
+      <section class="breakdown-section">
+        <h3 class="breakdown-section-title">Run Setup</h3>
+        <div id="breakdownSetup" class="breakdown-list"></div>
+      </section>
+      <section class="breakdown-section">
+        <h3 class="breakdown-section-title">Mission Results</h3>
+        <div id="breakdownMissions" class="breakdown-list"></div>
+      </section>
+    </div>
+    <div class="breakdown-note">Close returns you to the game-over menu. Leaderboard submits this run and opens the rankings.</div>
+    <div class="settings-actions breakdown-actions">
+      <div id="breakdownViewLeaderboard" class="btn">Leaderboard</div>
+      <div id="closeBreakdown" class="btn">Close</div>
+    </div>
   </div>
 </div>
 
@@ -3165,8 +3408,8 @@
 <script src="firebase-config.js"></script>
 <script src="firebase-config.local.js"></script>
 
-<audio id="menuMusic" src="menu.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
-<audio id="gameMusic" src="game.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
+<audio id="menuMusic" src="menu.mp3" preload="auto" loop playsinline webkit-playsinline disableremoteplayback></audio>
+<audio id="gameMusic" src="game.mp3" preload="auto" loop playsinline webkit-playsinline disableremoteplayback></audio>
 
 <script>
 (() => {
@@ -3254,7 +3497,11 @@ const FIREBASE_CONFIG = firebaseConfig;
   const streamerToggleEl = document.getElementById("streamerToggle");
   const breakdownPanelEl = document.getElementById("breakdownPanel");
   const breakdownStatsEl = document.getElementById("breakdownStats");
+  const breakdownShardsEl = document.getElementById("breakdownShards");
+  const breakdownSetupEl = document.getElementById("breakdownSetup");
+  const breakdownMissionsEl = document.getElementById("breakdownMissions");
   const closeBreakdownEl = document.getElementById("closeBreakdown");
+  const breakdownViewLeaderboardEl = document.getElementById("breakdownViewLeaderboard");
   const introPanelEl = document.getElementById("introPanel");
   const slidesEl = document.getElementById("slides");
   const prevSlideEl = document.getElementById("prevSlide");
@@ -3428,6 +3675,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     audioUnlocked: false,
     audioMuted: false,
     audioFade: null,
+    activeMusic: null,
     combo: 0,
     comboTimer: 0,
     nearTimer: 0,
@@ -4601,6 +4849,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (state.runMods.pos){
       modifierItems.push(`
         <div class="run-brief-item">
+          <div class="run-brief-kind pos">Positive Modifier</div>
           <div class="run-brief-icon">${state.runMods.pos.icon || "+"}</div>
           <div><strong>${state.runMods.pos.name}</strong><span>${state.runMods.pos.desc}</span></div>
         </div>
@@ -4609,6 +4858,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (state.runMods.neg){
       modifierItems.push(`
         <div class="run-brief-item">
+          <div class="run-brief-kind neg">Negative Modifier</div>
           <div class="run-brief-icon">${state.runMods.neg.icon || "-"}</div>
           <div><strong>${state.runMods.neg.name}</strong><span>${state.runMods.neg.desc}</span></div>
         </div>
@@ -4905,6 +5155,132 @@ const FIREBASE_CONFIG = firebaseConfig;
     introPanelEl.classList.add("active");
   }
 
+  function closeBreakdownPanel(showOverPanel = true){
+    if (!breakdownPanelEl) return;
+    breakdownPanelEl.classList.remove("active");
+    if (showOverPanel){
+      overPanel.classList.remove("hidden");
+    }
+  }
+
+  function showBreakdownPanel(isNewBest, baseShardEarned, missionShardEarned){
+    if (!breakdownPanelEl || !breakdownStatsEl) return;
+    const totalShardEarned = baseShardEarned + missionShardEarned;
+    const completedMissions = missions.filter(m => m.completed).length;
+    const themeName = state.theme ? state.theme.name : "Default";
+    const themeTagline = state.theme && state.theme.tagline ? state.theme.tagline : "Pure neon survival pressure.";
+    const posLabel = state.runMods && state.runMods.pos ? `${state.runMods.pos.icon || "+"} ${state.runMods.pos.name}` : "No positive modifier";
+    const negLabel = state.runMods && state.runMods.neg ? `${state.runMods.neg.icon || "-"} ${state.runMods.neg.name}` : "No negative modifier";
+    const posDesc = state.runMods && state.runMods.pos ? state.runMods.pos.desc : "This run had no positive modifier active.";
+    const negDesc = state.runMods && state.runMods.neg ? state.runMods.neg.desc : "This run had no negative modifier active.";
+    const leadBits = [
+      `${Math.floor(state.score).toLocaleString()} score`,
+      `${state.gateCount.toLocaleString()} gates`,
+      `${completedMissions}/${missions.length} missions`
+    ];
+    const breakdownLeadEl = breakdownPanelEl.querySelector(".breakdown-lead");
+    if (breakdownLeadEl){
+      breakdownLeadEl.textContent = `${isNewBest ? "New best run." : "Run complete."} ${leadBits.join(" • ")}`;
+    }
+
+    breakdownStatsEl.innerHTML = `
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">${Math.floor(state.score).toLocaleString()}</div>
+        <div class="breakdown-card-label">Score</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">${Math.floor(state.best).toLocaleString()}</div>
+        <div class="breakdown-card-label">${isNewBest ? "New Best" : "Best Score"}</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">${state.gateCount.toLocaleString()}</div>
+        <div class="breakdown-card-label">Gates Cleared</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">${formatTime(state.time)}</div>
+        <div class="breakdown-card-label">Run Time</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">${state.bestCombo.toLocaleString()}</div>
+        <div class="breakdown-card-label">Best Combo</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">${state.nearCount.toLocaleString()}</div>
+        <div class="breakdown-card-label">Near Misses</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">${state.perfectCount.toLocaleString()}</div>
+        <div class="breakdown-card-label">Perfect Passes</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">x${state.intensityPeak.toFixed(1)}</div>
+        <div class="breakdown-card-label">Peak Intensity</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-value">${completedMissions}/${missions.length}</div>
+        <div class="breakdown-card-label">Missions Done</div>
+      </div>
+      <div class="breakdown-strip">
+        <div class="breakdown-pill">${themeName}</div>
+        <div class="breakdown-pill pos">${posLabel}</div>
+        <div class="breakdown-pill neg">${negLabel}</div>
+      </div>
+    `;
+
+    if (breakdownShardsEl){
+      breakdownShardsEl.innerHTML = `
+        <div class="breakdown-shards-title">Neon Shard Summary</div>
+        <div class="breakdown-shards-row"><span>Score reward</span><span>${baseShardEarned.toLocaleString()}</span></div>
+        <div class="breakdown-shards-row"><span>Mission rewards</span><span>${missionShardEarned.toLocaleString()}</span></div>
+        <div class="breakdown-shards-row total"><span>Total this run</span><span>${totalShardEarned.toLocaleString()}</span></div>
+      `;
+    }
+
+    if (breakdownSetupEl){
+      breakdownSetupEl.innerHTML = `
+        <div class="breakdown-list-item">
+          <div class="breakdown-list-copy">
+            <strong>${themeName}</strong>
+            <span>${themeTagline}</span>
+          </div>
+          <div class="breakdown-list-value"><strong>Theme</strong></div>
+        </div>
+        <div class="breakdown-list-item">
+          <div class="breakdown-list-copy">
+            <strong>${posLabel}</strong>
+            <span>${posDesc}</span>
+          </div>
+          <div class="breakdown-list-value complete"><strong>Positive</strong></div>
+        </div>
+        <div class="breakdown-list-item">
+          <div class="breakdown-list-copy">
+            <strong>${negLabel}</strong>
+            <span>${negDesc}</span>
+          </div>
+          <div class="breakdown-list-value pending"><strong>Negative</strong></div>
+        </div>
+      `;
+    }
+
+    if (breakdownMissionsEl){
+      breakdownMissionsEl.innerHTML = missions.map((mission) => `
+        <div class="breakdown-list-item">
+          <div class="breakdown-list-copy">
+            <strong>${mission.name}</strong>
+            <span>${mission.desc || "Complete this objective during the run."}</span>
+          </div>
+          <div class="breakdown-list-value ${mission.completed ? "complete" : "pending"}">
+            <strong>${mission.completed ? "Completed" : "Missed"}</strong>
+            <span>${mission.reward || 0} shards</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    overPanel.classList.add("hidden");
+    breakdownPanelEl.classList.add("active");
+  }
+
   function shakeScale(){
     if (SETTINGS.shake === "low") return 0.6;
     if (SETTINGS.shake === "high") return 1.2;
@@ -4969,6 +5345,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   function gameOver(){
     setMode("over");
     const isNewBest = state.score > state.best;
+    let baseShardEarned = 0;
+    const missionShardEarned = missions.reduce((sum, mission) => sum + (mission.completed ? (mission.reward || 0) : 0), 0);
     if (isNewBest){
       state.best = state.score;
       localStorage.setItem("neonBest", state.best);
@@ -4977,13 +5355,12 @@ const FIREBASE_CONFIG = firebaseConfig;
       const earned = Math.floor(state.score * PROGRESSION.earnScore) +
         state.nearCount * PROGRESSION.earnNear +
         state.bestCombo * PROGRESSION.earnCombo;
+      baseShardEarned = earned;
       state.shards += earned;
       state.stats.totalShardsEarned = (state.stats.totalShardsEarned || 0) + earned;
       saveProgress();
       updateUpgradeUI();
       const earnedText = earned > 0 ? `+${earned} <img src="shard.png" alt="Shard" class="shard-icon-sm"> Neon Shards earned` : "";
-      const breakdownShardsEl = document.getElementById("breakdownShards");
-      if (breakdownShardsEl) breakdownShardsEl.innerHTML = earnedText;
       const lbModalShardsEl = document.getElementById("lbModalShards");
       if (lbModalShardsEl) lbModalShardsEl.innerHTML = earnedText;
       const shardsEarnedEl = document.getElementById("shardsEarned");
@@ -5001,8 +5378,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     finalBestEl.textContent = state.best;
     scoreEl.textContent = state.score;
     bestEl.textContent = state.best;
-    breakdownStatsEl.textContent = `Best Combo: ${state.bestCombo} | Near Misses: ${state.nearCount} | Peak Intensity: x${state.intensityPeak.toFixed(1)}`;
-    breakdownPanelEl.classList.add("active");
+    showBreakdownPanel(isNewBest, baseShardEarned, missionShardEarned);
     if (isNewBest){
       bestBurstEl.classList.remove("show");
       void bestBurstEl.offsetWidth;
@@ -5011,9 +5387,6 @@ const FIREBASE_CONFIG = firebaseConfig;
 
     // Monetization hook: show interstitial ad between runs here.
     showInterstitialAd();
-
-    // Leaderboard hook: show submit modal after the breakdown panel appears.
-    state.lbSubmitTimer = setTimeout(() => submitScore(state.score), 1400);
 
     overPanel.classList.add("hidden");
   }
@@ -5772,12 +6145,53 @@ const FIREBASE_CONFIG = firebaseConfig;
     return Promise.resolve(true);
   }
 
+  function setupMediaPlaybackHints(){
+    [menuMusic, gameMusic].forEach((mediaEl) => {
+      if (!mediaEl) return;
+      try{
+        mediaEl.disableRemotePlayback = true;
+        mediaEl.controls = false;
+        mediaEl.setAttribute("disableremoteplayback", "");
+        mediaEl.setAttribute("controlslist", "nodownload noplaybackrate noremoteplayback");
+      }catch(_err){}
+    });
+    if ("mediaSession" in navigator){
+      try{
+        navigator.mediaSession.metadata = null;
+        ["play","pause","stop","seekbackward","seekforward","seekto","previoustrack","nexttrack"].forEach((action) => {
+          try{ navigator.mediaSession.setActionHandler(action, null); }catch(_err){}
+        });
+      }catch(_err){}
+    }
+  }
+
   function recoverMusicPlayback(target = null){
     if (!state.audioUnlocked || state.audioMuted) return;
     const wantsGame = target ? target === "game" : state.mode === "play";
+    const nextTrack = wantsGame ? "game" : "menu";
     const primary = wantsGame ? gameMusic : menuMusic;
     const secondary = wantsGame ? menuMusic : gameMusic;
     const targetVolume = (wantsGame ? AUDIO.gameVolume : AUDIO.menuVolume) * SETTINGS.musicVolume;
+    const primaryPlaying = !!primary && !primary.paused;
+    const secondaryPlaying = !!secondary && !secondary.paused;
+
+    if (primaryPlaying && !secondaryPlaying){
+      primary.volume = state.audioMuted ? 0 : targetVolume;
+      state.activeMusic = nextTrack;
+      return;
+    }
+
+    if (primaryPlaying && secondaryPlaying){
+      if (secondary.volume > 0.02 || state.activeMusic !== nextTrack){
+        crossfade(secondary, primary, AUDIO.crossfadeMs);
+      } else {
+        primary.volume = state.audioMuted ? 0 : targetVolume;
+        secondary.volume = 0;
+        secondary.pause();
+      }
+      state.activeMusic = nextTrack;
+      return;
+    }
 
     tryPlayMedia(primary).then((ok) => {
       if (!ok) return;
@@ -5790,15 +6204,21 @@ const FIREBASE_CONFIG = firebaseConfig;
         secondary.volume = 0;
         secondary.pause();
       }
+      state.activeMusic = nextTrack;
     });
   }
 
-  function unlockAudio(){
+  function unlockAudio(options = {}){
+    const forceRecover = !!options.forceRecover;
+    const wasUnlocked = state.audioUnlocked;
     state.audioUnlocked = true;
     initAudio();
-    menuMusic.volume = 0;
-    gameMusic.volume = 0;
-    if (!state.audioMuted){
+    setupMediaPlaybackHints();
+    if (!wasUnlocked){
+      menuMusic.volume = 0;
+      gameMusic.volume = 0;
+    }
+    if (!state.audioMuted && (!wasUnlocked || forceRecover)){
       recoverMusicPlayback();
     }
   }
@@ -5851,8 +6271,9 @@ const FIREBASE_CONFIG = firebaseConfig;
       gameMusic.volume = 0;
       menuMusic.pause();
       gameMusic.pause();
+      state.activeMusic = null;
     } else {
-      unlockAudio();
+      unlockAudio({ forceRecover: true });
     }
   }
 
@@ -6666,6 +7087,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       }
     }
     if (audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+    setupMediaPlaybackHints();
     if (menuMusic && menuMusic.readyState === 0) menuMusic.load();
     if (gameMusic && gameMusic.readyState === 0) gameMusic.load();
   }
@@ -9861,6 +10283,20 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
   }
   if (introStartRunEl) introStartRunEl.style.display = "none";
+  if (closeBreakdownEl) closeBreakdownEl.addEventListener("click", () => {
+    sfxClick();
+    closeBreakdownPanel(true);
+  });
+  if (breakdownViewLeaderboardEl) breakdownViewLeaderboardEl.addEventListener("click", () => {
+    sfxClick();
+    closeBreakdownPanel(false);
+    submitScore(state.score);
+  });
+  if (breakdownPanelEl){
+    breakdownPanelEl.addEventListener("click", (e) => {
+      if (e.target === breakdownPanelEl) e.stopPropagation();
+    });
+  }
   document.getElementById("openStats").addEventListener("click", openStats);
   document.getElementById("closeStats").addEventListener("click", (e) => { e.stopPropagation(); sfxClick(); statsPanelEl.classList.remove("active"); });
   document.getElementById("openAchievements").addEventListener("click", openAchievements);
@@ -10534,7 +10970,17 @@ const FIREBASE_CONFIG = firebaseConfig;
   // Keep retrying audio unlock on real user interactions so music can recover
   // after autoplay blocks, tab restores, or browser audio interruptions.
   function unlockOnInteraction(){
+    const firstUnlock = !state.audioUnlocked;
     unlockAudio();
+    if (firstUnlock || state.audioMuted) return;
+    if (document.visibilityState !== "visible") return;
+    const wantsGame = state.mode === "play";
+    const targetTrack = wantsGame ? gameMusic : menuMusic;
+    const otherTrack = wantsGame ? menuMusic : gameMusic;
+    if (!targetTrack) return;
+    if (targetTrack.paused || (otherTrack && !otherTrack.paused && state.activeMusic !== (wantsGame ? "game" : "menu"))){
+      recoverMusicPlayback(wantsGame ? "game" : "menu");
+    }
   }
   document.addEventListener("pointerdown", unlockOnInteraction, { passive: true });
   document.addEventListener("keydown", unlockOnInteraction);
