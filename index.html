@@ -1374,7 +1374,30 @@
     width:min(94vw, 620px);
     max-height:88vh;
     overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(25,247,255,.72) rgba(8,13,24,.35);
     text-align:center;
+  }
+  .breakdown-box::-webkit-scrollbar{
+    width:10px;
+  }
+  .breakdown-box::-webkit-scrollbar-track{
+    background:linear-gradient(180deg, rgba(8,13,24,.42), rgba(6,10,20,.16));
+    border-radius:999px;
+    border:1px solid rgba(25,247,255,.08);
+  }
+  .breakdown-box::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, rgba(25,247,255,.92), rgba(138,91,255,.78));
+    border-radius:999px;
+    border:2px solid rgba(7,11,20,.9);
+    box-shadow:0 0 12px rgba(25,247,255,.34);
+  }
+  .breakdown-box::-webkit-scrollbar-thumb:hover{
+    background:linear-gradient(180deg, rgba(125,255,178,.95), rgba(25,247,255,.9));
+    box-shadow:0 0 16px rgba(25,247,255,.46);
+  }
+  .breakdown-box::-webkit-scrollbar-corner{
+    background:transparent;
   }
   .breakdown-lead{
     margin:6px 0 12px;
@@ -1541,6 +1564,128 @@
     line-height:1.5;
     letter-spacing:.5px;
     color:rgba(214,246,255,.72);
+  }
+  .settings-box,
+  .pause-box,
+  .credits-box,
+  .legal-consent-box,
+  .challenge-box,
+  .mods-box,
+  .stats-box,
+  .achievements-box,
+  .upgrades-scroll,
+  .leaderboard-list,
+  .breakdown-box,
+  .friends-list,
+  .friends-search-results,
+  .speech-inbox-list,
+  .speech-messages,
+  .speech-member-list,
+  .admin-content{
+    scrollbar-width:thin;
+    scrollbar-color:rgba(25,247,255,.72) rgba(8,13,24,.35);
+  }
+  .settings-box::-webkit-scrollbar,
+  .pause-box::-webkit-scrollbar,
+  .credits-box::-webkit-scrollbar,
+  .legal-consent-box::-webkit-scrollbar,
+  .challenge-box::-webkit-scrollbar,
+  .mods-box::-webkit-scrollbar,
+  .stats-box::-webkit-scrollbar,
+  .achievements-box::-webkit-scrollbar,
+  .upgrades-scroll::-webkit-scrollbar,
+  .leaderboard-list::-webkit-scrollbar,
+  .breakdown-box::-webkit-scrollbar,
+  .friends-list::-webkit-scrollbar,
+  .friends-search-results::-webkit-scrollbar,
+  .speech-inbox-list::-webkit-scrollbar,
+  .speech-messages::-webkit-scrollbar,
+  .speech-member-list::-webkit-scrollbar,
+  .admin-content::-webkit-scrollbar{
+    width:10px;
+    height:10px;
+  }
+  .settings-box::-webkit-scrollbar-track,
+  .pause-box::-webkit-scrollbar-track,
+  .credits-box::-webkit-scrollbar-track,
+  .legal-consent-box::-webkit-scrollbar-track,
+  .challenge-box::-webkit-scrollbar-track,
+  .mods-box::-webkit-scrollbar-track,
+  .stats-box::-webkit-scrollbar-track,
+  .achievements-box::-webkit-scrollbar-track,
+  .upgrades-scroll::-webkit-scrollbar-track,
+  .leaderboard-list::-webkit-scrollbar-track,
+  .breakdown-box::-webkit-scrollbar-track,
+  .friends-list::-webkit-scrollbar-track,
+  .friends-search-results::-webkit-scrollbar-track,
+  .speech-inbox-list::-webkit-scrollbar-track,
+  .speech-messages::-webkit-scrollbar-track,
+  .speech-member-list::-webkit-scrollbar-track,
+  .admin-content::-webkit-scrollbar-track{
+    background:linear-gradient(180deg, rgba(8,13,24,.42), rgba(6,10,20,.16));
+    border-radius:999px;
+    border:1px solid rgba(25,247,255,.08);
+  }
+  .settings-box::-webkit-scrollbar-thumb,
+  .pause-box::-webkit-scrollbar-thumb,
+  .credits-box::-webkit-scrollbar-thumb,
+  .legal-consent-box::-webkit-scrollbar-thumb,
+  .challenge-box::-webkit-scrollbar-thumb,
+  .mods-box::-webkit-scrollbar-thumb,
+  .stats-box::-webkit-scrollbar-thumb,
+  .achievements-box::-webkit-scrollbar-thumb,
+  .upgrades-scroll::-webkit-scrollbar-thumb,
+  .leaderboard-list::-webkit-scrollbar-thumb,
+  .breakdown-box::-webkit-scrollbar-thumb,
+  .friends-list::-webkit-scrollbar-thumb,
+  .friends-search-results::-webkit-scrollbar-thumb,
+  .speech-inbox-list::-webkit-scrollbar-thumb,
+  .speech-messages::-webkit-scrollbar-thumb,
+  .speech-member-list::-webkit-scrollbar-thumb,
+  .admin-content::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, rgba(25,247,255,.92), rgba(138,91,255,.78));
+    border-radius:999px;
+    border:2px solid rgba(7,11,20,.9);
+    box-shadow:0 0 12px rgba(25,247,255,.34);
+  }
+  .settings-box::-webkit-scrollbar-thumb:hover,
+  .pause-box::-webkit-scrollbar-thumb:hover,
+  .credits-box::-webkit-scrollbar-thumb:hover,
+  .legal-consent-box::-webkit-scrollbar-thumb:hover,
+  .challenge-box::-webkit-scrollbar-thumb:hover,
+  .mods-box::-webkit-scrollbar-thumb:hover,
+  .stats-box::-webkit-scrollbar-thumb:hover,
+  .achievements-box::-webkit-scrollbar-thumb:hover,
+  .upgrades-scroll::-webkit-scrollbar-thumb:hover,
+  .leaderboard-list::-webkit-scrollbar-thumb:hover,
+  .breakdown-box::-webkit-scrollbar-thumb:hover,
+  .friends-list::-webkit-scrollbar-thumb:hover,
+  .friends-search-results::-webkit-scrollbar-thumb:hover,
+  .speech-inbox-list::-webkit-scrollbar-thumb:hover,
+  .speech-messages::-webkit-scrollbar-thumb:hover,
+  .speech-member-list::-webkit-scrollbar-thumb:hover,
+  .admin-content::-webkit-scrollbar-thumb:hover{
+    background:linear-gradient(180deg, rgba(125,255,178,.95), rgba(25,247,255,.9));
+    box-shadow:0 0 16px rgba(25,247,255,.46);
+  }
+  .settings-box::-webkit-scrollbar-corner,
+  .pause-box::-webkit-scrollbar-corner,
+  .credits-box::-webkit-scrollbar-corner,
+  .legal-consent-box::-webkit-scrollbar-corner,
+  .challenge-box::-webkit-scrollbar-corner,
+  .mods-box::-webkit-scrollbar-corner,
+  .stats-box::-webkit-scrollbar-corner,
+  .achievements-box::-webkit-scrollbar-corner,
+  .upgrades-scroll::-webkit-scrollbar-corner,
+  .leaderboard-list::-webkit-scrollbar-corner,
+  .breakdown-box::-webkit-scrollbar-corner,
+  .friends-list::-webkit-scrollbar-corner,
+  .friends-search-results::-webkit-scrollbar-corner,
+  .speech-inbox-list::-webkit-scrollbar-corner,
+  .speech-messages::-webkit-scrollbar-corner,
+  .speech-member-list::-webkit-scrollbar-corner,
+  .admin-content::-webkit-scrollbar-corner{
+    background:transparent;
   }
   .breakdown-actions{
     margin-top:14px;
