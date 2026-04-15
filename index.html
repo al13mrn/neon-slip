@@ -4094,20 +4094,91 @@ const FIREBASE_CONFIG = firebaseConfig;
     earnCombo: 1
   };
 
+  const UPGRADE_MAX_LEVEL = 15;
+  const UPGRADE_SCALING = {
+    fortuneMinMultiplier: 0.40, // cap reduction at 60% to avoid runaway spawn rates
+    fortuneReductionPerLevel: 0.04,
+    shieldChanceCap: 0.95, // keep a small fail chance so shield start remains probabilistic
+    revivalChanceCap: 0.75, // keep revival strong but not guaranteed
+    controlPerLevel: 0.12,
+    comboPerLevel: 0.35,
+    glowPerLevel: 0.18,
+    streakPerLevel: 0.10,
+    dangerPerLevel: 0.25,
+    magnetSecondsPerLevel: 3,
+    startingScorePerLevel: 250,
+    trailRate: 0.30, // diminishing returns curve speed for trail tint strength
+    pulseRate: 0.22 // diminishing returns curve speed for gate pulse strength
+  };
+  const GATE_PULSE_VISUAL = {
+    animBase: 0.82,
+    animWaveBase: 0.18,
+    animWaveStrengthMul: 0.22,
+    pulseBase: 0.16,
+    pulseWaveBase: 0.04,
+    pulseWaveStrengthMul: 0.10,
+    pulseStrengthMul: 0.35
+  };
   const UPGRADES = [
-    { id: "control",  name: "Control Assist",  icon: "🕹️", category: "performance", cost: 120, desc: "Steadier feel in tight gaps.",       levelDesc: ["","Steering +12%","Steering +24%","Steering +36%"],            level: 0, max: 3 },
-    { id: "glow",     name: "Gate Clarity",    icon: "👁️", category: "performance", cost: 90,  desc: "Sharper gate glow visibility.",     levelDesc: ["","Glow +18%","Glow +36%","Glow +54%"],                         level: 0, max: 3 },
-    { id: "combo",    name: "Combo Window",    icon: "⏱️", category: "performance", cost: 80,  desc: "Combo decays much slower.",         levelDesc: ["","Window +35%","Window +70%","Window +105%"],                  level: 0, max: 3 },
-    { id: "streak",   name: "Streak Bonus",    icon: "🔥", category: "performance", cost: 160, desc: "Bigger streak shard rewards.",      levelDesc: ["","Rewards +10%","Rewards +20%","Rewards +30%","Rewards +40%","Rewards +50%"], level: 0, max: 5 },
-    { id: "fortune",  name: "Powerup Rate",    icon: "🍀", category: "powerup",     cost: 130, desc: "More frequent powerup spawns.",    levelDesc: ["","Spawn +10%","Spawn +20%","Spawn +30%","Spawn +40%"],        level: 0, max: 4 },
-    { id: "shield",   name: "Shield Chance",   icon: "🛡️", category: "powerup",     cost: 150, desc: "Chance to start with a shield.",  levelDesc: ["","5% chance","10% chance","15% chance","20% chance","25% chance"], level: 0, max: 5 },
-    { id: "magnet",   name: "Magnet Duration", icon: "🧲", category: "powerup",     cost: 140, desc: "Magnet lasts much longer.",        levelDesc: ["","+3s","+6s","+9s"],                                           level: 0, max: 3 },
-    { id: "danger",   name: "Danger Rewards",  icon: "⚡", category: "survival",    cost: 170, desc: "Better danger zone bonuses.",      levelDesc: ["","Bonus +25%","Bonus +50%","Bonus +75%"],                      level: 0, max: 3 },
-    { id: "starting", name: "Starting Boost",  icon: "🚀", category: "survival",    cost: 200, desc: "Begin runs with bonus score.",     levelDesc: ["","+250 pts","+500 pts","+750 pts"],                            level: 0, max: 3 },
-    { id: "revival",  name: "Second Chance",   icon: "💫", category: "survival",    cost: 300, desc: "Survive a hit once per run.",      levelDesc: ["","20% survival","40% survival"],                                level: 0, max: 2 },
-    { id: "trail",    name: "Trail Tint",       icon: "🌈", category: "cosmetic",    cost: 70,  desc: "Shifts your trail's hue.",         levelDesc: ["","Tint shift +20%","Tint shift +40%","Tint shift +60%"],       level: 0, max: 3 },
-    { id: "pulse",    name: "Gate Pulse",       icon: "✨", category: "cosmetic",    cost: 110, desc: "Animated pulse on gates.",         levelDesc: ["","Pulse level 1","Pulse level 2"],                              level: 0, max: 2 }
+    { id: "control",  name: "Control Assist",  icon: "🕹️", category: "performance", cost: 120, desc: "Steadier feel in tight gaps.",   level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "glow",     name: "Gate Clarity",    icon: "👁️", category: "performance", cost: 90,  desc: "Sharper gate glow visibility.", level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "combo",    name: "Combo Window",    icon: "⏱️", category: "performance", cost: 80,  desc: "Combo decays much slower.",     level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "streak",   name: "Streak Bonus",    icon: "🔥", category: "performance", cost: 160, desc: "Bigger streak shard rewards.",  level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "fortune",  name: "Powerup Rate",    icon: "🍀", category: "powerup",     cost: 130, desc: "More frequent powerup spawns.", level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "shield",   name: "Shield Chance",   icon: "🛡️", category: "powerup",     cost: 150, desc: "Chance to start with a shield.", level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "magnet",   name: "Magnet Duration", icon: "🧲", category: "powerup",     cost: 140, desc: "Magnet lasts much longer.",     level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "danger",   name: "Danger Rewards",  icon: "⚡", category: "survival",    cost: 170, desc: "Better danger zone bonuses.",   level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "starting", name: "Starting Boost",  icon: "🚀", category: "survival",    cost: 200, desc: "Begin runs with bonus score.",  level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "revival",  name: "Second Chance",   icon: "💫", category: "survival",    cost: 300, desc: "Survive a hit once per run.",   level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "trail",    name: "Trail Tint",      icon: "🌈", category: "cosmetic",    cost: 70,  desc: "Shifts your trail's hue.",      level: 0, max: UPGRADE_MAX_LEVEL },
+    { id: "pulse",    name: "Gate Pulse",      icon: "✨", category: "cosmetic",    cost: 110, desc: "Animated pulse on gates.",      level: 0, max: UPGRADE_MAX_LEVEL }
   ];
+
+  function clampUpgradeLevel(level){
+    const n = Number(level);
+    if (!Number.isFinite(n)) return 0;
+    return clamp(Math.floor(n), 0, UPGRADE_MAX_LEVEL);
+  }
+
+  function getFortuneSpawnMultiplier(level){
+    return Math.max(UPGRADE_SCALING.fortuneMinMultiplier, 1 - clampUpgradeLevel(level) * UPGRADE_SCALING.fortuneReductionPerLevel);
+  }
+
+  function getShieldStartChance(level){
+    return Math.min(UPGRADE_SCALING.shieldChanceCap, clampUpgradeLevel(level) * GAMEPLAY_CONSTANTS.shieldChancePerLevel);
+  }
+
+  function getRevivalChance(level){
+    return Math.min(UPGRADE_SCALING.revivalChanceCap, clampUpgradeLevel(level) * GAMEPLAY_CONSTANTS.revivalChance);
+  }
+
+  function getTrailShiftStrength(level){
+    return 1 - Math.exp(-clampUpgradeLevel(level) * UPGRADE_SCALING.trailRate);
+  }
+
+  function getGatePulseStrength(level){
+    return 1 - Math.exp(-clampUpgradeLevel(level) * UPGRADE_SCALING.pulseRate);
+  }
+
+  function getUpgradeLevelEffectText(upId, level){
+    const lv = clampUpgradeLevel(level);
+    if (lv <= 0) return "Not yet purchased";
+    switch (upId){
+      case "control":  return `Steering +${Math.round(lv * UPGRADE_SCALING.controlPerLevel * 100)}%`;
+      case "glow":     return `Glow +${Math.round(lv * UPGRADE_SCALING.glowPerLevel * 100)}%`;
+      case "combo":    return `Window +${Math.round(lv * UPGRADE_SCALING.comboPerLevel * 100)}%`;
+      case "streak":   return `Rewards +${Math.round(lv * UPGRADE_SCALING.streakPerLevel * 100)}%`;
+      case "fortune":  return `Spawn interval -${Math.round((1 - getFortuneSpawnMultiplier(lv)) * 100)}%`;
+      case "shield":   return `${Math.round(getShieldStartChance(lv) * 100)}% chance`;
+      case "magnet":   return `+${(lv * UPGRADE_SCALING.magnetSecondsPerLevel).toFixed(0)}s duration`;
+      case "danger":   return `Bonus +${Math.round(lv * UPGRADE_SCALING.dangerPerLevel * 100)}%`;
+      case "starting": return `+${Math.round(lv * UPGRADE_SCALING.startingScorePerLevel).toLocaleString()} start score`;
+      case "revival":  return `${Math.round(getRevivalChance(lv) * 100)}% survival`;
+      case "trail":    return `Tint shift +${Math.round(getTrailShiftStrength(lv) * 100)}%`;
+      case "pulse":    return `Pulse strength ${Math.round(getGatePulseStrength(lv) * 100)}%`;
+      default:         return `Level ${lv}`;
+    }
+  }
 
   /*
     Modifiers: one positive + one negative each run (or more with upgrades!).
@@ -4156,8 +4227,8 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   const GAMEPLAY_CONSTANTS = {
     legendarySpawnChance: 0.05, // 5% chance for legendary modifiers
-    shieldSpawnChance: 0.05, // 5% per upgrade level
-    revivalChance: 0.20 // 20% per upgrade level
+    shieldChancePerLevel: 0.05, // +5% absolute shield-start chance per level (capped in getShieldStartChance)
+    revivalChance: 0.05 // +5% absolute survival chance per level (capped in getRevivalChance)
   };
 
   const MISSIONS = {
@@ -4681,7 +4752,9 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     for (const up of UPGRADES){
       if (state.upgrades[up.id] == null) state.upgrades[up.id] = 0;
-      up.level = state.upgrades[up.id];
+      const clamped = clampUpgradeLevel(state.upgrades[up.id]);
+      state.upgrades[up.id] = clamped;
+      up.level = clamped;
     }
     updateUpgradeUI();
   }
@@ -4754,7 +4827,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       // Current effect text
       const eff = document.createElement("div");
       eff.className = "upg-effect";
-      eff.textContent = up.level > 0 && up.levelDesc ? (up.levelDesc[up.level] || "") : (maxed ? "Fully upgraded!" : "Not yet purchased");
+      eff.textContent = getUpgradeLevelEffectText(up.id, up.level) + (maxed ? " (MAX)" : "");
       card.appendChild(eff);
       // Maxed badge
       const badge = document.createElement("div");
@@ -4765,7 +4838,6 @@ const FIREBASE_CONFIG = firebaseConfig;
       if (!maxed){
         const btn = document.createElement("div");
         btn.className = "btn upg-buy-btn";
-        const nextDesc = up.levelDesc ? (up.levelDesc[up.level + 1] || "") : "";
         btn.innerHTML = `Buy Lv${up.level + 1} <img src="shard.png" alt="" class="shard-icon"> ${up.cost}`;
         if (!canAfford) btn.style.opacity = "0.5";
         btn.addEventListener("click", () => {
@@ -4794,11 +4866,11 @@ const FIREBASE_CONFIG = firebaseConfig;
     const trail = state.upgrades.trail || 0;
     const pulse = state.upgrades.pulse || 0;
     state.upgradeEffects = {
-      controlBoost: 1 + control * 0.12,
-      comboExtend: 1 + combo * 0.35,
-      glowBoost: 1 + glow * 0.18,
-      trailShift: trail * 0.20,
-      gatePulse: pulse
+      controlBoost: 1 + control * UPGRADE_SCALING.controlPerLevel,
+      comboExtend: 1 + combo * UPGRADE_SCALING.comboPerLevel,
+      glowBoost: 1 + glow * UPGRADE_SCALING.glowPerLevel,
+      trailShift: getTrailShiftStrength(trail),
+      gatePulse: getGatePulseStrength(pulse)
     };
   }
 
@@ -5145,7 +5217,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     state.time = 0;
     state.score = 0;
     // Starting Boost upgrade: bonus score at run start
-    if (state.upgrades.starting) state.score = state.upgrades.starting * 250;
+    if (state.upgrades.starting) state.score = Math.round(state.upgrades.starting * UPGRADE_SCALING.startingScorePerLevel);
     gates.length = 0;
     particles.length = 0;
     orbs.length = 0;
@@ -5197,7 +5269,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     state.invincible = false;
     state.invincibleTimer = 0;
     state.powerupsCollected = 0;
-    state.powerupTimer = (state.upgrades.fortune || 0) > 0 ? POWERUPS.spawnInterval * 0.7 : POWERUPS.spawnInterval;
+    state.powerupTimer = POWERUPS.spawnInterval * getFortuneSpawnMultiplier(state.upgrades.fortune || 0);
     state.streakCount = 0;
     state.dangerZoneTimer = 15;
     state.bossGateTimer = 20;
@@ -5206,7 +5278,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     state.streakCount = 0;
     
     // Check for shield spawn from upgrade
-    if (state.upgrades.shield && Math.random() < (state.upgrades.shield * GAMEPLAY_CONSTANTS.shieldSpawnChance)){
+    if (state.upgrades.shield && Math.random() < getShieldStartChance(state.upgrades.shield)){
       state.hasShield = true;
       shieldIndicatorEl.classList.add("active");
     } else {
@@ -5566,7 +5638,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     
     // Check for revival upgrade (once per run)
-    if (!state.revivalUsed && state.upgrades.revival && Math.random() < (state.upgrades.revival * GAMEPLAY_CONSTANTS.revivalChance)){
+    if (!state.revivalUsed && state.upgrades.revival && Math.random() < getRevivalChance(state.upgrades.revival)){
       state.revivalUsed = true;
       state.flash = 0.15;
       state.shake = 0.2;
@@ -5671,10 +5743,10 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Spawn new powerups
     state.powerupTimer -= dt;
     const spawnRate = POWERUPS.spawnInterval / (state.runMods.powerupBoost || 1);
-    const fortuneBonus = (state.upgrades.fortune || 0) * 0.1;
+    const fortuneMul = getFortuneSpawnMultiplier(state.upgrades.fortune || 0);
     if (state.powerupTimer <= 0){
       spawnPowerup();
-      state.powerupTimer = spawnRate * (1 - fortuneBonus);
+      state.powerupTimer = spawnRate * fortuneMul;
     }
     
     // Update existing powerups
@@ -5773,7 +5845,7 @@ const FIREBASE_CONFIG = firebaseConfig;
         break;
       case "magnet":
         state.magnetActive = true;
-        const magnetBonus = (state.upgrades.magnet || 0) * 3.0;
+        const magnetBonus = (state.upgrades.magnet || 0) * UPGRADE_SCALING.magnetSecondsPerLevel;
         state.magnetTimer = powerup.type.duration + magnetBonus;
         magnetIndicatorEl.classList.add("active");
         magnetIndicatorEl.textContent = `🧲 MAGNET ${state.magnetTimer.toFixed(1)}s`;
@@ -5920,7 +5992,7 @@ const FIREBASE_CONFIG = firebaseConfig;
             Math.abs(px - g.gapX),
             Math.abs(px - (g.gapX + g.gapW))
           );
-          const dangerBoost = 1 + (state.upgrades.danger || 0) * 0.25;
+          const dangerBoost = 1 + (state.upgrades.danger || 0) * UPGRADE_SCALING.dangerPerLevel;
           let bonus = edgeDist < 18 ? Math.round(8 * dangerBoost) : edgeDist < 35 ? Math.round(4 * dangerBoost) : 2;
           let style = "";
           if (centerDist < 6){
@@ -5948,7 +6020,7 @@ const FIREBASE_CONFIG = firebaseConfig;
           state.streakCount += 1;
           if (state.streakCount % 10 === 0){
             const streakBonus = Math.min(500, 50 + (state.streakCount / 10) * 25);
-            const upgradeBonus = (state.upgrades.streak || 0) * 0.1;
+            const upgradeBonus = (state.upgrades.streak || 0) * UPGRADE_SCALING.streakPerLevel;
             const totalBonus = Math.floor(streakBonus * (1 + upgradeBonus));
             state.score += totalBonus;
             state.shards += Math.floor(totalBonus / 10);
@@ -6661,8 +6733,14 @@ const FIREBASE_CONFIG = firebaseConfig;
         continue;
       }
 
-      const animPulse = (pulseBoost ? (0.82 + 0.18 * Math.sin(state.visualTime * 6)) : 1) * gatePulseMul;
-      const pulse = (pulseBoost ? (0.16 + 0.04 * Math.sin(state.visualTime * 6)) : 0.18) * animPulse;
+      const pulseWave = Math.sin(state.visualTime * 6);
+      const hasPulse = pulseBoost > 0.001;
+      const animPulse = (hasPulse
+        ? (GATE_PULSE_VISUAL.animBase + (GATE_PULSE_VISUAL.animWaveBase + GATE_PULSE_VISUAL.animWaveStrengthMul * pulseBoost) * pulseWave)
+        : 1) * gatePulseMul;
+      const pulse = (hasPulse
+        ? (GATE_PULSE_VISUAL.pulseBase + (GATE_PULSE_VISUAL.pulseWaveBase + GATE_PULSE_VISUAL.pulseWaveStrengthMul * pulseBoost) * pulseWave)
+        : 0.18) * (1 + GATE_PULSE_VISUAL.pulseStrengthMul * pulseBoost) * animPulse;
 
       // Chaos: flicker gate colors randomly per gate
       let gR = neonR, gG = neonG, gB = neonB;
@@ -9295,7 +9373,9 @@ const FIREBASE_CONFIG = firebaseConfig;
           }
           for (const up of UPGRADES){
             if (state.upgrades[up.id] == null) state.upgrades[up.id] = 0;
-            up.level = state.upgrades[up.id];
+            const clamped = clampUpgradeLevel(state.upgrades[up.id]);
+            state.upgrades[up.id] = clamped;
+            up.level = clamped;
           }
           applyUpgrades();
           updateUpgradeUI();
