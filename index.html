@@ -10431,7 +10431,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   if (closeBreakdownEl) closeBreakdownEl.addEventListener("click", () => {
     sfxClick();
     closeBreakdownPanel(false);
-    navigateToMainMenu();
+    submitScore(state.score);
   });
   if (breakdownViewLeaderboardEl) breakdownViewLeaderboardEl.addEventListener("click", () => {
     sfxClick();
