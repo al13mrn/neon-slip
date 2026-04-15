@@ -3226,7 +3226,7 @@
         <div id="breakdownMissions" class="breakdown-list"></div>
       </section>
     </div>
-    <div class="breakdown-note">Close returns you to the game-over menu. Leaderboard submits this run and opens the rankings.</div>
+    <div class="breakdown-note">Close returns you to the main menu. Leaderboard submits this run and opens the rankings.</div>
     <div class="settings-actions breakdown-actions">
       <div id="breakdownViewLeaderboard" class="btn">Leaderboard</div>
       <div id="closeBreakdown" class="btn">Close</div>
@@ -10430,7 +10430,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   if (introStartRunEl) introStartRunEl.style.display = "none";
   if (closeBreakdownEl) closeBreakdownEl.addEventListener("click", () => {
     sfxClick();
-    closeBreakdownPanel(true);
+    closeBreakdownPanel(false);
+    navigateToMainMenu();
   });
   if (breakdownViewLeaderboardEl) breakdownViewLeaderboardEl.addEventListener("click", () => {
     sfxClick();
