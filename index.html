@@ -3720,7 +3720,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   // =====================================================================
 
   const canvas = document.getElementById("game");
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true }) || canvas.getContext("2d");
 
   const scoreEl = document.getElementById("score");
   const lbTargetBarEl = document.getElementById("lbTargetBar");
@@ -3910,19 +3910,37 @@ const FIREBASE_CONFIG = firebaseConfig;
   const LEGAL_ACCEPT_KEY = "neonLegalAcceptedV2";
   const CHALLENGE_SHARE_MESSAGE = "HEY!! BET YOU CAN'T BEAT MY HIGH SCORE ON NEON SLIP! COME PLAY AT https://neonslip.me so I can DESTROY YOU!!";
   let pendingConsentAction = null;
+  const USER_AGENT = navigator.userAgent || "";
+  const PLATFORM_FLAGS = {
+    isFirefox: /firefox/i.test(USER_AGENT),
+    isMobile: /android|iphone|ipad|ipod|mobile/i.test(USER_AGENT)
+  };
 
   let w, h, dpr;
-  function resize(){
-    dpr = Math.max(1, window.devicePixelRatio || 1);
+  function resize(options = {}){
+    const profile = buildRenderProfile();
+    const prevW = w || window.innerWidth;
+    const prevH = h || window.innerHeight;
+    const preservePlayer = !!options.preservePlayer;
+    const prevPlayerRatio = (typeof player !== "undefined" && Number.isFinite(player.x) && prevW > 0)
+      ? player.x / prevW
+      : 0.5;
+    dpr = Math.max(1, Math.min(profile.dprCap, window.devicePixelRatio || 1));
     w = window.innerWidth;
     h = window.innerHeight;
     canvas.width = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    player.x = w * 0.5;  // ensure valid position before the first draw frame
+    ctx.imageSmoothingEnabled = true;
+    state.renderProfile = profile;
+    if (typeof player !== "undefined"){
+      player.x = preservePlayer
+        ? clamp(prevPlayerRatio * w, 14, Math.max(14, w - 14))
+        : w * 0.5;
+    }
     initVisualCaches();
   }
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", () => resize({ preservePlayer: true }));
 
   const state = {
     mode: "start",
@@ -3966,6 +3984,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     speedLines: [],
     noiseCanvas: null,
     starCanvas: null,
+    scanlinePattern: null,
+    renderProfile: null,
     playerHistory: [],
     visualTime: 0,
     gateCount: 0,
@@ -4150,6 +4170,43 @@ const FIREBASE_CONFIG = firebaseConfig;
     colorBlind: false,
     streamer: false
   };
+
+  function buildRenderProfile(){
+    const motionPreset = SETTINGS.motion || "high";
+    const motionFactor = motionPreset === "low" ? 0.7 : motionPreset === "med" ? 0.86 : 1;
+    const firefoxFactor = PLATFORM_FLAGS.isFirefox ? 0.8 : 1;
+    const mobileFactor = PLATFORM_FLAGS.isMobile ? 0.82 : 1;
+    const effectFactor = motionFactor * firefoxFactor * mobileFactor;
+    const dprCapBase = PLATFORM_FLAGS.isFirefox ? 1.35 : (PLATFORM_FLAGS.isMobile ? 1.6 : 2);
+    const dprCap = motionPreset === "low"
+      ? Math.min(dprCapBase, 1.15)
+      : motionPreset === "med"
+        ? Math.min(dprCapBase, 1.5)
+        : dprCapBase;
+    return {
+      dprCap,
+      allowCanvasFeedback: !PLATFORM_FLAGS.isFirefox && motionPreset === "high",
+      blobCount: PLATFORM_FLAGS.isFirefox ? 2 : 3,
+      auroraRibbonCount: PLATFORM_FLAGS.isFirefox ? 2 : 3,
+      pulseRingCount: PLATFORM_FLAGS.isFirefox ? 3 : 4,
+      fogWispCount: PLATFORM_FLAGS.isFirefox ? 3 : 5,
+      slowRippleCount: PLATFORM_FLAGS.isFirefox ? 2 : 3,
+      verticalGridLines: PLATFORM_FLAGS.isFirefox ? 10 : 14,
+      horizontalGridLines: PLATFORM_FLAGS.isFirefox ? 7 : 10,
+      starCanvasSize: PLATFORM_FLAGS.isFirefox ? 384 : 512,
+      noiseCanvasSize: PLATFORM_FLAGS.isFirefox ? 96 : 128,
+      speedLineCount: Math.max(18, Math.round(POLISH.speedLineCount * effectFactor)),
+      maxParticles: Math.max(110, Math.round(POLISH.maxParticles * effectFactor)),
+      trailLengthMul: PLATFORM_FLAGS.isFirefox ? 0.82 : 1,
+      glowMul: PLATFORM_FLAGS.isFirefox ? 0.78 : 1,
+      scanlineAlphaMul: PLATFORM_FLAGS.isFirefox ? 0.55 : 1,
+      noiseAlphaMul: PLATFORM_FLAGS.isFirefox ? 0.75 : 1,
+      washAlphaMul: PLATFORM_FLAGS.isFirefox ? 0.82 : 1,
+      edgeBloomMul: PLATFORM_FLAGS.isFirefox ? 0.65 : 1,
+      glitchOverlayMul: PLATFORM_FLAGS.isFirefox ? 0.7 : 1,
+      scanlineStep: PLATFORM_FLAGS.isFirefox ? 6 : 4
+    };
+  }
 
   const FEATURE_FLAGS = {
     progression: true,
@@ -4637,8 +4694,9 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function initVisualCaches(){
+    const profile = state.renderProfile || buildRenderProfile();
     state.speedLines = [];
-    for (let i = 0; i < POLISH.speedLineCount; i++){
+    for (let i = 0; i < profile.speedLineCount; i++){
       state.speedLines.push({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -4649,28 +4707,29 @@ const FIREBASE_CONFIG = firebaseConfig;
 
     // Enhanced starfield: multiple sizes, halos, tinted stars
     const stars = document.createElement("canvas");
-    stars.width = 512;
-    stars.height = 512;
+    stars.width = profile.starCanvasSize;
+    stars.height = profile.starCanvasSize;
     const sctx = stars.getContext("2d");
+    const starSize = profile.starCanvasSize;
     // Background subtle color wash
-    const grad = sctx.createLinearGradient(0, 0, 512, 512);
+    const grad = sctx.createLinearGradient(0, 0, starSize, starSize);
     grad.addColorStop(0, "rgba(10,15,35,0.4)");
     grad.addColorStop(1, "rgba(5,8,18,0.4)");
     sctx.fillStyle = grad;
-    sctx.fillRect(0, 0, 512, 512);
+    sctx.fillRect(0, 0, starSize, starSize);
 
     // Tiny dim stars
-    for (let i = 0; i < 200; i++){
-      const x = Math.random() * 512;
-      const y = Math.random() * 512;
+    for (let i = 0; i < Math.round(200 * (starSize / 512)); i++){
+      const x = Math.random() * starSize;
+      const y = Math.random() * starSize;
       sctx.globalAlpha = 0.2 + Math.random() * 0.4;
       sctx.fillStyle = "#ffffff";
       sctx.fillRect(x, y, 1, 1);
     }
     // Medium stars
-    for (let i = 0; i < 80; i++){
-      const x = Math.random() * 512;
-      const y = Math.random() * 512;
+    for (let i = 0; i < Math.round(80 * (starSize / 512)); i++){
+      const x = Math.random() * starSize;
+      const y = Math.random() * starSize;
       const r = 0.8 + Math.random() * 0.8;
       sctx.globalAlpha = 0.4 + Math.random() * 0.5;
       // Some are tinted cyan or purple
@@ -4683,9 +4742,9 @@ const FIREBASE_CONFIG = firebaseConfig;
       sctx.fill();
     }
     // Bright stars with halos
-    for (let i = 0; i < 25; i++){
-      const x = Math.random() * 512;
-      const y = Math.random() * 512;
+    for (let i = 0; i < Math.round(25 * (starSize / 512)); i++){
+      const x = Math.random() * starSize;
+      const y = Math.random() * starSize;
       const r = 1.2 + Math.random() * 1.2;
       // Outer halo
       const halo = sctx.createRadialGradient(x, y, 0, x, y, r * 5);
@@ -4711,8 +4770,8 @@ const FIREBASE_CONFIG = firebaseConfig;
 
     // Noise texture
     const noise = document.createElement("canvas");
-    noise.width = 128;
-    noise.height = 128;
+    noise.width = profile.noiseCanvasSize;
+    noise.height = profile.noiseCanvasSize;
     const nctx = noise.getContext("2d");
     const img = nctx.createImageData(noise.width, noise.height);
     for (let i = 0; i < img.data.length; i += 4){
@@ -4724,6 +4783,15 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     nctx.putImageData(img, 0, 0);
     state.noiseCanvas = noise;
+
+    const scan = document.createElement("canvas");
+    scan.width = 64;
+    scan.height = profile.scanlineStep * 2;
+    const scanCtx = scan.getContext("2d");
+    scanCtx.clearRect(0, 0, scan.width, scan.height);
+    scanCtx.fillStyle = "rgba(4,7,16,0.5)";
+    scanCtx.fillRect(0, 0, scan.width, 1);
+    state.scanlinePattern = ctx.createPattern(scan, "repeat");
   }
 
   function generateRunProfile(){
@@ -4829,6 +4897,9 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (!state.audioMuted){
       menuMusic.volume = AUDIO.menuVolume * SETTINGS.musicVolume;
       gameMusic.volume = AUDIO.gameVolume * SETTINGS.musicVolume;
+    }
+    if (typeof player !== "undefined"){
+      resize({ preservePlayer: true });
     }
   }
 
@@ -6335,9 +6406,10 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function spawnParticles(x, y){
+    const profile = state.renderProfile || buildRenderProfile();
     const count = Math.max(6, Math.floor(14 * motionScale()));
     for (let i = 0; i < count; i++){
-      if (particles.length >= POLISH.maxParticles) break;
+      if (particles.length >= profile.maxParticles) break;
       const angle = Math.random() * Math.PI * 2;
       const speed = 60 + Math.random() * 180;
       particles.push({
@@ -6365,7 +6437,8 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   function updateTrail(dt){
     trail.push({ x: player.x, y: player.y(), life: 1 });
-    const maxLen = Math.max(4, Math.floor(POLISH.trailLength * motionScale()));
+    const profile = state.renderProfile || buildRenderProfile();
+    const maxLen = Math.max(4, Math.floor(POLISH.trailLength * motionScale() * profile.trailLengthMul));
     while (trail.length > maxLen) trail.shift();
     for (let i = trail.length - 1; i >= 0; i--){
       trail[i].life -= dt * POLISH.trailFade;
@@ -6643,6 +6716,7 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   function draw(){
     ctx.save();
+    const profile = state.renderProfile || buildRenderProfile();
 
     if (state.shake > 0){
       const t = state.shake;
@@ -6662,12 +6736,12 @@ const FIREBASE_CONFIG = firebaseConfig;
     ctx.clearRect(0, 0, w, h);
 
     const motion = motionScale();
-    const speedFactor = 1 + intensityNorm() * POLISH.visualSpeedBoost * motion;
+    const tint = intensityNorm();
+    const speedFactor = 1 + tint * POLISH.visualSpeedBoost * motion;
     const anchorY = player.y();
     const renderY = (y) => anchorY + (y - anchorY) * speedFactor;
 
     // Color variables derived from current intensity and theme
-    const tint = intensityNorm();
     const theme = state.theme || THEMES[0];
     const tv = theme.visual || {};
     const a = theme.palette.neonA;
@@ -6681,7 +6755,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     const neonB = Math.round(from[2] + (to[2] - from[2]) * mix);
     const neonColor = `rgb(${neonR},${neonG},${neonB})`;
     const neonGlow = `rgba(${neonR},${neonG},${neonB},0.9)`;
-    const glowBoost = (theme.glowBoost || 1) * (state.upgradeEffects.glowBoost || 1);
+    const glowBoost = (theme.glowBoost || 1) * (state.upgradeEffects.glowBoost || 1) * profile.glowMul;
     const pulseBoost = state.upgradeEffects.gatePulse || 0;
     const starMul = tv.starfieldMul || 1;
     const driftMul = tv.bgDriftMul || 1;
@@ -6723,14 +6797,14 @@ const FIREBASE_CONFIG = firebaseConfig;
     ctx.fillRect(0, 0, w, h);
 
     // Nebula blobs - soft drifting color clouds
-    const blobCount = 3;
+    const blobCount = profile.blobCount;
     const minDim = Math.min(w, h, 1);
     for (let b = 0; b < blobCount; b++){
       const phase = (b / blobCount) * Math.PI * 2;
       const bx = w * (0.15 + 0.7 * (0.5 + 0.5 * Math.sin(state.visualTime * 0.028 + phase)));
       const by = h * (0.08 + 0.55 * (0.5 + 0.5 * Math.cos(state.visualTime * 0.022 + phase * 1.4)));
       const br = Math.max(1, minDim * (0.28 + 0.08 * Math.sin(state.visualTime * 0.04 + phase)));
-      const bAlpha = (0.025 + intensityNorm() * 0.025) * motion;
+      const bAlpha = (0.025 + tint * 0.025) * motion;
       const blobColors = [
         [neonR, neonG, neonB],
         [neonB, neonR, neonG],
@@ -6746,7 +6820,7 @@ const FIREBASE_CONFIG = firebaseConfig;
 
     // Theme signature overlays: each theme has distinct high-level motion language.
     if (auroraRibbon > 0.05){
-      const ribbons = 3;
+      const ribbons = profile.auroraRibbonCount;
       for (let r = 0; r < ribbons; r++){
         const phase = state.visualTime * (0.5 + r * 0.17) + r * 1.3;
         const yBase = h * (0.18 + r * 0.2) + Math.sin(phase * 0.7) * 22;
@@ -6773,7 +6847,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       const cx = w * 0.5 + Math.sin(state.visualTime * 0.9) * 18;
       const cy = h * 0.42;
       const beat = 0.5 + 0.5 * Math.sin(state.visualTime * 5.4);
-      for (let i = 0; i < 4; i++){
+      for (let i = 0; i < profile.pulseRingCount; i++){
         const r = (90 + i * 68) + beat * 26;
         const alpha = (0.06 + i * 0.018) * pulseRings * (0.6 + beat * 0.7);
         ctx.strokeStyle = `rgba(${a[0]},${a[1]},${a[2]},${alpha})`;
@@ -6785,7 +6859,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
 
     if (glitchSplit > 0.05){
-      const split = (0.6 + intensityNorm() * 1.5) * glitchSplit;
+      const split = (0.6 + tint * 1.5) * glitchSplit;
       const offset = Math.sin(state.visualTime * 17.5) * split;
       ctx.globalAlpha = 0.08 * glitchSplit;
       ctx.fillStyle = `rgba(${a[0]},${a[1]},${a[2]},0.45)`;
@@ -6809,12 +6883,12 @@ const FIREBASE_CONFIG = firebaseConfig;
     const vpX = w * 0.5 + Math.sin(drift * 0.5) * 30;
     const vpY = h * 0.25;
     const gridScroll = (state.visualTime * 55 * speedFactor) % 1;
-    const gridBaseAlpha = (0.09 + intensityNorm() * 0.07) * motion * gridMul;
+    const gridBaseAlpha = (0.09 + tint * 0.07) * motion * gridMul;
     ctx.strokeStyle = `rgba(${neonR},${neonG},${neonB},0.5)`;
     ctx.lineWidth = 0.7;
 
     // Vertical converging lines
-    const vLineCount = 14;
+    const vLineCount = profile.verticalGridLines;
     for (let i = 0; i <= vLineCount; i++){
       const t = i / vLineCount;
       const xBottom = t * w;
@@ -6827,7 +6901,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
 
     // Horizontal perspective-spaced lines
-    const hLineCount = 10;
+    const hLineCount = profile.horizontalGridLines;
     for (let i = 0; i < hLineCount; i++){
       const rawT = ((i + gridScroll) / hLineCount) % 1;
       const tPow = Math.pow(rawT, 1.8);
@@ -6973,7 +7047,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       ctx.fillRect(0, 0, w, h);
       // Animated fog wisps
       const fogPhase = state.visualTime * 0.4;
-      for (let f = 0; f < 5; f++){
+      for (let f = 0; f < profile.fogWispCount; f++){
         const fx = (f / 5 + fogPhase * 0.13 * (f % 2 === 0 ? 1 : -1)) % 1;
         const fy = h * (0.1 + (f * 0.18 + Math.sin(fogPhase + f) * 0.05));
         const fr = w * (0.3 + Math.sin(fogPhase * 0.7 + f) * 0.08);
@@ -7089,7 +7163,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Player outer halo ring
     const haloRadius = 22 + Math.sin(state.visualTime * 5) * 2;
     const haloGrad = ctx.createRadialGradient(player.x, py, 0, player.x, py, haloRadius + 8);
-    const haloAlpha = 0.18 + intensityNorm() * 0.14;
+    const haloAlpha = 0.18 + tint * 0.14;
     haloGrad.addColorStop(0, `rgba(${neonR},${neonG},${neonB},0)`);
     haloGrad.addColorStop(0.4, `rgba(${neonR},${neonG},${neonB},${haloAlpha})`);
     haloGrad.addColorStop(1, `rgba(${neonR},${neonG},${neonB},0)`);
@@ -7223,7 +7297,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       ctx.globalAlpha = 1;
       // Expanding ripple rings
       const ripplePhase = state.visualTime * 1.8;
-      for (let r = 0; r < 3; r++){
+      for (let r = 0; r < profile.slowRippleCount; r++){
         const rp = ((ripplePhase + r * 1.1) % 2.5) / 2.5;
         const rr = rp * Math.min(w, h) * 0.55;
         const rAlpha = (1 - rp) * slowStrength * 0.15;
@@ -7268,16 +7342,19 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
 
     // Scanlines
-    ctx.globalAlpha = POLISH.scanlineAlpha * motion;
-    ctx.fillStyle = "rgba(4,7,16,0.5)";
-    for (let y = 0; y < h; y += 4){
-      ctx.fillRect(0, y + (state.visualTime * 20 * speedFactor) % 4, w, 1);
+    if (state.scanlinePattern){
+      ctx.globalAlpha = POLISH.scanlineAlpha * profile.scanlineAlphaMul * motion;
+      ctx.save();
+      ctx.translate(0, (state.visualTime * 20 * speedFactor) % (profile.scanlineStep * 2));
+      ctx.fillStyle = state.scanlinePattern;
+      ctx.fillRect(0, -profile.scanlineStep * 2, w, h + profile.scanlineStep * 4);
+      ctx.restore();
     }
     ctx.globalAlpha = 1;
 
     // Subtle noise (cached)
     if (state.noiseCanvas){
-      ctx.globalAlpha = POLISH.noiseAlpha * motion;
+      ctx.globalAlpha = POLISH.noiseAlpha * profile.noiseAlphaMul * motion;
       const nx = (state.visualTime * 40) % state.noiseCanvas.width;
       const ny = (state.visualTime * 26) % state.noiseCanvas.height;
       ctx.drawImage(state.noiseCanvas, -nx, -ny, w + state.noiseCanvas.width, h + state.noiseCanvas.height);
@@ -7285,7 +7362,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
 
     // Speed lines - neon colored, brightness varied
-    const speedAlpha = POLISH.speedLineAlpha * intensityNorm() * motion;
+    const speedAlpha = POLISH.speedLineAlpha * tint * motion;
     if (speedAlpha > 0 && state.speedLines.length){
       const offset = (state.visualTime * 220 * speedFactor) % h;
       for (const line of state.speedLines){
@@ -7307,31 +7384,47 @@ const FIREBASE_CONFIG = firebaseConfig;
       const g = state.glitch;
       const ox = (Math.random() - 0.5) * 6 * g;
       const oy = (Math.random() - 0.5) * 4 * g;
-      ctx.globalCompositeOperation = "screen";
-      ctx.globalAlpha = 0.22 * g;
-      ctx.drawImage(canvas, ox, oy);
-      ctx.fillStyle = "rgba(255, 0, 80, 0.12)";
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "rgba(0, 180, 255, 0.1)";
-      ctx.fillRect(0, 0, w, h);
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
+      if (profile.allowCanvasFeedback){
+        ctx.globalCompositeOperation = "screen";
+        ctx.globalAlpha = 0.22 * g;
+        ctx.drawImage(canvas, ox, oy);
+        ctx.fillStyle = "rgba(255, 0, 80, 0.12)";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "rgba(0, 180, 255, 0.1)";
+        ctx.fillRect(0, 0, w, h);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+      } else {
+        ctx.globalAlpha = 0.12 * g * profile.glitchOverlayMul;
+        ctx.fillStyle = "rgba(255, 0, 80, 0.12)";
+        ctx.fillRect(ox, 0, w, h);
+        ctx.fillStyle = "rgba(0, 180, 255, 0.09)";
+        ctx.fillRect(-ox, 0, w, h);
+        ctx.globalAlpha = 1;
+      }
     }
 
     // Chromatic aberration at high intensity (subtle RGB offset)
-    const chromaIntensity = Math.max(0, intensityNorm() - 0.65) * 2.2;
+    const chromaIntensity = Math.max(0, tint - 0.65) * 2.2;
     if (chromaIntensity > 0 && motion > 0.5){
-      const chromaShift = chromaIntensity * 3.5;
-      ctx.globalCompositeOperation = "screen";
-      ctx.globalAlpha = chromaIntensity * 0.07;
-      ctx.drawImage(canvas, -chromaShift, 0);  // Red shift left
-      ctx.drawImage(canvas, chromaShift, 0);   // Blue shift right
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
+      if (profile.allowCanvasFeedback){
+        const chromaShift = chromaIntensity * 3.5;
+        ctx.globalCompositeOperation = "screen";
+        ctx.globalAlpha = chromaIntensity * 0.07;
+        ctx.drawImage(canvas, -chromaShift, 0);
+        ctx.drawImage(canvas, chromaShift, 0);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+      } else {
+        ctx.globalAlpha = chromaIntensity * 0.04 * profile.glitchOverlayMul;
+        ctx.fillStyle = `rgba(${neonR},40,80,0.18)`;
+        ctx.fillRect(0, 0, w, h);
+        ctx.globalAlpha = 1;
+      }
     }
 
     // Intensity wash - enhanced with neon color
-    const wash = intensityNorm() * 0.09 * motion;
+    const wash = tint * 0.09 * motion * profile.washAlphaMul;
     if (wash > 0){
       ctx.globalAlpha = wash;
       ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},0.28)`;
@@ -7340,7 +7433,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
 
     // Screen edge bloom at high intensity
-    const edgeBloom = Math.max(0, intensityNorm() - 0.5) * 1.4 * motion;
+    const edgeBloom = Math.max(0, tint - 0.5) * 1.4 * motion * profile.edgeBloomMul;
     if (edgeBloom > 0){
       const edgeAlpha = edgeBloom * 0.12 * (0.8 + 0.2 * Math.sin(state.visualTime * 7));
       const edgeGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w, h, 1) * 0.72);
@@ -11165,6 +11258,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   });
   motionLevelEl.addEventListener("change", () => {
     SETTINGS.motion = motionLevelEl.value;
+    applySettings();
     saveSettings();
   });
   colorBlindToggleEl.addEventListener("click", () => {
