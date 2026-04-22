@@ -8,6 +8,16 @@
         ".validate": "newData.hasChildren(['name','score','date']) && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24"
       }
     },
+    "leaderboardDaily": {
+      "$date": {
+        ".read": true,
+        ".indexOn": ["score"],
+        "$uid": {
+          ".write": "auth != null && (root.child('adminAccess').child(auth.uid).val() === true || auth.uid === $uid)",
+          ".validate": "newData.hasChildren(['name','score','date']) && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24"
+        }
+      }
+    },
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
@@ -18,6 +28,22 @@
       ".read": "auth != null",
       "$uid": {
         ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "activityFeed": {
+      "$uid": {
+        ".read": "auth != null",
+        "$eventId": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "dailyClaims": {
+      "$date": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        }
       }
     },
     "friends": {

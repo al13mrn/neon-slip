@@ -416,11 +416,54 @@
     color:var(--neon);
     text-decoration:none;
   }
+  .credits-section-title{
+    margin:14px 0 8px;
+    font-size:10px;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    color:var(--neon);
+    text-shadow:0 0 10px rgba(25,247,255,.4);
+  }
+  .credits-action-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:8px;
+    margin-top:8px;
+  }
+  .credits-action-grid .btn,
+  .credits-action-grid .user-btn{
+    margin-top:0;
+    width:100%;
+    padding:9px 10px;
+    font-size:10px;
+  }
+  .credits-action-grid .user-btn{
+    grid-column:1 / -1;
+  }
   .challenge-copy{
     font-size:12px;
     line-height:1.55;
     opacity:.92;
     margin:8px 0 10px;
+  }
+  .challenge-card-wrap{
+    margin-top:10px;
+    border:1px solid rgba(25,247,255,.24);
+    border-radius:14px;
+    background:rgba(6,13,24,.82);
+    padding:10px;
+    box-shadow: inset 0 0 18px rgba(25,247,255,.08);
+  }
+  .challenge-card-preview{
+    width:100%;
+    display:block;
+    visibility:hidden;
+    border-radius:10px;
+    border:1px solid rgba(25,247,255,.24);
+    background:linear-gradient(160deg, rgba(11,18,34,.98), rgba(5,8,17,.98));
+    box-shadow:0 0 22px rgba(25,247,255,.12);
+    aspect-ratio:9 / 16;
+    object-fit:cover;
   }
   .challenge-message{
     width:100%;
@@ -443,6 +486,17 @@
     margin-top:12px;
   }
   .challenge-actions .btn{
+    margin-top:0;
+    padding:9px 10px;
+    font-size:10px;
+  }
+  .challenge-subactions{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:8px;
+    margin-top:8px;
+  }
+  .challenge-subactions .btn{
     margin-top:0;
     padding:9px 10px;
     font-size:10px;
@@ -1103,9 +1157,31 @@
     border:1px solid rgba(25,247,255,.12);
     background: rgba(25,247,255,.03);
     margin-bottom:8px;
-    transition: background .15s ease;
+    transition: background .15s ease, border-color .2s ease, box-shadow .2s ease;
   }
   .lb-entry:hover{ background: rgba(25,247,255,.08); }
+  .lb-entry.is-you{
+    border-color: rgba(25,247,255,.4);
+    box-shadow: 0 0 0 1px rgba(25,247,255,.16) inset;
+  }
+  .lb-entry.lb-celebrate{
+    border-color: rgba(255,216,107,.72);
+    box-shadow: 0 0 0 1px rgba(255,216,107,.22) inset, 0 18px 40px rgba(25,247,255,.14);
+    animation: lbCelebrateRise 1.15s cubic-bezier(.18,.9,.18,1), lbCelebrateGlow 1.15s ease;
+    transform-origin: center;
+    position: relative;
+    z-index: 1;
+  }
+  @keyframes lbCelebrateRise{
+    0%{ transform: translateY(var(--lb-entry-rise, 84px)) scale(1.18); }
+    55%{ transform: translateY(-6px) scale(1.08); }
+    100%{ transform: translateY(0) scale(1); }
+  }
+  @keyframes lbCelebrateGlow{
+    0%{ background: rgba(255,216,107,.18); }
+    35%{ background: rgba(25,247,255,.18); }
+    100%{ background: rgba(25,247,255,.03); }
+  }
   .lb-rank{
     font-size:18px; font-weight:bold; color:var(--neon);
     min-width:28px; text-align:center; flex-shrink:0;
@@ -1248,6 +1324,132 @@
   .main-menu-shards{
     font-size:13px; letter-spacing:1px; color:#7dffb2;
     text-shadow: 0 0 10px rgba(125,255,178,.5); margin:4px 0 2px;
+  }
+  .daily-card{
+    margin:14px 0 12px;
+    padding:14px 14px 12px;
+    border:1px solid rgba(255,216,107,.42);
+    border-radius:14px;
+    background:
+      radial-gradient(120% 110% at 10% 0%, rgba(255,216,107,.16), rgba(255,216,107,0) 58%),
+      linear-gradient(160deg, rgba(18,22,38,.98), rgba(8,12,24,.98));
+    box-shadow: 0 0 28px rgba(255,216,107,.12), inset 0 1px 0 rgba(255,216,107,.14);
+    text-align:left;
+  }
+  .daily-card-head{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#ffd86b;
+    margin-bottom:8px;
+  }
+  .daily-card-title{
+    font-size:17px; color:#fff5bf; letter-spacing:1px; font-weight:700;
+    text-transform:uppercase; margin-bottom:6px;
+  }
+  .daily-card-copy{
+    font-size:12px; line-height:1.45; opacity:.82; margin-bottom:10px;
+  }
+  .daily-pill-row, .habit-pill-row{
+    display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;
+  }
+  .daily-pill, .habit-pill{
+    display:inline-flex; align-items:center; gap:5px;
+    padding:5px 8px; border-radius:999px;
+    border:1px solid rgba(25,247,255,.24); background:rgba(25,247,255,.08);
+    font-size:10px; letter-spacing:.7px; text-transform:uppercase;
+  }
+  .daily-pill.gold{ border-color:rgba(255,216,107,.42); color:#ffd86b; background:rgba(255,216,107,.09); }
+  .daily-pill.good, .habit-pill.good{ border-color:rgba(125,255,178,.38); color:#7dffb2; background:rgba(125,255,178,.08); }
+  .daily-pill.warn, .habit-pill.warn{ border-color:rgba(255,157,0,.35); color:#ffcf7c; background:rgba(255,157,0,.08); }
+  .daily-mission-list, .weekly-goal-list, .friend-activity-list{
+    display:flex; flex-direction:column; gap:7px; margin:8px 0 0;
+  }
+  .daily-mission-item, .weekly-goal-item, .friend-activity-item{
+    display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+    font-size:11px; line-height:1.4;
+    padding:7px 8px; border-radius:10px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.05);
+  }
+  .weekly-goal-item.complete{
+    border-color:rgba(125,255,178,.28);
+    background:rgba(125,255,178,.06);
+  }
+  .weekly-goal-item .meta,
+  .daily-mission-item .meta{
+    opacity:.72; white-space:nowrap;
+  }
+  .daily-action-row{
+    display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;
+  }
+  .daily-action-row .btn{
+    flex:1 1 140px; margin-top:0;
+  }
+  .habit-panel{
+    margin-top:12px;
+    border-top:1px solid rgba(25,247,255,.15);
+    padding-top:12px;
+  }
+  .habit-title{
+    font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#ffd86b;
+    margin-bottom:8px;
+  }
+  .habit-grid{
+    display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;
+  }
+  .habit-stat{
+    border:1px solid rgba(25,247,255,.14); border-radius:10px;
+    padding:8px; background:rgba(25,247,255,.04);
+  }
+  .habit-stat .label{
+    font-size:10px; opacity:.6; text-transform:uppercase; letter-spacing:.8px;
+  }
+  .habit-stat .value{
+    margin-top:4px; font-size:16px; color:var(--neon); text-shadow:0 0 10px rgba(25,247,255,.45);
+  }
+  .habit-subcopy{
+    margin-top:8px; font-size:11px; opacity:.72; line-height:1.45;
+  }
+  .vault-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px;
+  }
+  .vault-grid-hidden{
+    display:none;
+  }
+  .vault-card{
+    border-radius:12px; padding:12px; border:1px solid rgba(255,216,107,.18);
+    background:linear-gradient(160deg, rgba(255,216,107,.06), rgba(25,247,255,.05));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .vault-card.owned{ border-color:rgba(125,255,178,.3); }
+  .vault-card.equipped{ box-shadow:0 0 18px rgba(25,247,255,.14), inset 0 1px 0 rgba(255,255,255,.05); }
+  .vault-preview{
+    height:86px; border-radius:10px; margin-bottom:10px; position:relative; overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+    background:radial-gradient(circle at 30% 20%, rgba(255,255,255,.12), transparent 35%), linear-gradient(135deg, rgba(10,18,36,.95), rgba(8,10,20,.98));
+  }
+  .vault-preview::before{
+    content:""; position:absolute; inset:auto 12px 16px 12px; height:3px; border-radius:3px;
+    background:var(--preview-accent, linear-gradient(90deg, #19f7ff, #8a5bff));
+    box-shadow:0 0 10px rgba(25,247,255,.45);
+  }
+  .vault-preview::after{
+    content:""; position:absolute; width:18px; height:18px; border-radius:50%;
+    left:calc(50% - 9px); top:calc(50% - 9px);
+    background:var(--preview-core, #19f7ff); box-shadow:0 0 24px var(--preview-core, #19f7ff);
+  }
+  .vault-name{ font-size:12px; font-weight:700; letter-spacing:.6px; color:#fff; }
+  .vault-meta{ font-size:10px; opacity:.68; margin-top:4px; min-height:26px; }
+  .vault-price{ font-size:11px; margin-top:8px; color:#ffd86b; }
+  .friend-activity-head{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:10px;
+  }
+  .friend-activity-empty{ font-size:11px; opacity:.55; padding:10px 0; text-align:center; }
+  .daily-callout{
+    margin-top:10px; font-size:11px; line-height:1.5; color:#7dffb2;
+  }
+  @media (max-width: 700px){
+    .habit-grid{ grid-template-columns:1fr; }
+    .daily-action-row .btn{ flex:1 1 100%; }
   }
   /* Earned shards after run */
   .shards-earned{
@@ -2967,7 +3169,7 @@
     <nav class="site-nav" aria-label="Primary navigation">
       <button id="siteNavPlay" class="site-nav-btn" type="button">Play Now</button>
       <button id="siteNavLeaderboard" class="site-nav-btn" type="button">Leaderboard</button>
-      <button id="siteNavCredits" class="site-nav-btn" type="button">Credits &amp; More</button>
+      <button id="siteNavCredits" class="site-nav-btn" type="button">Credits &amp; More Options</button>
     </nav>
   </header>
   <footer class="site-footer">
@@ -3065,23 +3267,30 @@
     <div>Move left and right to slip through the neon gates.</div>
     <div class="hint">Controls: A/D or arrows. Touch devices: drag or tap to move.</div>
     <div id="mainMenuShards" class="main-menu-shards"><img src="shard.png" alt="Shard" class="shard-icon-sm"> 0 Neon Shards</div>
-    <div class="btn user-btn" id="mainMenuUserBtn">👤 Sign In / Register</div>
+    <div id="dailyChallengeCard" class="daily-card">
+      <div class="daily-card-head">
+        <span>Daily Challenge</span>
+        <span id="dailyChallengeDate">---</span>
+      </div>
+      <div class="daily-card-title">Signal locked for today</div>
+      <div id="dailyChallengeCopy" class="daily-card-copy">Shared seed. Fixed modifiers. One shot to climb today.</div>
+      <div id="dailyChallengePills" class="daily-pill-row"></div>
+      <div id="dailyMissionList" class="daily-mission-list"></div>
+      <div id="dailyChallengeCallout" class="daily-callout"></div>
+      <div class="daily-action-row">
+        <div class="btn" id="startDailyRunBtn">Play Daily</div>
+      </div>
+    </div>
     <div class="start-action-grid">
     <div class="btn btn-start" id="startRunBtn">Start Run</div>
-    <div class="btn" id="openUpgrades">Upgrades</div>
     <div class="btn" id="openLeaderboard">🏆 Leaderboard</div>
-    <div class="btn" id="openFriends">🤝 Friends</div>
-    <div class="btn" id="openAchievements">🎖️ Achievements</div>
-    <div class="btn" id="openStats">📊 Stats</div>
-    <div class="btn" id="openSettings">Settings</div>
     </div>
     <div class="start-utility-row">
       <button id="openHowToPlayQuick" class="start-utility-link" type="button">How to Play</button>
-      <button id="startChallengeFriends" class="start-utility-link" type="button">Challenge Friends</button>
       <button id="openCredits" class="start-utility-link" type="button">Credits &amp; More</button>
     </div>
     <div class="start-ownership">Original game and site by Ali Imran | &copy; Ali Imran 2025-2026</div>
-    <div class="hint">Terms, Privacy, and License acceptance is required before first play.</div>
+    <div class="hint">One-time Terms, Privacy, and License confirmation is remembered before you play.</div>
   </div>
   <div id="overPanel" class="panel hidden">
     <div class="title">Crashed</div>
@@ -3118,6 +3327,13 @@
   </div>
   <div id="leftSectionStats" class="sidebar-section active">
     <div class="lb-sidebar-title">Your Progress</div>
+    <div class="habit-panel">
+      <div class="habit-title">Habit Loop</div>
+      <div id="habitSummaryGrid" class="habit-grid"></div>
+      <div id="habitStatusPills" class="habit-pill-row"></div>
+      <div id="weeklyGoalList" class="weekly-goal-list"></div>
+      <div id="socialPromptBox" class="habit-subcopy"></div>
+    </div>
     <div id="leftStatsList"></div>
   </div>
   <div id="leftSectionGuide" class="sidebar-section">
@@ -3151,6 +3367,12 @@
         <option value="high">High</option>
       </select>
     </div>
+    <div class="settings-row"><span>Frame Rate</span>
+      <select id="frameRate" class="toggle" aria-label="Frame rate cap">
+        <option value="60">60 FPS</option>
+        <option value="120">120 FPS</option>
+      </select>
+    </div>
     <div class="settings-row"><span>High Contrast</span><button id="contrastToggle" class="toggle">Off</button></div>
     <div class="settings-row"><span>Color-Blind</span><button id="colorBlindToggle" class="toggle">Off</button></div>
     <div class="settings-row"><span>Streamer Mode</span><button id="streamerToggle" class="toggle">Off</button></div>
@@ -3160,7 +3382,7 @@
     <div class="settings-row"><span>Delete Progress</span><button id="deleteProgressBtn" class="toggle danger-btn">Delete</button></div>
     <div class="settings-row"><span>Reset All Data</span><button id="resetAllBtn" class="toggle danger-btn">Reset</button></div>
     <hr class="settings-divider">
-    <div class="settings-row">
+    <div id="adminSettingsRow" class="settings-row">
       <span>Admin Mode</span>
       <button id="adminModeBtn" class="toggle admin-theme-toggle">Activate</button>
     </div>
@@ -3192,7 +3414,7 @@
 <div id="creditsPanel" class="credits-panel">
   <div class="credits-box">
     <div class="title">Credits &amp; More</div>
-    <div class="credits-copy">Neon Slip is an original game and site by Ali Imran. Use this panel for project pages, contact details, and ownership information without crowding the main menu.</div>
+    <div class="credits-copy">Neon Slip is an original game and site by Ali Imran. This panel keeps project pages, account access, and deeper systems close by without pulling focus from starting a run.</div>
     <div class="credits-link-list">
       <a class="credits-link" href="about.html">About Neon Slip</a>
       <a class="credits-link" href="contact.html">Contact</a>
@@ -3204,6 +3426,17 @@
       Contact: <a href="mailto:al116im24@ast.kevibham.org">al116im24@ast.kevibham.org</a><br>
       Discord: add <strong>24_7gamer_</strong>
     </div>
+    <div class="credits-section-title">More Actions</div>
+    <div class="credits-action-grid">
+      <div class="btn user-btn" id="mainMenuUserBtn">👤 Sign In / Register</div>
+      <div class="btn" id="openUpgrades">Upgrades</div>
+      <div class="btn" id="openSettings">Settings</div>
+      <div class="btn" id="openStats">📊 Stats</div>
+      <div class="btn" id="openAchievements">🎖️ Achievements</div>
+      <div class="btn" id="openFriends">🤝 Friends</div>
+      <div class="btn" id="startChallengeFriends">Challenge Friends</div>
+      <div class="btn" id="dailyChallengeFriendsBtn">Daily Challenge Share</div>
+    </div>
     <div class="settings-actions">
       <div id="openChallengeFromCredits" class="btn">Challenge Friends</div>
       <div id="closeCredits" class="btn">Close</div>
@@ -3214,8 +3447,14 @@
 <div id="challengePanel" class="challenge-panel">
   <div class="challenge-box">
     <div class="title">Challenge Friends</div>
-    <div class="challenge-copy">Send your ready-made Neon Slip challenge. Copy it, email it, or open Discord with the message prepared for you.</div>
-    <textarea id="challengeMessage" class="challenge-message" aria-label="Challenge message" readonly>HEY!! BET YOU CAN'T BEAT MY HIGH SCORE ON NEON SLIP! COME PLAY AT https://neonslip.me so I can DESTROY YOU!!</textarea>
+    <div class="challenge-copy">Send your latest Neon Slip result with a ready-made message and a portrait score card that matches the game.</div>
+    <div class="challenge-card-wrap">
+      <img id="challengeCardPreview" class="challenge-card-preview" alt="Neon Slip result card preview">
+    </div>
+    <textarea id="challengeMessage" class="challenge-message" aria-label="Challenge message" readonly>I just posted a Neon Slip score. Play at https://neonslip.me and beat me.</textarea>
+    <div class="challenge-subactions">
+      <div id="challengeSaveCardBtn" class="btn">Save Card</div>
+    </div>
     <div class="challenge-actions">
       <div id="challengeCopyBtn" class="btn">Copy Message</div>
       <div id="challengeEmailBtn" class="btn">Email</div>
@@ -3232,7 +3471,7 @@
 <div id="legalConsentPanel" class="legal-consent-panel">
   <div class="legal-consent-box">
     <div class="title">Before You Play</div>
-    <div class="legal-consent-copy">You must explicitly accept the Terms of Use, Privacy Policy, and License before starting gameplay.</div>
+    <div class="legal-consent-copy">Before your first run, confirm that you accept the Terms of Use, Privacy Policy, and License. Neon Slip remembers this on this device and on your signed-in profile when available.</div>
     <div class="legal-links">
       <a href="terms.html" target="_blank" rel="noopener">Terms</a>
       <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy</a>
@@ -3241,22 +3480,14 @@
     </div>
     <label class="legal-check" for="legalConsentTermsCheck">
       <input id="legalConsentTermsCheck" type="checkbox">
-      <span>I have read and accept the Neon Slip Terms of Use.</span>
-    </label>
-    <label class="legal-check" for="legalConsentPrivacyCheck">
-      <input id="legalConsentPrivacyCheck" type="checkbox">
-      <span>I have read and accept the Neon Slip Privacy Policy.</span>
-    </label>
-    <label class="legal-check" for="legalConsentLicenseCheck">
-      <input id="legalConsentLicenseCheck" type="checkbox">
-      <span>I understand the Neon Slip License and ownership restrictions.</span>
+      <span>I accept the Neon Slip Terms of Use, Privacy Policy, and License.</span>
     </label>
     <div id="legalConsentError" class="legal-error"></div>
     <div class="settings-actions">
       <div id="legalConsentAcceptBtn" class="btn">Accept and Play</div>
       <div id="legalConsentCancelBtn" class="btn danger-btn">Cancel</div>
     </div>
-    <div class="legal-note">Created by Ali Imran | &copy; Ali Imran 2025-2026</div>
+    <div class="legal-note">One-time confirmation. Re-prompted only when legal terms change.</div>
   </div>
 </div>
 
@@ -3324,16 +3555,19 @@
     <div id="upgradesCloseX" class="upgrades-close-x" title="Close">✕</div>
     <div class="title">Upgrades</div>
     <div id="currency" class="currency">Neon Shards: 0</div>
+    <div id="fluxCurrency" class="currency">Flux Tokens: 0</div>
     <div class="upgrade-tabs" id="upgradeTabs">
       <div class="upgrade-tab active" data-cat="all">All</div>
       <div class="upgrade-tab" data-cat="performance">⚙️ Performance</div>
       <div class="upgrade-tab" data-cat="powerup">⚡ Power-ups</div>
       <div class="upgrade-tab" data-cat="survival">🛡️ Survival</div>
       <div class="upgrade-tab" data-cat="cosmetic">✨ Cosmetic</div>
+      <div class="upgrade-tab" data-cat="vault">Vault</div>
     </div>
     <div class="upg-summary"><span id="upgSummaryText">0 / 0 upgrades purchased</span><span id="upgSummaryPct">0%</span></div>
     <div class="upgrades-scroll">
       <div class="upgrade-grid" id="upgradeGrid"></div>
+      <div class="vault-grid vault-grid-hidden" id="vaultGrid"></div>
     </div>
     <div class="settings-actions">
       <div id="closeUpgrades" class="btn">Close</div>
@@ -3357,7 +3591,7 @@
         <div id="breakdownMissions" class="breakdown-list"></div>
       </section>
     </div>
-    <div class="breakdown-note">Close returns you to the main menu. Leaderboard submits this run and opens the rankings.</div>
+    <div class="breakdown-note">New personal bests submit automatically. Close returns you to the main menu, and Leaderboard opens the rankings.</div>
     <div class="settings-actions breakdown-actions">
       <div id="breakdownViewLeaderboard" class="btn">Leaderboard</div>
       <div id="closeBreakdown" class="btn">Close</div>
@@ -3374,6 +3608,7 @@
       <div class="lb-category-tab active" data-cat="alltime">All Time</div>
       <div class="lb-category-tab" data-cat="thisweek">This Week</div>
       <div class="lb-category-tab" data-cat="today">Today</div>
+      <div class="lb-category-tab" data-cat="daily">Daily</div>
     </div>
     <div class="leaderboard-actions">
       <button id="leaderboardRefreshBtn" class="lb-refresh-btn" type="button">🔄 Refresh</button>
@@ -3416,6 +3651,11 @@
 
     <div class="friends-tab-content" data-content="board">
       <div id="friendsBoardMsg" class="friends-msg"></div>
+      <div class="friend-activity-head">
+        <div class="speech-title">Friend Activity</div>
+        <div id="friendActivityRefresh" class="speech-action-btn">Refresh</div>
+      </div>
+      <div id="friendActivityList" class="friend-activity-list"></div>
       <div id="friendsLeaderboardList" class="friends-list"></div>
     </div>
 
@@ -3767,11 +4007,14 @@ const FIREBASE_CONFIG = firebaseConfig;
   const closeModsEl = document.getElementById("closeMods");
   const upgradesPanelEl = document.getElementById("upgradesPanel");
   const upgradeGridEl = document.getElementById("upgradeGrid");
+  const vaultGridEl = document.getElementById("vaultGrid");
   const currencyEl = document.getElementById("currency");
+  const fluxCurrencyEl = document.getElementById("fluxCurrency");
   const closeUpgradesEl = document.getElementById("closeUpgrades");
   const rebindLeftEl = document.getElementById("rebindLeft");
   const rebindRightEl = document.getElementById("rebindRight");
   const motionLevelEl = document.getElementById("motionLevel");
+  const frameRateEl = document.getElementById("frameRate");
   const colorBlindToggleEl = document.getElementById("colorBlindToggle");
   const streamerToggleEl = document.getElementById("streamerToggle");
   const breakdownPanelEl = document.getElementById("breakdownPanel");
@@ -3795,6 +4038,17 @@ const FIREBASE_CONFIG = firebaseConfig;
   const nextSlideshowSlideEl = document.getElementById("nextSlide");
   const slideshowHintEl = document.querySelector(".skip-text");
   const streakBannerEl = document.getElementById("streakBanner");
+  const dailyChallengeDateEl = document.getElementById("dailyChallengeDate");
+  const dailyChallengeCopyEl = document.getElementById("dailyChallengeCopy");
+  const dailyChallengePillsEl = document.getElementById("dailyChallengePills");
+  const dailyMissionListEl = document.getElementById("dailyMissionList");
+  const dailyChallengeCalloutEl = document.getElementById("dailyChallengeCallout");
+  const startDailyRunBtnEl = document.getElementById("startDailyRunBtn");
+  const dailyChallengeFriendsBtnEl = document.getElementById("dailyChallengeFriendsBtn");
+  const habitSummaryGridEl = document.getElementById("habitSummaryGrid");
+  const habitStatusPillsEl = document.getElementById("habitStatusPills");
+  const weeklyGoalListEl = document.getElementById("weeklyGoalList");
+  const socialPromptBoxEl = document.getElementById("socialPromptBox");
   const shieldIndicatorEl = document.getElementById("shieldIndicator");
   const magnetIndicatorEl = document.getElementById("magnetIndicator");
   const slowmoIndicatorEl = document.getElementById("slowmoIndicator");
@@ -3825,6 +4079,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   const friendsListEl = document.getElementById("friendsList");
   const friendsBoardMsgEl = document.getElementById("friendsBoardMsg");
   const friendsLeaderboardListEl = document.getElementById("friendsLeaderboardList");
+  const friendActivityListEl = document.getElementById("friendActivityList");
+  const friendActivityRefreshEl = document.getElementById("friendActivityRefresh");
   const speechTabUnreadBadgeEl = document.getElementById("speechTabUnreadBadge");
   const speechInboxListEl = document.getElementById("speechInboxList");
   const speechActiveTitleEl = document.getElementById("speechActiveTitle");
@@ -3899,6 +4155,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   const challengeDiscordBtnEl = document.getElementById("challengeDiscordBtn");
   const challengeSmsBtnEl = document.getElementById("challengeSmsBtn");
   const challengeShareBtnEl = document.getElementById("challengeShareBtn");
+  const challengeSaveCardBtnEl = document.getElementById("challengeSaveCardBtn");
+  const challengeCardPreviewEl = document.getElementById("challengeCardPreview");
   const legalConsentPanelEl = document.getElementById("legalConsentPanel");
   const legalConsentTermsCheckEl = document.getElementById("legalConsentTermsCheck");
   const legalConsentPrivacyCheckEl = document.getElementById("legalConsentPrivacyCheck");
@@ -3906,15 +4164,231 @@ const FIREBASE_CONFIG = firebaseConfig;
   const legalConsentErrorEl = document.getElementById("legalConsentError");
   const legalConsentAcceptBtnEl = document.getElementById("legalConsentAcceptBtn");
   const legalConsentCancelBtnEl = document.getElementById("legalConsentCancelBtn");
+  const adminSettingsRowEl = document.getElementById("adminSettingsRow");
 
-  const LEGAL_ACCEPT_KEY = "neonLegalAcceptedV2";
-  const CHALLENGE_SHARE_MESSAGE = "HEY!! BET YOU CAN'T BEAT MY HIGH SCORE ON NEON SLIP! COME PLAY AT https://neonslip.me so I can DESTROY YOU!!";
+  const LEGAL_ACCEPT_KEY = "neonLegalAcceptedV3";
+  const LEGAL_CONSENT_VERSION = 3;
+  const SHARE_BASE_URL = "https://neonslip.me";
+  const RESULT_CARD_TITLE_FONT = "\"Impact\",\"Haettenschweiler\",\"Arial Black\",\"Franklin Gothic Heavy\",sans-serif";
+  const RESULT_CARD_BODY_FONT = "\"Trebuchet MS\",\"Lucida Console\",\"Courier New\",monospace";
+  const TELEMETRY_VISITOR_KEY = "neonTelemetryVisitorId";
+  const TELEMETRY_VISIT_COUNT_KEY = "neonTelemetryVisitCount";
+  const TELEMETRY_SESSION_KEY = "neonTelemetrySessionId";
   let pendingConsentAction = null;
+  let lastCompletedRun = null;
+  let challengeCardObjectUrl = "";
   const USER_AGENT = navigator.userAgent || "";
   const PLATFORM_FLAGS = {
     isFirefox: /firefox/i.test(USER_AGENT),
     isMobile: /android|iphone|ipad|ipod|mobile/i.test(USER_AGENT)
   };
+  const telemetryState = {
+    sessionId: "",
+    visitorId: "",
+    visitType: "first",
+    visitCount: 1,
+    runStartMs: 0,
+    runsStarted: 0,
+    firstInputTracked: false,
+    firstGateTracked: false
+  };
+
+  function createClientId(prefix){
+    try{
+      if (window.crypto && typeof window.crypto.randomUUID === "function"){
+        return `${prefix}_${window.crypto.randomUUID()}`;
+      }
+    }catch{}
+    return `${prefix}_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
+  }
+
+  function initializeTelemetry(){
+    let visitorId = localStorage.getItem(TELEMETRY_VISITOR_KEY);
+    if (!visitorId){
+      visitorId = createClientId("visitor");
+      localStorage.setItem(TELEMETRY_VISITOR_KEY, visitorId);
+    }
+    const previousVisits = +(localStorage.getItem(TELEMETRY_VISIT_COUNT_KEY) || 0);
+    const nextVisitCount = previousVisits + 1;
+    localStorage.setItem(TELEMETRY_VISIT_COUNT_KEY, String(nextVisitCount));
+    let sessionId = "";
+    try{
+      sessionId = sessionStorage.getItem(TELEMETRY_SESSION_KEY) || "";
+      if (!sessionId){
+        sessionId = createClientId("session");
+        sessionStorage.setItem(TELEMETRY_SESSION_KEY, sessionId);
+      }
+    }catch{
+      sessionId = createClientId("session");
+    }
+    telemetryState.visitorId = visitorId;
+    telemetryState.sessionId = sessionId;
+    telemetryState.visitCount = nextVisitCount;
+    telemetryState.visitType = previousVisits > 0 ? "returning" : "first";
+  }
+
+  function getTelemetryElapsedMs(){
+    return telemetryState.runStartMs ? Math.max(0, Date.now() - telemetryState.runStartMs) : 0;
+  }
+
+  function getTelemetryPayload(payload = {}){
+    return {
+      sessionId: telemetryState.sessionId,
+      visitorId: telemetryState.visitorId,
+      signedIn: !!authUser,
+      runType: state.currentRunType || "normal",
+      score: state.score || 0,
+      elapsedMs: getTelemetryElapsedMs(),
+      visitType: telemetryState.visitType,
+      ...payload
+    };
+  }
+
+  function track(name, payload = {}){
+    const eventPayload = getTelemetryPayload(payload);
+    try{
+      if (window.neonTelemetry && typeof window.neonTelemetry.track === "function"){
+        window.neonTelemetry.track(name, eventPayload);
+        return;
+      }
+      if (typeof window.plausible === "function"){
+        window.plausible(name, { props: eventPayload });
+        return;
+      }
+      if (typeof window.gtag === "function"){
+        window.gtag("event", name, eventPayload);
+        return;
+      }
+      if (window.NEON_DEBUG_ANALYTICS){
+        console.debug("[Telemetry]", name, eventPayload);
+      }
+    }catch(err){
+      console.warn("[Telemetry] track failed:", name, err);
+    }
+  }
+
+  function markRunStart(reason){
+    telemetryState.runsStarted += 1;
+    telemetryState.runStartMs = Date.now();
+    telemetryState.firstInputTracked = false;
+    telemetryState.firstGateTracked = false;
+    if (telemetryState.runsStarted === 2){
+      track("second_run_start", { trigger: reason });
+    }
+  }
+
+  function trackFirstGameplayInput(source){
+    if (state.mode !== "play" || telemetryState.firstInputTracked) return;
+    telemetryState.firstInputTracked = true;
+    track("first_input", { inputSource: source });
+  }
+
+  function trackFirstGatePass(){
+    if (telemetryState.firstGateTracked) return;
+    telemetryState.firstGateTracked = true;
+    track("first_gate_pass", { gateCount: state.gateCount, score: state.score });
+  }
+
+  function normalizeLegalConsentRecord(raw){
+    if (!raw) return null;
+    if (typeof raw === "string"){
+      try{
+        raw = JSON.parse(raw);
+      }catch{
+        return null;
+      }
+    }
+    if (!raw || typeof raw !== "object") return null;
+    const normalized = {
+      accepted: !!raw.accepted,
+      version: +raw.version || 0,
+      acceptedAt: +raw.acceptedAt || 0
+    };
+    if (raw.sync && typeof raw.sync === "object"){
+      normalized.sync = {
+        uid: String(raw.sync.uid || ""),
+        version: +raw.sync.version || 0,
+        syncedAt: +raw.sync.syncedAt || 0
+      };
+    }
+    return normalized;
+  }
+
+  function getStoredLegalConsent(){
+    return normalizeLegalConsentRecord(localStorage.getItem(LEGAL_ACCEPT_KEY));
+  }
+
+  function setStoredLegalConsent(record){
+    const normalized = normalizeLegalConsentRecord(record);
+    if (!normalized){
+      localStorage.removeItem(LEGAL_ACCEPT_KEY);
+      return null;
+    }
+    localStorage.setItem(LEGAL_ACCEPT_KEY, JSON.stringify(normalized));
+    return normalized;
+  }
+
+  function buildAcceptedLegalConsentRecord(source = "local"){
+    const existing = getStoredLegalConsent();
+    return {
+      accepted: true,
+      version: LEGAL_CONSENT_VERSION,
+      acceptedAt: existing?.acceptedAt || Date.now(),
+      sync: authUser ? {
+        uid: authUser.uid,
+        version: LEGAL_CONSENT_VERSION,
+        syncedAt: source === "cloud" ? Date.now() : 0
+      } : (existing?.sync || null)
+    };
+  }
+
+  function getCurrentLegalConsent(){
+    const record = getStoredLegalConsent();
+    if (!record || !record.accepted || record.version < LEGAL_CONSENT_VERSION) return null;
+    return record;
+  }
+
+  function applyCloudLegalConsent(record){
+    const normalized = normalizeLegalConsentRecord(record);
+    if (!normalized || !normalized.accepted || normalized.version < LEGAL_CONSENT_VERSION) return false;
+    setStoredLegalConsent({
+      ...normalized,
+      sync: authUser ? {
+        uid: authUser.uid,
+        version: normalized.version,
+        syncedAt: Date.now()
+      } : (normalized.sync || null)
+    });
+    return true;
+  }
+
+  function syncLegalConsentToCloud(record = getCurrentLegalConsent()){
+    if (!authUser || !lbDB || !record) return Promise.resolve(false);
+    const payload = {
+      accepted: true,
+      version: record.version,
+      acceptedAt: record.acceptedAt || Date.now()
+    };
+    return lbDB.ref("users/" + authUser.uid + "/progress/legalConsent").set(payload)
+      .then(() => {
+        setStoredLegalConsent({
+          ...record,
+          sync: {
+            uid: authUser.uid,
+            version: record.version,
+            syncedAt: Date.now()
+          }
+        });
+        return true;
+      })
+      .catch(() => false);
+  }
+
+  function recordLegalConsent(){
+    const record = setStoredLegalConsent(buildAcceptedLegalConsentRecord());
+    syncLegalConsentToCloud(record);
+    return record;
+  }
 
   let w, h, dpr;
   function resize(options = {}){
@@ -3988,6 +4462,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     renderProfile: null,
     playerHistory: [],
     visualTime: 0,
+    frameIntervalMs: 1000 / 60,
+    frameAccumulatorMs: 0,
     gateCount: 0,
     shards: 0,
     upgrades: {},
@@ -4014,7 +4490,28 @@ const FIREBASE_CONFIG = firebaseConfig;
     invincibleTimer: 0,
     powerupsCollected: 0,
     streakCount: 0,
+    runStreakCount: 0,
     dailyChallenge: null,
+    currentRunType: "normal",
+    dailyHistory: {},
+    streakGraceUsedDate: "",
+    lastActiveDate: "",
+    todayCompleted: false,
+    weeklyProgress: { goals: [], claimed: false },
+    weeklyResetKey: "",
+    fluxTokens: 0,
+    ownedCosmetics: [],
+    equippedCosmetics: {
+      trail: "trail_cyan",
+      glow: "glow_neon",
+      gate: "gate_classic",
+      title: "title_neon",
+      badge: "badge_core"
+    },
+    shopRotationKey: "",
+    shopOffers: [],
+    friendActivity: [],
+    socialChallengeToday: { sentDate: "", acceptedDate: "" },
     missionProgress: {},
     achievementsUnlocked: [],
     slideshowIndex: 0,
@@ -4022,11 +4519,26 @@ const FIREBASE_CONFIG = firebaseConfig;
     lbSubmitTimer: null,
     lbBeatTimer: null,
     lbTargetRank: null,
+    lastRunWasNewBest: false,
+    lastRunPreviousBest: 0,
     dangerZoneTimer: 0,
     bossGateTimer: 0,
     perfectCount: 0,
     streakBonusCount: 0,
-    stats: { totalRuns: 0, totalGates: 0, totalTime: 0, totalNearMisses: 0, totalShardsEarned: 0 }
+    stats: {
+      totalRuns: 0, totalGates: 0, totalTime: 0, totalNearMisses: 0, totalShardsEarned: 0,
+      streakDaysEarned: 0, dailyRuns: 0, dailyBestScore: 0, weeklyScoreEarned: 0, weeklyRuns: 0
+    },
+    hudCache: {
+      scoreText: "",
+      bestText: "",
+      intensityText: "",
+      intensityTransform: "",
+      dangerAttr: "",
+      scoreTransform: "",
+      intensityFilter: "",
+      slowmoActive: null
+    }
   };
 
   let renderedShardCount = null;
@@ -4167,6 +4679,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     shake: "high",
     highContrast: false,
     motion: "high",
+    frameRate: "60",
     colorBlind: false,
     streamer: false
   };
@@ -4447,6 +4960,185 @@ const FIREBASE_CONFIG = firebaseConfig;
       { id: "shield_savior", name: "Shield Savior", desc: "Shield saves you from death", icon: "🛡️" }
     ]
   };
+
+  const HABIT_REWARDS = {
+    dailyFirstRun: 35,
+    streakChest: 25,
+    streak7Bonus: 90,
+    weeklyCompleteShards: 120,
+    weeklyCompleteFlux: 2,
+    socialSend: 12,
+    socialAccept: 12,
+    dailyTiers: { bronze: 40, silver: 80, gold: 140 }
+  };
+
+  const COSMETICS = [
+    { id: "trail_cyan", slot: "trail", name: "Cyan Slip", price: 0, rarity: "starter", desc: "Default neon trail.", preview: { accent: "linear-gradient(90deg,#19f7ff,#8a5bff)", core: "#19f7ff" } },
+    { id: "trail_sunset", slot: "trail", name: "Sunset Ribbon", price: 3, rarity: "rare", desc: "Warm orange to pink trail.", asset: "assets/cosmetics/trail-sunset.svg", preview: { accent: "linear-gradient(90deg,#ff9d00,#ff3b7a)", core: "#ff9d00" } },
+    { id: "trail_mint", slot: "trail", name: "Mint Voltage", price: 2, rarity: "uncommon", desc: "Soft mint drift streak.", asset: "assets/cosmetics/trail-mint.svg", preview: { accent: "linear-gradient(90deg,#7dffb2,#19f7ff)", core: "#7dffb2" } },
+    { id: "glow_neon", slot: "glow", name: "Core Glow", price: 0, rarity: "starter", desc: "Default player glow.", preview: { accent: "linear-gradient(90deg,#19f7ff,#19f7ff)", core: "#19f7ff" } },
+    { id: "glow_gold", slot: "glow", name: "Gold Pulse", price: 4, rarity: "epic", desc: "Gold player halo.", asset: "assets/cosmetics/glow-gold.svg", preview: { accent: "linear-gradient(90deg,#ffd86b,#fff3b2)", core: "#ffd86b" } },
+    { id: "gate_classic", slot: "gate", name: "Classic Gate", price: 0, rarity: "starter", desc: "Default gate accent palette.", preview: { accent: "linear-gradient(90deg,#19f7ff,#8a5bff)", core: "#8a5bff" } },
+    { id: "gate_inferno", slot: "gate", name: "Inferno Rails", price: 3, rarity: "rare", desc: "Fiery orange gate accents.", asset: "assets/cosmetics/gate-inferno.svg", preview: { accent: "linear-gradient(90deg,#ff9d00,#ff5f4d)", core: "#ff9d00" } },
+    { id: "title_neon", slot: "title", name: "Neon Title", price: 0, rarity: "starter", desc: "Default menu title treatment.", preview: { accent: "linear-gradient(90deg,#19f7ff,#8a5bff)", core: "#19f7ff" } },
+    { id: "title_auric", slot: "title", name: "Auric Title", price: 5, rarity: "epic", desc: "Gold title pulse for mainscreen.", asset: "assets/cosmetics/title-auric.svg", preview: { accent: "linear-gradient(90deg,#fff3b2,#ffd86b)", core: "#ffd86b" } },
+    { id: "badge_core", slot: "badge", name: "Core Badge", price: 0, rarity: "starter", desc: "Default leaderboard frame.", preview: { accent: "linear-gradient(90deg,#19f7ff,#8a5bff)", core: "#19f7ff" } },
+    { id: "badge_rival", slot: "badge", name: "Rival Frame", price: 2, rarity: "uncommon", desc: "Sharp pink competitive frame.", asset: "assets/cosmetics/badge-rival.svg", preview: { accent: "linear-gradient(90deg,#ff3b7a,#8a5bff)", core: "#ff3b7a" } }
+  ];
+
+  const WEEKLY_GOAL_POOL = [
+    { id: "weekly_runs", name: "Complete 10 runs", stat: "runs", target: 10, reward: 45 },
+    { id: "weekly_gates", name: "Clear 220 gates", stat: "gates", target: 220, reward: 55 },
+    { id: "weekly_near", name: "Get 30 near misses", stat: "near", target: 30, reward: 45 },
+    { id: "weekly_score", name: "Earn 15000 score", stat: "score", target: 15000, reward: 60 },
+    { id: "weekly_combo", name: "Reach combo x8 three times", stat: "comboRuns", target: 3, reward: 55 },
+    { id: "weekly_daily", name: "Play the daily challenge 3 times", stat: "dailyRuns", target: 3, reward: 50 }
+  ];
+
+  function utcDateKey(ts = Date.now()){
+    return new Date(ts).toISOString().slice(0, 10);
+  }
+
+  function utcDateLabelFromKey(key){
+    const d = new Date(`${key}T00:00:00Z`);
+    return d.toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric" });
+  }
+
+  function legacyDateLabel(ts = Date.now()){
+    return new Date(ts).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+  }
+
+  function getUtcWeekKey(ts = Date.now()){
+    const d = new Date(ts);
+    const day = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() - day + 1);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function hashStringSeed(text){
+    let h = 2166136261;
+    for (let i = 0; i < text.length; i++){
+      h ^= text.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function seededPick(arr, rng){
+    return arr[Math.floor(rng() * arr.length)];
+  }
+
+  function seededTake(arr, count, rng){
+    const pool = [...arr];
+    const out = [];
+    while (pool.length && out.length < count){
+      out.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
+    }
+    return out;
+  }
+
+  function getDailyChallengeConfig(dateKey = utcDateKey()){
+    const seed = hashStringSeed(`daily:${dateKey}`);
+    const rng = mulberry32(seed);
+    const theme = seededPick(THEMES, rng);
+    const pos = seededPick(MODIFIERS.positive, rng);
+    const neg = seededPick(MODIFIERS.negative, rng);
+    const missionSet = seededTake(MISSIONS.pool, 3, rng);
+    const bronze = 1800 + Math.floor(rng() * 600);
+    const silver = bronze + 1600 + Math.floor(rng() * 900);
+    const gold = silver + 1800 + Math.floor(rng() * 1100);
+    return {
+      date: dateKey,
+      seed,
+      themeId: theme.name,
+      positiveModId: pos.id,
+      negativeModId: neg.id,
+      missionIds: missionSet.map(m => m.id),
+      targetBronze: bronze,
+      targetSilver: silver,
+      targetGold: gold,
+      bestScore: 0,
+      claimedRewards: { first: false, bronze: false, silver: false, gold: false },
+      theme,
+      pos,
+      neg,
+      missions: missionSet
+    };
+  }
+
+  function getWeeklyGoals(resetKey = getUtcWeekKey()){
+    const seed = hashStringSeed(`weekly:${resetKey}`);
+    const rng = mulberry32(seed);
+    return seededTake(WEEKLY_GOAL_POOL, 3, rng).map(goal => ({
+      ...goal,
+      progress: 0,
+      complete: false,
+      claimed: false
+    }));
+  }
+
+  function ensureOwnedStarterCosmetics(){
+    const starters = COSMETICS.filter(c => c.price === 0).map(c => c.id);
+    const owned = new Set(state.ownedCosmetics || []);
+    starters.forEach(id => owned.add(id));
+    state.ownedCosmetics = [...owned];
+  }
+
+  function getCosmeticById(id){
+    return COSMETICS.find(c => c.id === id) || null;
+  }
+
+  function currentDailyEntry(){
+    const key = utcDateKey();
+    const existing = state.dailyHistory[key];
+    if (existing){
+      const base = getDailyChallengeConfig(key);
+      return {
+        ...base,
+        bestScore: existing.bestScore || 0,
+        claimedRewards: { ...base.claimedRewards, ...(existing.claimedRewards || {}) }
+      };
+    }
+    return getDailyChallengeConfig(key);
+  }
+
+  function ensureHabitState(){
+    ensureOwnedStarterCosmetics();
+    const todayKey = utcDateKey();
+    const weekKey = getUtcWeekKey();
+    state.dailyHistory = state.dailyHistory || {};
+    state.dailyChallenge = currentDailyEntry();
+    state.todayCompleted = state.lastActiveDate === todayKey;
+    if (!state.weeklyResetKey || state.weeklyResetKey !== weekKey || !state.weeklyProgress || !Array.isArray(state.weeklyProgress.goals)){
+      state.weeklyResetKey = weekKey;
+      state.weeklyProgress = { goals: getWeeklyGoals(weekKey), claimed: false };
+    }
+    if (!state.shopRotationKey || state.shopRotationKey !== weekKey || !Array.isArray(state.shopOffers) || !state.shopOffers.length){
+      const offerPool = COSMETICS.filter(c => c.price > 0);
+      const rng = mulberry32(hashStringSeed(`shop:${weekKey}`));
+      state.shopRotationKey = weekKey;
+      state.shopOffers = seededTake(offerPool, 4, rng).map(c => c.id);
+    }
+  }
+
+  function getEquippedTrailColor(){
+    const trailId = state.equippedCosmetics && state.equippedCosmetics.trail;
+    if (trailId === "trail_sunset") return [255, 140, 70];
+    if (trailId === "trail_mint") return [125, 255, 178];
+    return null;
+  }
+
+  function getEquippedGlowColor(){
+    const glowId = state.equippedCosmetics && state.equippedCosmetics.glow;
+    if (glowId === "glow_gold") return [255, 216, 107];
+    return null;
+  }
+
+  function getEquippedGateColor(){
+    const gateId = state.equippedCosmetics && state.equippedCosmetics.gate;
+    if (gateId === "gate_inferno") return [255, 157, 0];
+    return null;
+  }
 
   function clamp(value, min, max){
     return Math.min(max, Math.max(min, value));
@@ -4795,9 +5487,12 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function generateRunProfile(){
-    state.runSeed = (Date.now() ^ (Math.random() * 1e9)) >>> 0;
+    ensureHabitState();
+    const daily = state.currentRunType === "daily" ? currentDailyEntry() : null;
+    state.dailyChallenge = daily || state.dailyChallenge;
+    state.runSeed = daily ? daily.seed : ((Date.now() ^ (Math.random() * 1e9)) >>> 0);
     state.rng = mulberry32(state.runSeed);
-    state.theme = randPick(THEMES);
+    state.theme = daily ? daily.theme : randPick(THEMES);
     const rampSeconds = randRange(TUNING.rampSecondsMin, TUNING.rampSecondsMax);
     const baseSpeed = randRange(TUNING.baseSpeedMin, TUNING.baseSpeedMax);
     const speedGrowthScale = randRange(TUNING.speedGrowthScaleMin, TUNING.speedGrowthScaleMax);
@@ -4870,6 +5565,16 @@ const FIREBASE_CONFIG = firebaseConfig;
     root.style.setProperty("--theme-accent", `rgb(${palette.neonC.join(",")})`);
     document.body.dataset.theme = t.name.toLowerCase();
     intensityFillEl.style.background = `linear-gradient(90deg, rgba(${palette.neonA.join(",")},.9), rgba(${palette.neonB.join(",")},.95), rgba(${palette.neonC.join(",")},.9))`;
+    const titleEl = document.querySelector(".neon-title");
+    if (titleEl){
+      if ((state.equippedCosmetics && state.equippedCosmetics.title) === "title_auric"){
+        titleEl.style.color = "#fff3b2";
+        titleEl.style.textShadow = "0 0 4px #fff, 0 0 14px rgba(255,216,107,1), 0 0 28px rgba(255,216,107,.85), 0 0 46px rgba(255,157,0,.45)";
+      } else {
+        titleEl.style.color = "";
+        titleEl.style.textShadow = "";
+      }
+    }
   }
 
   // Settings: persisted UX controls.
@@ -4891,9 +5596,13 @@ const FIREBASE_CONFIG = firebaseConfig;
     contrastToggleEl.textContent = SETTINGS.highContrast ? "On" : "Off";
     document.body.classList.toggle("high-contrast", SETTINGS.highContrast);
     motionLevelEl.value = SETTINGS.motion;
+    if (frameRateEl) frameRateEl.value = String(SETTINGS.frameRate || "60");
     colorBlindToggleEl.textContent = SETTINGS.colorBlind ? "On" : "Off";
     streamerToggleEl.textContent = SETTINGS.streamer ? "On" : "Off";
     document.body.classList.toggle("colorblind", SETTINGS.colorBlind);
+    const fps = Math.max(60, Number(SETTINGS.frameRate) || 60);
+    state.frameIntervalMs = 1000 / fps;
+    state.frameAccumulatorMs = 0;
     if (!state.audioMuted){
       menuMusic.volume = AUDIO.menuVolume * SETTINGS.musicVolume;
       gameMusic.volume = AUDIO.gameVolume * SETTINGS.musicVolume;
@@ -4955,8 +5664,23 @@ const FIREBASE_CONFIG = firebaseConfig;
         if (data.rebind) state.rebind = data.rebind;
         if (data.stats) Object.assign(state.stats, data.stats);
         if (data.achievementsUnlocked) state.achievementsUnlocked = data.achievementsUnlocked;
+        state.dailyHistory = data.dailyHistory || {};
+        state.streakGraceUsedDate = data.streakGraceUsedDate || "";
+        state.lastActiveDate = data.lastActiveDate || "";
+        state.todayCompleted = !!data.todayCompleted;
+        state.weeklyProgress = data.weeklyProgress || state.weeklyProgress;
+        state.weeklyResetKey = data.weeklyResetKey || "";
+        state.fluxTokens = +data.fluxTokens || 0;
+        state.ownedCosmetics = data.ownedCosmetics || [];
+        state.equippedCosmetics = { ...state.equippedCosmetics, ...(data.equippedCosmetics || {}) };
+        state.shopRotationKey = data.shopRotationKey || "";
+        state.shopOffers = data.shopOffers || [];
+        state.friendActivity = data.friendActivity || [];
+        state.socialChallengeToday = data.socialChallengeToday || state.socialChallengeToday;
+        if (data.streakCount != null) state.streakCount = +data.streakCount || 0;
       } catch {}
     }
+    ensureHabitState();
     for (const up of UPGRADES){
       if (state.upgrades[up.id] == null) state.upgrades[up.id] = 0;
       const clamped = clampUpgradeLevel(state.upgrades[up.id]);
@@ -4972,12 +5696,27 @@ const FIREBASE_CONFIG = firebaseConfig;
       upgrades: state.upgrades,
       rebind: state.rebind,
       stats: state.stats,
-      achievementsUnlocked: state.achievementsUnlocked
+      achievementsUnlocked: state.achievementsUnlocked,
+      dailyHistory: state.dailyHistory,
+      streakCount: state.streakCount,
+      lastActiveDate: state.lastActiveDate,
+      todayCompleted: state.todayCompleted,
+      streakGraceUsedDate: state.streakGraceUsedDate,
+      weeklyProgress: state.weeklyProgress,
+      weeklyResetKey: state.weeklyResetKey,
+      fluxTokens: state.fluxTokens,
+      ownedCosmetics: state.ownedCosmetics,
+      equippedCosmetics: state.equippedCosmetics,
+      shopRotationKey: state.shopRotationKey,
+      shopOffers: state.shopOffers,
+      friendActivity: state.friendActivity,
+      socialChallengeToday: state.socialChallengeToday
     }));
   }
 
   function refreshShardDisplays(animateLive = false){
     if (currencyEl) currencyEl.innerHTML = `${PROGRESSION.currencyName}: ${state.shards} <img src="shard.png" alt="Shard" class="shard-icon">`;
+    if (fluxCurrencyEl) fluxCurrencyEl.textContent = `Flux Tokens: ${state.fluxTokens || 0}`;
     const mainMenuShardsEl = document.getElementById("mainMenuShards");
     if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
     if (liveShardValueEl) liveShardValueEl.textContent = state.shards.toLocaleString();
@@ -4988,16 +5727,120 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
   }
 
+  function renderDailyChallengeCard(){
+    ensureHabitState();
+    const daily = state.dailyChallenge || currentDailyEntry();
+    if (dailyChallengeDateEl) dailyChallengeDateEl.textContent = utcDateLabelFromKey(daily.date);
+    if (dailyChallengeCopyEl){
+      dailyChallengeCopyEl.textContent = `${daily.theme.name} theme with ${daily.pos.name} and ${daily.neg.name}. Hit score tiers and clear fixed missions for one-time rewards.`;
+    }
+    if (dailyChallengePillsEl){
+      dailyChallengePillsEl.innerHTML = [
+        `<span class="daily-pill">${daily.theme.name}</span>`,
+        `<span class="daily-pill">${daily.pos.icon || "+"} ${daily.pos.name}</span>`,
+        `<span class="daily-pill warn">${daily.neg.icon || "-"} ${daily.neg.name}</span>`,
+        `<span class="daily-pill gold">Bronze ${daily.targetBronze.toLocaleString()}</span>`,
+        `<span class="daily-pill gold">Silver ${daily.targetSilver.toLocaleString()}</span>`,
+        `<span class="daily-pill gold">Gold ${daily.targetGold.toLocaleString()}</span>`
+      ].join("");
+    }
+    if (dailyMissionListEl){
+      dailyMissionListEl.innerHTML = daily.missions.map(m => {
+        const done = (daily.claimedRewards.completedMissionIds || []).includes(m.id);
+        return `<div class="daily-mission-item"><div><strong>${escText(m.name)}</strong><div>${escText(m.desc || "Fixed daily objective")}</div></div><div class="meta">${done ? "Done" : `${m.reward} shards`}</div></div>`;
+      }).join("");
+    }
+    if (dailyChallengeCalloutEl){
+      const tiers = [];
+      if (daily.claimedRewards.first) tiers.push("First clear claimed");
+      if (daily.claimedRewards.bronze) tiers.push("Bronze claimed");
+      if (daily.claimedRewards.silver) tiers.push("Silver claimed");
+      if (daily.claimedRewards.gold) tiers.push("Gold claimed");
+      dailyChallengeCalloutEl.textContent = `Best today: ${(daily.bestScore || 0).toLocaleString()}${tiers.length ? ` • ${tiers.join(" • ")}` : ""}`;
+    }
+  }
+
+  function renderHabitSidebar(){
+    ensureHabitState();
+    const goals = (state.weeklyProgress && state.weeklyProgress.goals) || [];
+    if (habitSummaryGridEl){
+      const streakGrace = state.streakGraceUsedDate && state.streakGraceUsedDate === utcDateKey(Date.now() - 86400000);
+      habitSummaryGridEl.innerHTML = [
+        { label: "Streak", value: `${state.streakCount || 0} days` },
+        { label: "Today", value: state.todayCompleted ? "Done" : "Open" },
+        { label: "Daily Best", value: (state.dailyChallenge && state.dailyChallenge.bestScore || 0).toLocaleString() },
+        { label: "Flux", value: `${state.fluxTokens || 0}` }
+      ].map(item => `<div class="habit-stat"><div class="label">${item.label}</div><div class="value">${item.value}</div></div>`).join("");
+      if (habitStatusPillsEl){
+        habitStatusPillsEl.innerHTML = [
+          `<span class="habit-pill ${state.todayCompleted ? "good" : ""}">${state.todayCompleted ? "Today's run complete" : "Daily rewards still open"}</span>`,
+          `<span class="habit-pill ${streakGrace ? "warn" : ""}">${streakGrace ? "Grace saved your streak" : "No grace used"}</span>`
+        ].join("");
+      }
+    }
+    if (weeklyGoalListEl){
+      weeklyGoalListEl.innerHTML = goals.map(goal => {
+        const progress = Math.min(goal.target, goal.progress || 0);
+        return `<div class="weekly-goal-item ${goal.complete ? "complete" : ""}"><div><strong>${escText(goal.name)}</strong><div>${progress.toLocaleString()} / ${goal.target.toLocaleString()}</div></div><div class="meta">${goal.claimed ? "Claimed" : `${goal.reward} shards`}</div></div>`;
+      }).join("");
+    }
+    if (socialPromptBoxEl){
+      const prompt = getSocialPrompt();
+      socialPromptBoxEl.textContent = prompt || "No social target loaded yet. Add friends to unlock rival prompts and daily callouts.";
+    }
+  }
+
+  function renderFriendActivity(){
+    if (!friendActivityListEl) return;
+    const items = (state.friendActivity || []).slice(0, 6);
+    if (!items.length){
+      friendActivityListEl.innerHTML = '<div class="friend-activity-empty">Friend activity will appear here once rivals start posting scores.</div>';
+      return;
+    }
+    friendActivityListEl.innerHTML = items.map(item => `<div class="friend-activity-item"><div>${escText(item.text || "")}</div><div class="meta">${escText(item.when || "")}</div></div>`).join("");
+  }
+
+  function renderVaultUI(){
+    if (!vaultGridEl) return;
+    ensureHabitState();
+    const offers = state.shopOffers || [];
+    vaultGridEl.innerHTML = offers.map(id => {
+      const cosmetic = getCosmeticById(id);
+      if (!cosmetic) return "";
+      const owned = state.ownedCosmetics.includes(id);
+      const equipped = state.equippedCosmetics[cosmetic.slot] === id;
+      return `<div class="vault-card ${owned ? "owned" : ""} ${equipped ? "equipped" : ""}" data-cosmetic="${id}">
+        <div class="vault-preview" style="--preview-accent:${cosmetic.preview.accent};--preview-core:${cosmetic.preview.core};${cosmetic.asset ? `background-image:url('${escText(cosmetic.asset)}');background-size:cover;background-position:center;` : ""}"></div>
+        <div class="vault-name">${escText(cosmetic.name)}</div>
+        <div class="vault-meta">${escText(cosmetic.desc)}</div>
+        <div class="vault-price">${owned ? (equipped ? "Equipped" : "Owned") : `${cosmetic.price} Flux`}</div>
+        <div class="btn upg-buy-btn" data-act="${owned ? "equip" : "buy"}" data-cosmetic="${id}">${owned ? (equipped ? "Equipped" : "Equip") : "Unlock"}</div>
+      </div>`;
+    }).join("");
+  }
+
   function updateUpgradeUI(){
+    ensureHabitState();
     refreshShardDisplays();
     const activeCat = document.querySelector(".upgrade-tab.active")?.dataset.cat || "all";
     const filtered = activeCat === "all" ? UPGRADES : UPGRADES.filter(u => u.category === activeCat);
+    if (vaultGridEl) vaultGridEl.style.display = activeCat === "vault" ? "grid" : "none";
+    if (upgradeGridEl) upgradeGridEl.style.display = activeCat === "vault" ? "none" : "grid";
     // Summary stats
     const totalLevels = UPGRADES.reduce((s, u) => s + u.max, 0);
     const ownedLevels = UPGRADES.reduce((s, u) => s + u.level, 0);
     const pct = totalLevels ? Math.round(ownedLevels / totalLevels * 100) : 0;
     document.getElementById("upgSummaryText").textContent = `${ownedLevels} / ${totalLevels} levels purchased`;
     document.getElementById("upgSummaryPct").textContent = `${pct}%`;
+    if (activeCat === "vault"){
+      document.getElementById("upgSummaryText").textContent = `${(state.ownedCosmetics || []).length} / ${COSMETICS.length} cosmetics owned`;
+      document.getElementById("upgSummaryPct").textContent = `${Math.round(((state.ownedCosmetics || []).length / COSMETICS.length) * 100)}%`;
+      if (upgradeGridEl) upgradeGridEl.innerHTML = "";
+      renderVaultUI();
+      renderDailyChallengeCard();
+      renderHabitSidebar();
+      return;
+    }
     upgradeGridEl.innerHTML = "";
     for (const up of filtered){
       const maxed = up.level >= up.max;
@@ -5075,6 +5918,9 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     rebindLeftEl.textContent = formatKeyName(state.rebind.left);
     rebindRightEl.textContent = formatKeyName(state.rebind.right);
+    renderVaultUI();
+    renderDailyChallengeCard();
+    renderHabitSidebar();
   }
 
   function applyUpgrades(){
@@ -5093,6 +5939,24 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function selectRunMods(){
+    ensureHabitState();
+    if (state.currentRunType === "daily" && state.dailyChallenge){
+      const pos = state.dailyChallenge.pos;
+      const neg = state.dailyChallenge.neg;
+      const mods = {
+        pos, neg, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false,
+        patternBias: 0, mirrorDir: state.dailyChallenge.seed % 2 === 0 ? -1 : 1, powerupBoost: 1, comboBonus: 1,
+        visionBoost: 1, smoothMove: 1, scoreMul: 1, chaosMode: false, controlPenalty: 1,
+        fogMode: false, tremorMode: false, legendary: false, speedBoost: 1
+      };
+      pos.apply(mods);
+      neg.apply(mods);
+      state.runMods = mods;
+      modPosEl.textContent = `${pos.icon || ""} ${pos.name} (+)`;
+      modNegEl.textContent = `${neg.icon || ""} ${neg.name} (-)`;
+      if (state.theme) themeLabelEl.textContent = `Theme: ${state.theme.name} • Daily Seed`;
+      return;
+    }
     if (!FEATURE_FLAGS.modifiers){
       state.runMods = { 
         pos: null, neg: null, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false, 
@@ -5386,18 +6250,15 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function initMissions(){
-    // Select 3 random missions for this run
-    const available = [...MISSIONS.pool];
+    const selected = state.currentRunType === "daily" && state.dailyChallenge
+      ? state.dailyChallenge.missions
+      : seededTake(MISSIONS.pool, 3, Math.random);
     missions.length = 0;
     state.missionProgress = {};
-    
-    for (let i = 0; i < 3 && available.length > 0; i++){
-      const idx = Math.floor(Math.random() * available.length);
-      const mission = available.splice(idx, 1)[0];
+    selected.forEach(mission => {
       missions.push({ ...mission, completed: false });
       state.missionProgress[mission.id] = false;
-    }
-    
+    });
     updateMissionUI();
   }
 
@@ -5423,6 +6284,12 @@ const FIREBASE_CONFIG = firebaseConfig;
         m.completed = true;
         state.missionProgress[m.id] = true;
         state.shards += m.reward;
+        if (state.currentRunType === "daily" && state.dailyChallenge){
+          state.dailyChallenge.claimedRewards.completedMissionIds = state.dailyChallenge.claimedRewards.completedMissionIds || [];
+          if (!state.dailyChallenge.claimedRewards.completedMissionIds.includes(m.id)){
+            state.dailyChallenge.claimedRewards.completedMissionIds.push(m.id);
+          }
+        }
         announce(`MISSION: ${m.name}!`);
         anyCompleted = true;
       }
@@ -5461,6 +6328,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     state.uiBest = state.best;
     state.uiIntensity = 1;
     state.scorePulse = 0;
+    state.lastRunWasNewBest = false;
+    state.lastRunPreviousBest = state.best;
     state.dangerPulse = 0;
     state.deathTimer = 0;
     state.freeze = 0;
@@ -5488,12 +6357,12 @@ const FIREBASE_CONFIG = firebaseConfig;
     state.invincibleTimer = 0;
     state.powerupsCollected = 0;
     state.powerupTimer = POWERUPS.spawnInterval * getFortuneSpawnMultiplier(state.upgrades.fortune || 0);
-    state.streakCount = 0;
+    state.runStreakCount = 0;
     state.dangerZoneTimer = 15;
     state.bossGateTimer = 20;
     state.perfectCount = 0;
     state.streakBonusCount = 0;
-    state.streakCount = 0;
+    state.runStreakCount = 0;
     
     // Check for shield spawn from upgrade
     if (state.upgrades.shield && Math.random() < getShieldStartChance(state.upgrades.shield)){
@@ -5550,18 +6419,18 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   function setPaused(isPaused){
     state.paused = isPaused;
+    state.frameAccumulatorMs = 0;
+    state.lastTime = 0;
     pausePanelEl.classList.toggle("active", isPaused);
   }
 
   function hasAcceptedLegalTerms(){
-    return localStorage.getItem(LEGAL_ACCEPT_KEY) === "1";
+    return !!getCurrentLegalConsent();
   }
 
   function openLegalConsentPanel(){
     if (!legalConsentPanelEl) return;
     if (legalConsentTermsCheckEl) legalConsentTermsCheckEl.checked = false;
-    if (legalConsentPrivacyCheckEl) legalConsentPrivacyCheckEl.checked = false;
-    if (legalConsentLicenseCheckEl) legalConsentLicenseCheckEl.checked = false;
     if (legalConsentErrorEl) legalConsentErrorEl.textContent = "";
     legalConsentPanelEl.classList.add("active");
   }
@@ -5737,6 +6606,8 @@ const FIREBASE_CONFIG = firebaseConfig;
       return;
     }
     resetGame();
+    state.frameAccumulatorMs = 0;
+    state.lastTime = 0;
     state.flash = 0.06;
     state.zoom = 0.01;
     readyGoEl.textContent = "Ready";
@@ -5771,6 +6642,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       "formula:",
       "speed = baseSpeed * (1 + scale * (t/time)^power)"
     );
+    markRunStart("start_game");
     setMode("play");
     startPanel.classList.add("hidden");
     startPanel.classList.remove("enter");
@@ -5779,7 +6651,9 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   function gameOver(){
     setMode("over");
+    state.lastRunPreviousBest = state.best;
     const isNewBest = state.score > state.best;
+    state.lastRunWasNewBest = isNewBest;
     let baseShardEarned = 0;
     const missionShardEarned = missions.reduce((sum, mission) => sum + (mission.completed ? (mission.reward || 0) : 0), 0);
     if (isNewBest){
@@ -5806,6 +6680,40 @@ const FIREBASE_CONFIG = firebaseConfig;
     state.stats.totalGates = (state.stats.totalGates || 0) + state.gateCount;
     state.stats.totalTime = (state.stats.totalTime || 0) + state.time;
     state.stats.totalNearMisses = (state.stats.totalNearMisses || 0) + state.nearCount;
+    state.stats.weeklyScoreEarned = (state.stats.weeklyScoreEarned || 0) + state.score;
+    state.stats.weeklyRuns = (state.stats.weeklyRuns || 0) + 1;
+    const runSummary = {
+      runType: state.currentRunType || "normal",
+      score: state.score,
+      gates: state.gateCount,
+      near: state.nearCount,
+      bestCombo: state.bestCombo
+    };
+    lastCompletedRun = {
+      ...runSummary,
+      newBest: isNewBest,
+      isBestSnapshot: true,
+      shareUrl: SHARE_BASE_URL,
+      seed: state.currentRunType === "daily" && state.dailyChallenge ? state.dailyChallenge.seed || "" : "",
+      themeName: (state.currentRunType === "daily" && state.dailyChallenge ? state.dailyChallenge.theme?.name : state.theme?.name) || "",
+      posName: (state.currentRunType === "daily" && state.dailyChallenge ? state.dailyChallenge.pos?.name : state.runMods?.pos?.name) || "",
+      negName: (state.currentRunType === "daily" && state.dailyChallenge ? state.dailyChallenge.neg?.name : state.runMods?.neg?.name) || "",
+      dailyLabel: state.currentRunType === "daily" ? utcDateKey() : ""
+    };
+    track("death", {
+      score: state.score,
+      gates: state.gateCount,
+      nearMisses: state.nearCount,
+      bestCombo: state.bestCombo,
+      newBest: isNewBest
+    });
+    grantDailyAndStreakRewards(runSummary);
+    updateWeeklyProgressFromRun(runSummary);
+    if (runSummary.runType === "daily" && state.dailyChallenge){
+      publishFriendActivity(`posted a daily score of ${(state.dailyChallenge.bestScore || 0).toLocaleString()}`);
+    } else if (isNewBest){
+      publishFriendActivity(`set a new personal best of ${state.best.toLocaleString()}`);
+    }
     checkAchievements();
     saveProgress();
     syncProgressToCloud();
@@ -5824,6 +6732,9 @@ const FIREBASE_CONFIG = firebaseConfig;
     showInterstitialAd();
 
     overPanel.classList.add("hidden");
+    renderDailyChallengeCard();
+    renderHabitSidebar();
+    renderFriendActivity();
   }
 
   function beginDeath(){
@@ -6204,6 +7115,7 @@ const FIREBASE_CONFIG = firebaseConfig;
           beginDeath();
           return;
         } else {
+          trackFirstGatePass();
           const center = g.gapX + g.gapW / 2;
           const centerDist = Math.abs(px - center);
           const edgeDist = Math.min(
@@ -6235,15 +7147,15 @@ const FIREBASE_CONFIG = firebaseConfig;
           state.shakePower = 4 * shakeScale();
           
           // Streak tracking - every 10 gates without dying
-          state.streakCount += 1;
-          if (state.streakCount % 10 === 0){
-            const streakBonus = Math.min(500, 50 + (state.streakCount / 10) * 25);
+          state.runStreakCount += 1;
+          if (state.runStreakCount % 10 === 0){
+            const streakBonus = Math.min(500, 50 + (state.runStreakCount / 10) * 25);
             const upgradeBonus = (state.upgrades.streak || 0) * UPGRADE_SCALING.streakPerLevel;
             const totalBonus = Math.floor(streakBonus * (1 + upgradeBonus));
             state.score += totalBonus;
             state.shards += Math.floor(totalBonus / 10);
             state.streakBonusCount += 1;
-            streakBannerEl.textContent = `STREAK x${state.streakCount / 10}! +${totalBonus}`;
+            streakBannerEl.textContent = `STREAK x${state.runStreakCount / 10}! +${totalBonus}`;
             streakBannerEl.classList.remove("show");
             void streakBannerEl.offsetWidth;
             streakBannerEl.classList.add("show");
@@ -6424,26 +7336,36 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function updateParticles(dt){
-    for (let i = particles.length - 1; i >= 0; i--){
+    let write = 0;
+    for (let i = 0; i < particles.length; i++){
       const p = particles[i];
       p.life -= dt;
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.vy += 180 * dt;
       p.vx *= 0.98;
-      if (p.life <= 0) particles.splice(i, 1);
+      if (p.life > 0){
+        particles[write++] = p;
+      }
     }
+    particles.length = write;
   }
 
   function updateTrail(dt){
     trail.push({ x: player.x, y: player.y(), life: 1 });
     const profile = state.renderProfile || buildRenderProfile();
     const maxLen = Math.max(4, Math.floor(POLISH.trailLength * motionScale() * profile.trailLengthMul));
-    while (trail.length > maxLen) trail.shift();
-    for (let i = trail.length - 1; i >= 0; i--){
-      trail[i].life -= dt * POLISH.trailFade;
-      if (trail[i].life <= 0) trail.splice(i, 1);
+    const excess = trail.length - maxLen;
+    if (excess > 0) trail.splice(0, excess);
+    let write = 0;
+    for (let i = 0; i < trail.length; i++){
+      const point = trail[i];
+      point.life -= dt * POLISH.trailFade;
+      if (point.life > 0){
+        trail[write++] = point;
+      }
     }
+    trail.length = write;
   }
 
   function updateLbTargetBar(){
@@ -6490,6 +7412,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function updateHud(dt){
+    const hudCache = state.hudCache;
     if (renderedShardCount !== state.shards){
       refreshShardDisplays(state.mode === "play" && renderedShardCount != null && state.shards > renderedShardCount);
       renderedShardCount = state.shards;
@@ -6508,25 +7431,58 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     if (state.comboTimer <= 0) comboPopEl.classList.remove("show");
 
-    scoreEl.textContent = Math.floor(state.uiScore);
-    bestEl.textContent = Math.floor(state.uiBest);
-    intensityEl.textContent = state.uiIntensity.toFixed(1);
+    const scoreText = String(Math.floor(state.uiScore));
+    if (hudCache.scoreText !== scoreText){
+      hudCache.scoreText = scoreText;
+      scoreEl.textContent = scoreText;
+    }
+    const bestText = String(Math.floor(state.uiBest));
+    if (hudCache.bestText !== bestText){
+      hudCache.bestText = bestText;
+      bestEl.textContent = bestText;
+    }
+    const intensityText = state.uiIntensity.toFixed(1);
+    if (hudCache.intensityText !== intensityText){
+      hudCache.intensityText = intensityText;
+      intensityEl.textContent = intensityText;
+    }
     const intensityLevel = intensityNorm();
-    intensityFillEl.style.transform = `scaleX(${intensityLevel.toFixed(3)})`;
-    document.body.setAttribute("data-danger", intensityLevel > 0.8 ? "1" : "0");
+    const intensityTransform = `scaleX(${intensityLevel.toFixed(3)})`;
+    if (hudCache.intensityTransform !== intensityTransform){
+      hudCache.intensityTransform = intensityTransform;
+      intensityFillEl.style.transform = intensityTransform;
+    }
+    const dangerAttr = intensityLevel > 0.8 ? "1" : "0";
+    if (hudCache.dangerAttr !== dangerAttr){
+      hudCache.dangerAttr = dangerAttr;
+      document.body.setAttribute("data-danger", dangerAttr);
+    }
 
     const pulse = Math.max(0, state.scorePulse / POLISH.pulseTime);
-    scoreEl.style.transform = `scale(${1 + pulse * POLISH.pulseScale})`;
+    const scoreTransform = `scale(${1 + pulse * POLISH.pulseScale})`;
+    if (hudCache.scoreTransform !== scoreTransform){
+      hudCache.scoreTransform = scoreTransform;
+      scoreEl.style.transform = scoreTransform;
+    }
 
     const danger = Math.max(0, state.dangerPulse / POLISH.pulseTime);
-    intensityFillEl.style.filter = `brightness(${1 + danger * 0.6})`;
+    const intensityFilter = `brightness(${1 + danger * 0.6})`;
+    if (hudCache.intensityFilter !== intensityFilter){
+      hudCache.intensityFilter = intensityFilter;
+      intensityFillEl.style.filter = intensityFilter;
+    }
     updateLbTargetBar();
 
     // Slow-mo overlay border
     if (slowmoOverlayEl){
-      if (state.slowMoEase < 0.88){
+      const slowmoActive = state.slowMoEase < 0.88;
+      if (hudCache.slowmoActive === slowmoActive) {
+        // no-op
+      } else if (slowmoActive){
+        hudCache.slowmoActive = true;
         slowmoOverlayEl.classList.add("active");
       } else {
+        hudCache.slowmoActive = false;
         slowmoOverlayEl.classList.remove("active");
       }
     }
@@ -6738,7 +7694,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     const motion = motionScale();
     const tint = intensityNorm();
     const speedFactor = 1 + tint * POLISH.visualSpeedBoost * motion;
-    const anchorY = player.y();
+    const playerY = player.y();
+    const anchorY = playerY;
     const renderY = (y) => anchorY + (y - anchorY) * speedFactor;
 
     // Color variables derived from current intensity and theme
@@ -6922,11 +7879,12 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Gates - enhanced multi-layer glow with modifier effects
     for (const g of gates){
       const gy = renderY(g.y);
+      if (gy < -POLISH.gateStreakLen - 40 || gy > h + 40) continue;
 
       // Echo decoy: ghostly blue, fades out as it approaches the player
       // Fade over the last 200px before the player line (ECHO_FADE_DISTANCE)
       if (g.echo){
-        const distToPlayer = player.y() - g.y;
+        const distToPlayer = playerY - g.y;
         const echoAlpha = clamp(distToPlayer / 200, 0, 0.45);
         if (echoAlpha < 0.01) continue;
         // Flickering ghost appearance
@@ -6965,6 +7923,12 @@ const FIREBASE_CONFIG = firebaseConfig;
 
       // Chaos: flicker gate colors randomly per gate
       let gR = neonR, gG = neonG, gB = neonB;
+      const gateColor = getEquippedGateColor();
+      if (gateColor){
+        gR = gateColor[0];
+        gG = gateColor[1];
+        gB = gateColor[2];
+      }
       if (state.runMods.chaosMode){
         gR = clamp(Math.round(neonR + Math.sin(state.visualTime * 17 + g.gapX * 0.1) * 90), 0, 255);
         gG = clamp(Math.round(neonG + Math.sin(state.visualTime * 13 + g.gapX * 0.07) * 70), 0, 255);
@@ -6979,7 +7943,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       }
       // Future vision: gates far above get a blue-violet tint when far from player
       if (state.runMods.visionBoost > 1.0){
-        const distAbove = player.y() - g.y;
+        const distAbove = playerY - g.y;
         if (distAbove > h * 0.45){
           const visionTint = Math.min(0.5, (distAbove - h * 0.45) / (h * 0.4));
           gR = Math.round(gR * (1 - visionTint * 0.4) + 80 * visionTint);
@@ -7064,6 +8028,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Dash orbs telegraph + active
     for (const o of orbs){
       const oy = renderY(o.y);
+      if (oy < -100 || oy > h + 100) continue;
       if (o.telegraphLeft > 0){
         const pulse = 0.4 + 0.6 * Math.sin((1 - o.telegraphLeft / o.telegraph) * Math.PI);
         ctx.strokeStyle = `rgba(255, 59, 122, ${0.6 * pulse})`;
@@ -7094,6 +8059,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Powerups
     for (const p of powerups){
       const py = renderY(p.y);
+      if (py < -40 || py > h + 40) continue;
       const fadeAlpha = Math.min(1, (POWERUPS.lifetime - p.age) / 2);
       ctx.globalAlpha = fadeAlpha;
       
@@ -7125,9 +8091,10 @@ const FIREBASE_CONFIG = firebaseConfig;
 
     // Player trail - enhanced with gradient and width variation
     const trailShift = state.upgradeEffects.trailShift || 0;
-    const trailR = Math.round(neonR + (255 - neonR) * trailShift);
-    const trailG = Math.round(neonG + (neonB - neonG) * trailShift);
-    const trailB = Math.round(neonB + (neonG - neonB) * trailShift);
+    const trailColor = getEquippedTrailColor();
+    const trailR = trailColor ? trailColor[0] : Math.round(neonR + (255 - neonR) * trailShift);
+    const trailG = trailColor ? trailColor[1] : Math.round(neonG + (neonB - neonG) * trailShift);
+    const trailB = trailColor ? trailColor[2] : Math.round(neonB + (neonG - neonB) * trailShift);
     for (let i = 0; i < trail.length; i++){
       const t = trail[i];
       const frac = i / trail.length;
@@ -7149,12 +8116,16 @@ const FIREBASE_CONFIG = firebaseConfig;
     ctx.shadowBlur = 0;
 
     // Engine exhaust glow below player
-    const py = player.y();
+    const py = playerY;
+    const glowColor = getEquippedGlowColor();
+    const glowR = glowColor ? glowColor[0] : neonR;
+    const glowG = glowColor ? glowColor[1] : neonG;
+    const glowB = glowColor ? glowColor[2] : neonB;
     const exhaustAlpha = (0.3 + Math.abs(player.vx) / 800 * 0.4) * motion;
     if (exhaustAlpha > 0.05){
       const exhaustGrad = ctx.createRadialGradient(player.x, py + 10, 0, player.x, py + 10, 28);
-      exhaustGrad.addColorStop(0, `rgba(${neonR},${neonG},${neonB},${exhaustAlpha})`);
-      exhaustGrad.addColorStop(0.5, `rgba(${neonR},${neonG},${neonB},${exhaustAlpha * 0.3})`);
+      exhaustGrad.addColorStop(0, `rgba(${glowR},${glowG},${glowB},${exhaustAlpha})`);
+      exhaustGrad.addColorStop(0.5, `rgba(${glowR},${glowG},${glowB},${exhaustAlpha * 0.3})`);
       exhaustGrad.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = exhaustGrad;
       ctx.fillRect(player.x - 28, py - 5, 56, 40);
@@ -7164,9 +8135,9 @@ const FIREBASE_CONFIG = firebaseConfig;
     const haloRadius = 22 + Math.sin(state.visualTime * 5) * 2;
     const haloGrad = ctx.createRadialGradient(player.x, py, 0, player.x, py, haloRadius + 8);
     const haloAlpha = 0.18 + tint * 0.14;
-    haloGrad.addColorStop(0, `rgba(${neonR},${neonG},${neonB},0)`);
-    haloGrad.addColorStop(0.4, `rgba(${neonR},${neonG},${neonB},${haloAlpha})`);
-    haloGrad.addColorStop(1, `rgba(${neonR},${neonG},${neonB},0)`);
+    haloGrad.addColorStop(0, `rgba(${glowR},${glowG},${glowB},0)`);
+    haloGrad.addColorStop(0.4, `rgba(${glowR},${glowG},${glowB},${haloAlpha})`);
+    haloGrad.addColorStop(1, `rgba(${glowR},${glowG},${glowB},0)`);
     ctx.fillStyle = haloGrad;
     ctx.beginPath();
     ctx.arc(player.x, py, haloRadius + 8, 0, Math.PI * 2);
@@ -7178,8 +8149,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     ctx.lineTo(player.x - 12, py + 12);
     ctx.lineTo(player.x + 12, py + 12);
     ctx.closePath();
-    ctx.fillStyle = neonColor;
-    ctx.shadowColor = neonColor;
+    ctx.fillStyle = `rgb(${glowR},${glowG},${glowB})`;
+    ctx.shadowColor = `rgb(${glowR},${glowG},${glowB})`;
     ctx.shadowBlur = (20 + Math.sin(state.visualTime * 6) * 3) * glowBoost;
     ctx.fill();
 
@@ -7316,6 +8287,8 @@ const FIREBASE_CONFIG = firebaseConfig;
 
     // Particles - enhanced circular with glow, theme-colored
     for (const p of particles){
+      const particleY = renderY(p.y);
+      if (particleY < -24 || particleY > h + 24 || p.x < -24 || p.x > w + 24) continue;
       const lifeAlpha = Math.max(0, p.life);
       ctx.globalAlpha = lifeAlpha * 0.9;
       // Mix neon colors for particle color variety
@@ -7328,7 +8301,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       ctx.shadowBlur = 5;
       const pr = p.r || 2.5;
       ctx.beginPath();
-      ctx.arc(p.x, renderY(p.y), pr, 0, Math.PI * 2);
+      ctx.arc(p.x, particleY, pr, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
@@ -7456,7 +8429,20 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function loop(ts){
-    const dt = Math.min(0.033, (ts - state.lastTime) / 1000 || 0);
+    if (!state.lastTime){
+      state.lastTime = ts;
+      requestAnimationFrame(loop);
+      return;
+    }
+    const elapsedMs = Math.min(50, ts - state.lastTime);
+    state.lastTime = ts;
+    state.frameAccumulatorMs += elapsedMs;
+    if (state.frameAccumulatorMs < state.frameIntervalMs){
+      requestAnimationFrame(loop);
+      return;
+    }
+    const dt = Math.min(0.033, state.frameAccumulatorMs / 1000 || 0);
+    state.frameAccumulatorMs %= state.frameIntervalMs;
     if (state.slowMo > 0){
       // Smooth ease-in: approach slowMoScale quickly
       state.slowMoEase = Math.max(TUNING.slowMoScale, state.slowMoEase - dt * TUNING.slowMoEaseInRate);
@@ -7464,7 +8450,6 @@ const FIREBASE_CONFIG = firebaseConfig;
       state.slowMoEase = Math.min(1, state.slowMoEase + dt * TUNING.slowMoEaseRate);
     }
     const timeScale = state.slowMoEase;
-    state.lastTime = ts;
     state.visualTime += dt;
 
     if (state.paused){
@@ -7604,6 +8589,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   function handleVisibilityChange(){
     input.activePointer = false;
     player.targetX = null;
+    state.frameAccumulatorMs = 0;
+    state.lastTime = 0;
     if (document.hidden){
       if (state.audioFade) cancelAnimationFrame(state.audioFade);
       menuMusic.pause();
@@ -7632,9 +8619,12 @@ const FIREBASE_CONFIG = firebaseConfig;
   const AUTH_CLOUD_TIMEOUT_MS = 25000;
   let lbPendingScore = 0;
   let lbPendingPhoto = null;
+  const LB_GUEST_ID_KEY = "neonGuestLeaderboardId";
+  let lbCelebration = null;
   let authPendingRegisterPhoto = null;
   let authProfilePhoto = null;
   let lbEntries = [];   // local cache for fast re-render
+  let lbDailyEntries = [];
   let lbDB = null;      // Firebase database reference (null = offline / not configured)
   let lbStorage = null; // Firebase storage reference (for profile photos)
   let lbStorageFallback = null; // Optional fallback bucket reference (appspot)
@@ -7887,7 +8877,7 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   function isToday(dateStr){
     if (!dateStr) return false;
-    const today = new Date().toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+    const today = legacyDateLabel();
     return dateStr === today;
   }
 
@@ -7900,6 +8890,58 @@ const FIREBASE_CONFIG = firebaseConfig;
       if (dateStr === d.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" })) return true;
     }
     return false;
+  }
+
+  function getGuestLeaderboardId(){
+    let guestId = localStorage.getItem(LB_GUEST_ID_KEY);
+    if (!guestId){
+      guestId = "guest_" + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem(LB_GUEST_ID_KEY, guestId);
+    }
+    return guestId;
+  }
+
+  function getLeaderboardIdentity(){
+    if (authUser && authUser.emailVerified){
+      return {
+        uid: authUser.uid,
+        name: (getCurrentDisplayName() || "Player").slice(0, 24),
+        verified: true,
+        photo: getAccountPhoto() || ""
+      };
+    }
+    const guestId = getGuestLeaderboardId();
+    return {
+      uid: guestId,
+      name: `Guest ${guestId.slice(-4).toUpperCase()}`,
+      verified: false,
+      photo: ""
+    };
+  }
+
+  function getLeaderboardRowsForCategory(category = lbCategory){
+    if (category === "today") return deduplicateByUid(lbEntries.filter(e => isToday(e.date)));
+    if (category === "thisweek") return deduplicateByUid(lbEntries.filter(e => isThisWeek(e.date)));
+    if (category === "daily") return deduplicateByUid(lbDailyEntries.filter(e => e.dateKey === utcDateKey()));
+    return deduplicateByUid(lbEntries);
+  }
+
+  function upsertLeaderboardCache(list, entry){
+    const idx = list.findIndex(e => (entry.uid && e.uid === entry.uid) || (entry.fbKey && e.fbKey === entry.fbKey));
+    if (idx >= 0) list[idx] = { ...list[idx], ...entry };
+    else list.push(entry);
+    list.sort((a, b) => b.score - a.score);
+    if (list.length > LB_MAX) list.length = LB_MAX;
+  }
+
+  function queueLeaderboardCelebration(category, uid, previousRank, newRank){
+    lbCelebration = {
+      category,
+      uid,
+      previousRank,
+      newRank,
+      active: true
+    };
   }
 
   // For authenticated users who may have one entry per day, keep only the
@@ -7937,29 +8979,47 @@ const FIREBASE_CONFIG = firebaseConfig;
       leaderboardListEl.innerHTML = '<div class="lb-empty"><span class="lb-loading">⟳</span> Loading…</div>';
       return;
     }
-    if (!lbEntries.length){
+    const sourceEntries = lbCategory === "daily" ? lbDailyEntries : lbEntries;
+    if (!sourceEntries.length){
       if (!lbDB){
         leaderboardListEl.innerHTML = '<div class="lb-empty">⚙️ Leaderboard not set up yet.<br>See Firebase setup instructions in index.html.</div>';
       } else {
-        leaderboardListEl.innerHTML = '<div class="lb-empty">No scores yet.<br>Play a run and submit your name!</div>';
+        leaderboardListEl.innerHTML = '<div class="lb-empty">No scores yet.<br>Play a run and set a new best.</div>';
       }
       return;
     }
-    // Apply category filter and deduplicate authenticated users by uid
-    let filtered;
-    if (lbCategory === "today") filtered = deduplicateByUid(lbEntries.filter(e => isToday(e.date)));
-    else if (lbCategory === "thisweek") filtered = deduplicateByUid(lbEntries.filter(e => isThisWeek(e.date)));
-    else filtered = deduplicateByUid(lbEntries);
+    const filtered = getLeaderboardRowsForCategory(lbCategory);
     if (!filtered.length){
       leaderboardListEl.innerHTML = '<div class="lb-empty">No entries for this period.</div>';
       return;
     }
     const top = filtered.slice(0, 10);
+    if (lbCelebration && lbCelebration.active && lbCelebration.category === lbCategory){
+      const celebrateEntry = filtered.find(e => e.uid === lbCelebration.uid);
+      if (celebrateEntry && !top.some(e => e.uid === celebrateEntry.uid)) top.push(celebrateEntry);
+    }
     top.forEach((e, i) => {
       // Find the actual index in lbEntries for admin actions
       const entryIdx = lbEntries.indexOf(e);
       const row = document.createElement("div");
       row.className = "lb-entry";
+      const guestUid = getGuestLeaderboardId();
+      const isMe = !!(e.uid && ((authUser && e.uid === authUser.uid) || e.uid === guestUid));
+      if (isMe) row.classList.add("is-you");
+      if (lbCelebration && lbCelebration.active && lbCelebration.category === lbCategory && e.uid === lbCelebration.uid){
+        row.classList.add("lb-celebrate");
+        const fromRank = Number.isFinite(lbCelebration.previousRank) ? lbCelebration.previousRank : Math.min(filtered.length + 1, 12);
+        const toRank = Number.isFinite(lbCelebration.newRank) ? lbCelebration.newRank : i + 1;
+        row.style.setProperty("--lb-entry-rise", `${Math.max(56, (fromRank - toRank) * 74)}px`);
+        row.addEventListener("animationend", () => {
+          if (lbCelebration && lbCelebration.uid === e.uid && lbCelebration.category === lbCategory){
+            lbCelebration.active = false;
+          }
+          row.classList.remove("lb-celebrate");
+          row.style.removeProperty("--lb-entry-rise");
+        }, { once: true });
+        requestAnimationFrame(() => row.scrollIntoView({ behavior: "smooth", block: "center" }));
+      }
       // Rank
       const rank = document.createElement("div");
       rank.className = "lb-rank" + (i === 0 ? " gold" : i === 1 ? " silver" : i === 2 ? " bronze" : "");
@@ -7972,6 +9032,10 @@ const FIREBASE_CONFIG = firebaseConfig;
         img.className = "lb-avatar";
         img.src = avatarPhoto;
         img.alt = e.name;
+        if ((state.equippedCosmetics && state.equippedCosmetics.badge) === "badge_rival" && authUser && e.uid === authUser.uid){
+          img.style.borderColor = "rgba(255,59,122,.85)";
+          img.style.boxShadow = "0 0 12px rgba(255,59,122,.45)";
+        }
         row.appendChild(img);
       } else {
         const ph = document.createElement("div");
@@ -8050,19 +9114,19 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     if (showLeaderboardLoading) renderLeaderboard(true);
     if (showSidebarLoading) renderLbSidebar(true);
-    lbDB.ref("leaderboard").orderByChild("score").limitToLast(LB_MAX).once("value")
-      .then(snap => {
+    Promise.all([
+      lbDB.ref("leaderboard").orderByChild("score").limitToLast(LB_MAX).once("value"),
+      lbDB.ref(`leaderboardDaily/${utcDateKey()}`).orderByChild("score").limitToLast(LB_MAX).once("value").catch(() => ({ val: () => null }))
+    ])
+      .then(([snap, dailySnap]) => {
         const raw = snap.val();
-        if (!raw){
-          lbEntries = [];
-          if (showLeaderboardLoading) renderLeaderboard(false);
-          if (showSidebarLoading) renderLbSidebar(false);
-          return;
-        }
-        // Preserve Firebase keys so we can update entries instead of creating duplicates
-        lbEntries = Object.entries(raw).map(([key, value]) => ({...value, fbKey: key}));
+        const dailyRaw = dailySnap && dailySnap.val ? (dailySnap.val() || {}) : {};
+        lbEntries = raw ? Object.entries(raw).map(([key, value]) => ({ ...value, fbKey: key })) : [];
         lbEntries.sort((a, b) => b.score - a.score);
         if (lbEntries.length > LB_MAX) lbEntries.length = LB_MAX;
+        lbDailyEntries = Object.entries(dailyRaw || {}).map(([key, value]) => ({ ...value, fbKey: key, dateKey: utcDateKey() }));
+        lbDailyEntries.sort((a, b) => b.score - a.score);
+        if (lbDailyEntries.length > LB_MAX) lbDailyEntries.length = LB_MAX;
         if (showLeaderboardLoading) renderLeaderboard(false);
         if (showSidebarLoading) renderLbSidebar(false);
       })
@@ -8129,7 +9193,119 @@ const FIREBASE_CONFIG = firebaseConfig;
         </div>`
       ).join('');
     }
+    renderHabitSidebar();
     sidebarEl.classList.add("active");
+  }
+
+  function getSocialPrompt(){
+    if (!authUser || !Object.keys(friendsMap || {}).length) return "";
+    const myBest = state.best || 0;
+    let target = null;
+    Object.entries(friendsMap || {}).forEach(([uid, friend]) => {
+      const score = lbEntries.reduce((best, entry) => entry.uid === uid ? Math.max(best, entry.score || 0) : best, 0);
+      if (score > myBest && (!target || score < target.score)){
+        target = { uid, name: friend.name || uid, score };
+      }
+    });
+    if (target) return `Beat ${target.name}'s best score of ${target.score.toLocaleString()} to reclaim your spot.`;
+    if (state.dailyChallenge && state.dailyChallenge.bestScore > 0) return `Daily seed is live. Share your ${(state.dailyChallenge.bestScore || 0).toLocaleString()} score with friends.`;
+    return "Challenge a friend to today's seeded run for bonus shards.";
+  }
+
+  function syncDailyState(){
+    const todayKey = utcDateKey();
+    state.dailyHistory[todayKey] = {
+      ...state.dailyChallenge,
+      bestScore: state.dailyChallenge.bestScore || 0,
+      claimedRewards: { ...(state.dailyChallenge.claimedRewards || {}) }
+    };
+  }
+
+  function updateWeeklyProgressFromRun(run){
+    ensureHabitState();
+    const goals = state.weeklyProgress.goals || [];
+    const deltas = {
+      runs: 1,
+      gates: run.gates || 0,
+      near: run.near || 0,
+      score: run.score || 0,
+      comboRuns: run.bestCombo >= 8 ? 1 : 0,
+      dailyRuns: run.runType === "daily" ? 1 : 0
+    };
+    goals.forEach(goal => {
+      goal.progress = (goal.progress || 0) + (deltas[goal.stat] || 0);
+      goal.complete = (goal.progress || 0) >= goal.target;
+    });
+    const allComplete = goals.length && goals.every(goal => goal.complete);
+    if (allComplete && !state.weeklyProgress.claimed){
+      state.weeklyProgress.claimed = true;
+      state.shards += HABIT_REWARDS.weeklyCompleteShards;
+      state.fluxTokens += HABIT_REWARDS.weeklyCompleteFlux;
+      announce("WEEKLY TARGETS COMPLETE!");
+    }
+  }
+
+  function grantDailyAndStreakRewards(run){
+    ensureHabitState();
+    const todayKey = utcDateKey();
+    const dayNum = Math.floor(Date.parse(`${todayKey}T00:00:00Z`) / 86400000);
+    const lastNum = state.lastActiveDate ? Math.floor(Date.parse(`${state.lastActiveDate}T00:00:00Z`) / 86400000) : null;
+    if (lastNum == null){
+      state.streakCount = 1;
+    } else if (dayNum === lastNum){
+      // already handled today
+    } else if (dayNum - lastNum === 1){
+      state.streakCount += 1;
+    } else if (dayNum - lastNum === 2){
+      state.streakGraceUsedDate = todayKey;
+      state.streakCount += 1;
+    } else if (dayNum - lastNum > 2){
+      state.streakCount = 1;
+    }
+    if (state.lastActiveDate !== todayKey){
+      state.shards += HABIT_REWARDS.streakChest;
+      state.stats.totalShardsEarned = (state.stats.totalShardsEarned || 0) + HABIT_REWARDS.streakChest;
+      if (state.streakCount > 0 && state.streakCount % 7 === 0){
+        state.shards += HABIT_REWARDS.streak7Bonus;
+        state.fluxTokens += 1;
+      }
+      state.lastActiveDate = todayKey;
+      state.todayCompleted = true;
+      state.stats.streakDaysEarned = (state.stats.streakDaysEarned || 0) + 1;
+    }
+    if (run.runType === "daily"){
+      state.stats.dailyRuns = (state.stats.dailyRuns || 0) + 1;
+      const daily = state.dailyChallenge;
+      daily.bestScore = Math.max(daily.bestScore || 0, run.score || 0);
+      if (!daily.claimedRewards.first){
+        daily.claimedRewards.first = true;
+        state.shards += HABIT_REWARDS.dailyFirstRun;
+      }
+      if ((run.score || 0) >= daily.targetBronze && !daily.claimedRewards.bronze){
+        daily.claimedRewards.bronze = true;
+        state.shards += HABIT_REWARDS.dailyTiers.bronze;
+      }
+      if ((run.score || 0) >= daily.targetSilver && !daily.claimedRewards.silver){
+        daily.claimedRewards.silver = true;
+        state.shards += HABIT_REWARDS.dailyTiers.silver;
+      }
+      if ((run.score || 0) >= daily.targetGold && !daily.claimedRewards.gold){
+        daily.claimedRewards.gold = true;
+        state.shards += HABIT_REWARDS.dailyTiers.gold;
+        state.fluxTokens += 1;
+      }
+      state.stats.dailyBestScore = Math.max(state.stats.dailyBestScore || 0, daily.bestScore || 0);
+      syncDailyState();
+    }
+  }
+
+  function publishFriendActivity(text){
+    if (!text) return;
+    const item = { text, when: utcDateLabelFromKey(utcDateKey()) };
+    state.friendActivity = [item, ...(state.friendActivity || [])].slice(0, 12);
+    if (authUser && lbDB){
+      lbDB.ref(`activityFeed/${authUser.uid}`).push({ text, ts: Date.now() }).catch(() => {});
+    }
   }
 
   function clearLbTimer(){
@@ -9059,6 +10235,27 @@ const FIREBASE_CONFIG = firebaseConfig;
       renderFriendSearchResults();
       if (friendsTab === "board") renderFriendsLeaderboard();
       try {
+        const friendIds = Object.keys(friendsMap || {}).slice(0, 8);
+        const activitySnaps = await Promise.allSettled(friendIds.map(uid => lbDB.ref("activityFeed/" + uid).limitToLast(2).once("value")));
+        const items = [];
+        activitySnaps.forEach((res, idx) => {
+          if (res.status !== "fulfilled") return;
+          const uid = friendIds[idx];
+          const raw = res.value.val() || {};
+          Object.values(raw).forEach(ev => {
+            items.push({
+              text: `${(friendsMap[uid] && friendsMap[uid].name) || uid} ${ev.text || ""}`,
+              when: ev.ts ? formatShortDateTime(ev.ts) : ""
+            });
+          });
+        });
+        items.sort((a, b) => String(b.when).localeCompare(String(a.when)));
+        if (items.length) state.friendActivity = items.slice(0, 8);
+        renderFriendActivity();
+      } catch (_activityErr) {
+        renderFriendActivity();
+      }
+      try {
         await loadSpeechReads();
         await refreshSpeechInbox(true);
         if (friendsTab === "speech" && activeSpeechThreadId && !speechRef){
@@ -9313,7 +10510,10 @@ const FIREBASE_CONFIG = firebaseConfig;
       { label: "Total Gates",    value: (s.totalGates || 0).toLocaleString() },
       { label: "Time Played",    value: formatTime(s.totalTime || 0) },
       { label: "Near Misses",    value: (s.totalNearMisses || 0).toLocaleString() },
-      { label: "Shards Earned",  value: (s.totalShardsEarned || 0).toLocaleString() }
+      { label: "Shards Earned",  value: (s.totalShardsEarned || 0).toLocaleString() },
+      { label: "Streak Days",    value: (state.streakCount || 0).toLocaleString() },
+      { label: "Daily Best",     value: ((state.dailyChallenge && state.dailyChallenge.bestScore) || 0).toLocaleString() },
+      { label: "Flux Tokens",    value: (state.fluxTokens || 0).toLocaleString() }
     ].map(item => `<div class="stat-card"><div class="stat-value">${item.value}</div><div class="stat-label">${item.label}</div></div>`).join('');
     statsPanelEl.classList.add("active");
   }
@@ -9342,6 +10542,8 @@ const FIREBASE_CONFIG = firebaseConfig;
       if (!state.achievementsUnlocked.includes(id)){
         state.achievementsUnlocked.push(id);
         const ach = ACHIEVEMENTS.list.find(a => a.id === id);
+        if (id === "high_roller") state.fluxTokens += 1;
+        if (id === "survivor" && !state.ownedCosmetics.includes("trail_mint")) state.ownedCosmetics.push("trail_mint");
         if (ach) setTimeout(() => announce(`${ach.icon} ${ach.name.toUpperCase()}!`), 200);
         return true;
       }
@@ -9374,6 +10576,8 @@ const FIREBASE_CONFIG = firebaseConfig;
     // Refresh sidebars and shard count
     loadLeaderboardOnline({ showLeaderboardLoading: false, showSidebarLoading: true });
     renderLeftSidebar();
+    renderDailyChallengeCard();
+    renderFriendActivity();
     const mainMenuShardsEl = document.getElementById("mainMenuShards");
     if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
   }
@@ -9381,6 +10585,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   function openLeaderboard(e){
     if (e) e.stopPropagation();
     sfxClick();
+    track("leaderboard_open", { surface: state.mode === "start" ? "start" : state.mode });
     leaderboardPanelEl.classList.add("active");
     loadLeaderboardOnline({ showLeaderboardLoading: true, showSidebarLoading: state.mode === "start" });
   }
@@ -9439,25 +10644,38 @@ const FIREBASE_CONFIG = firebaseConfig;
     lbModalEl.classList.remove("active");
   }
 
-  function submitLbEntry(){
-    const name = (lbNameInputEl.value.trim() || "Anonymous").slice(0, 24);
+  function submitLbEntryLegacy(){
     const score = lbPendingScore;
-    const dateStr = new Date().toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
-    closeLbModal();
+    const dateStr = legacyDateLabel();
+    const isDailyRun = state.currentRunType === "daily";
+    const dailyKey = utcDateKey();
+    const identity = getLeaderboardIdentity();
     sfxClick();
 
-    function doSubmit(photo){
-      const entry = { name, score, date: dateStr };
-      // Tag entry with account uid when signed in with verified email
-      if (authUser && authUser.emailVerified){
-        const accountPhoto = getAccountPhoto();
-        if (accountPhoto) entry.photo = accountPhoto;
-        entry.uid = authUser.uid;
-        entry.verified = true;
-      } else if (photo) {
-        entry.photo = photo;
-      }
+    const previousAllTimeRank = getLeaderboardRowsForCategory("alltime").findIndex(e => e.uid === identity.uid);
+    const entry = {
+      name: identity.name,
+      score,
+      date: dateStr,
+      uid: identity.uid,
+      verified: !!identity.verified
+    };
+    if (identity.photo) entry.photo = identity.photo;
+    {
       if (lbDB){
+        if (isDailyRun && authUser && authUser.emailVerified){
+          const dailyEntry = { ...entry, dateKey: dailyKey, seed: state.dailyChallenge ? state.dailyChallenge.seed : null };
+          lbDB.ref(`leaderboardDaily/${dailyKey}/${authUser.uid}`).transaction((current) => {
+            if (!current || score > (+current.score || 0)) return dailyEntry;
+            return current;
+          }).catch(() => {});
+          const existingDailyIdx = lbDailyEntries.findIndex(e => e.uid === authUser.uid && e.dateKey === dailyKey);
+          if (existingDailyIdx >= 0){
+            if (score > (+lbDailyEntries[existingDailyIdx].score || 0)) lbDailyEntries[existingDailyIdx] = { ...dailyEntry, uid: authUser.uid, fbKey: authUser.uid };
+          } else {
+            lbDailyEntries.push({ ...dailyEntry, uid: authUser.uid, fbKey: authUser.uid });
+          }
+        }
         // If logged in, track one entry per user per day so each leaderboard
         // period (Today / This Week / All Time) works independently.
         if (authUser && authUser.emailVerified){
@@ -9524,17 +10742,88 @@ const FIREBASE_CONFIG = firebaseConfig;
   // any period: since today is contained within this-week which is contained
   // within all-time, beating today's personal best is the minimum requirement.
   // If today has no entry yet, todayBest is 0, so any positive score qualifies.
-  function submitScore(score){
+  function submitScoreLegacy(score){
     if (authUser && authUser.emailVerified){
       const uid = authUser.uid;
-      const todayBest = lbEntries.reduce((best, e) =>
-        (e.uid === uid && isToday(e.date) && e.score > best) ? e.score : best, 0);
+      const todayBest = (state.currentRunType === "daily")
+        ? lbDailyEntries.reduce((best, e) => (e.uid === uid && e.dateKey === utcDateKey() && e.score > best) ? e.score : best, 0)
+        : lbEntries.reduce((best, e) => (e.uid === uid && isToday(e.date) && e.score > best) ? e.score : best, 0);
       if (score <= todayBest) { navigateToMainMenu(); return; }
     }
     showLbModal(score);
   }
 
   // ── Account / Auth System ────────────────────────────────────────────────────
+  function submitLbEntry(){
+    const score = lbPendingScore;
+    const dateStr = legacyDateLabel();
+    const isDailyRun = state.currentRunType === "daily";
+    const dailyKey = utcDateKey();
+    const identity = getLeaderboardIdentity();
+    sfxClick();
+    const previousAllTimeRank = getLeaderboardRowsForCategory("alltime").findIndex(e => e.uid === identity.uid);
+    const entry = {
+      name: identity.name,
+      score,
+      date: dateStr,
+      uid: identity.uid,
+      verified: !!identity.verified
+    };
+    if (identity.photo) entry.photo = identity.photo;
+    track("score_submit", {
+      score,
+      leaderboardUid: identity.uid,
+      verified: !!identity.verified,
+      boardType: isDailyRun ? "daily+alltime" : "alltime"
+    });
+    if (lbDB){
+      lbDB.ref(`leaderboard/${identity.uid}`).transaction((current) => {
+        if (!current || score > (+current.score || 0)) return { ...current, ...entry };
+        return current;
+      }).catch(() => {});
+      if (isDailyRun){
+        const dailyEntry = { ...entry, dateKey: dailyKey, seed: state.dailyChallenge ? state.dailyChallenge.seed : null };
+        lbDB.ref(`leaderboardDaily/${dailyKey}/${identity.uid}`).transaction((current) => {
+          if (!current || score > (+current.score || 0)) return { ...current, ...dailyEntry };
+          return current;
+        }).catch(() => {});
+        upsertLeaderboardCache(lbDailyEntries, { ...dailyEntry, fbKey: identity.uid });
+      }
+    }
+    upsertLeaderboardCache(lbEntries, { ...entry, fbKey: identity.uid });
+    const newAllTimeRank = getLeaderboardRowsForCategory("alltime").findIndex(e => e.uid === identity.uid);
+    queueLeaderboardCelebration(
+      "alltime",
+      identity.uid,
+      previousAllTimeRank >= 0 ? previousAllTimeRank + 1 : Math.min(lbEntries.length + 1, 12),
+      newAllTimeRank >= 0 ? newAllTimeRank + 1 : 1
+    );
+    lbCategory = "alltime";
+    document.getElementById("lbCategoryTabs").querySelectorAll(".lb-category-tab").forEach(t => {
+      t.classList.toggle("active", (t.dataset.cat || "alltime") === "alltime");
+    });
+    track("leaderboard_open", { surface: "score_submit" });
+    leaderboardPanelEl.classList.add("active");
+    renderLeaderboard(false);
+    renderLbSidebar();
+    loadLeaderboardOnline({ showLeaderboardLoading: false, showSidebarLoading: state.mode === "start" });
+  }
+
+  function submitScore(score){
+    lbPendingScore = score;
+    if (!state.lastRunWasNewBest){
+      navigateToMainMenu();
+      return;
+    }
+    const identity = getLeaderboardIdentity();
+    const existingBest = lbEntries.reduce((best, e) => e.uid === identity.uid ? Math.max(best, +e.score || 0) : best, 0);
+    if (score <= existingBest){
+      navigateToMainMenu();
+      return;
+    }
+    submitLbEntry();
+  }
+
   // Uses Firebase Authentication (email + password + email verification).
   // Progress is synced to /users/{uid}/progress in Firebase Realtime DB when
   // the user is signed in. Falls back gracefully to localStorage when offline
@@ -9554,6 +10843,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       updateAuthPhotoPreview(getAccountPhoto());
       // User just signed in or page reloaded while signed in
       loadProgressFromCloud(() => {
+        if (hasAcceptedLegalTerms()) syncLegalConsentToCloud();
         updateAuthUI();
         syncPublicProfileToCloud();
         if (friendsPanelEl && friendsPanelEl.classList.contains("active")) loadFriendsData();
@@ -9640,6 +10930,20 @@ const FIREBASE_CONFIG = firebaseConfig;
           if (data.rebind) state.rebind = data.rebind;
           if (data.stats) Object.assign(state.stats, data.stats);
           if (data.achievementsUnlocked) state.achievementsUnlocked = data.achievementsUnlocked;
+          if (data.dailyHistory) state.dailyHistory = data.dailyHistory;
+          if (data.streakCount != null) state.streakCount = +data.streakCount || 0;
+          if (data.lastActiveDate) state.lastActiveDate = data.lastActiveDate;
+          if (data.todayCompleted != null) state.todayCompleted = !!data.todayCompleted;
+          if (data.streakGraceUsedDate) state.streakGraceUsedDate = data.streakGraceUsedDate;
+          if (data.weeklyProgress) state.weeklyProgress = data.weeklyProgress;
+          if (data.weeklyResetKey) state.weeklyResetKey = data.weeklyResetKey;
+          if (data.fluxTokens != null) state.fluxTokens = +data.fluxTokens || 0;
+          if (data.ownedCosmetics) state.ownedCosmetics = data.ownedCosmetics;
+          if (data.equippedCosmetics) state.equippedCosmetics = { ...state.equippedCosmetics, ...data.equippedCosmetics };
+          if (data.shopRotationKey) state.shopRotationKey = data.shopRotationKey;
+          if (data.shopOffers) state.shopOffers = data.shopOffers;
+          if (data.friendActivity) state.friendActivity = data.friendActivity;
+          if (data.legalConsent) applyCloudLegalConsent(data.legalConsent);
           if (data.profilePhoto != null) authProfilePhoto = data.profilePhoto || null;
           setCachedProfilePhoto(authUser.uid, authProfilePhoto || "");
           if (data.best != null && data.best > state.best){
@@ -9655,12 +10959,26 @@ const FIREBASE_CONFIG = firebaseConfig;
             up.level = clamped;
           }
           applyUpgrades();
+          ensureHabitState();
           updateUpgradeUI();
           // Mirror back to localStorage
           localStorage.setItem("neonProgress", JSON.stringify({
             shards: state.shards, upgrades: state.upgrades,
             rebind: state.rebind, stats: state.stats,
-            achievementsUnlocked: state.achievementsUnlocked
+            achievementsUnlocked: state.achievementsUnlocked,
+            dailyHistory: state.dailyHistory,
+            streakCount: state.streakCount,
+            lastActiveDate: state.lastActiveDate,
+            todayCompleted: state.todayCompleted,
+            streakGraceUsedDate: state.streakGraceUsedDate,
+            weeklyProgress: state.weeklyProgress,
+            weeklyResetKey: state.weeklyResetKey,
+            fluxTokens: state.fluxTokens,
+            ownedCosmetics: state.ownedCosmetics,
+            equippedCosmetics: state.equippedCosmetics,
+            shopRotationKey: state.shopRotationKey,
+            shopOffers: state.shopOffers,
+            friendActivity: state.friendActivity
           }));
           updateAuthPhotoPreview(getAccountPhoto());
         }
@@ -9680,10 +10998,46 @@ const FIREBASE_CONFIG = firebaseConfig;
       rebind: state.rebind,
       stats: state.stats,
       achievementsUnlocked: state.achievementsUnlocked,
+      dailyHistory: state.dailyHistory,
+      streakCount: state.streakCount,
+      lastActiveDate: state.lastActiveDate,
+      todayCompleted: state.todayCompleted,
+      streakGraceUsedDate: state.streakGraceUsedDate,
+      weeklyProgress: state.weeklyProgress,
+      weeklyResetKey: state.weeklyResetKey,
+      fluxTokens: state.fluxTokens,
+      ownedCosmetics: state.ownedCosmetics,
+      equippedCosmetics: state.equippedCosmetics,
+      shopRotationKey: state.shopRotationKey,
+      shopOffers: state.shopOffers,
+      friendActivity: state.friendActivity,
+      legalConsent: (() => {
+        const record = getCurrentLegalConsent();
+        return record ? {
+          accepted: true,
+          version: record.version,
+          acceptedAt: record.acceptedAt || Date.now()
+        } : null;
+      })(),
       best: state.best,
       displayName: authUser.displayName || "",
       profilePhoto: getAccountPhoto() || "",
       lastSync: Date.now()
+    }).catch(() => {});
+    lbDB.ref("users/" + authUser.uid + "/progressHabit").set({
+      dailyHistory: state.dailyHistory,
+      streakCount: state.streakCount,
+      lastActiveDate: state.lastActiveDate,
+      todayCompleted: state.todayCompleted,
+      weeklyProgress: state.weeklyProgress,
+      weeklyResetKey: state.weeklyResetKey,
+      fluxTokens: state.fluxTokens,
+      ownedCosmetics: state.ownedCosmetics,
+      equippedCosmetics: state.equippedCosmetics,
+      shopRotationKey: state.shopRotationKey,
+      shopOffers: state.shopOffers,
+      friendActivity: state.friendActivity,
+      updatedAt: Date.now()
     }).catch(() => {});
     syncPublicProfileToCloud();
   }
@@ -10036,6 +11390,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   function updateAdminButtonState(){
     const btn = document.getElementById("adminModeBtn");
     if (!btn) return;
+    if (adminSettingsRowEl) adminSettingsRowEl.style.display = (adminMode || authHasAdminClaim) ? "flex" : "none";
     if (adminMode){
       btn.textContent = "Active ✓";
       btn.style.background = "rgba(138,91,255,.2)";
@@ -10563,6 +11918,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     if (e.code === state.rebind.left) input.left = true;
     if (e.code === state.rebind.right) input.right = true;
+    if (e.code === state.rebind.left || e.code === state.rebind.right) trackFirstGameplayInput("keyboard");
     if (e.code === "KeyM"){
       setMuted(!state.audioMuted);
     }
@@ -10592,10 +11948,12 @@ const FIREBASE_CONFIG = firebaseConfig;
   canvas.addEventListener("pointerdown", (e) => {
     initAudio();
     unlockAudio();
+    trackFirstGameplayInput("pointer");
     input.activePointer = true;
     player.targetX = e.clientX;
   });
   canvas.addEventListener("pointermove", (e) => {
+    trackFirstGameplayInput("pointer");
     if (input.activePointer) player.targetX = e.clientX;
   });
   canvas.addEventListener("pointercancel", () => {
@@ -10615,7 +11973,25 @@ const FIREBASE_CONFIG = firebaseConfig;
     initAudio();
     unlockAudio();
     sfxClick();
+    state.currentRunType = "normal";
+    state.dailyChallenge = currentDailyEntry();
+    track("play_click", { surface: "start_panel" });
     if (!ensureLegalConsentForGameplay("open-mods")) return;
+    generateRunProfile();
+    selectRunMods();
+    modsPanelEl.classList.add("active");
+  });
+  if (startDailyRunBtnEl) startDailyRunBtnEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    initAudio();
+    unlockAudio();
+    sfxClick();
+    state.currentRunType = "daily";
+    state.dailyChallenge = currentDailyEntry();
+    track("daily_play_click", { surface: "daily_card", dailySeed: state.dailyChallenge?.seed || "" });
+    if (!ensureLegalConsentForGameplay("open-mods")) return;
+    generateRunProfile();
+    selectRunMods();
     modsPanelEl.classList.add("active");
   });
   document.getElementById("tryAgainBtn").addEventListener("click", (e) => {
@@ -10624,6 +12000,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     unlockAudio();
     sfxClick();
     clearLbTimer();
+    track("retry_click", { previousScore: state.score || 0 });
     startGame();
   });
   overPanel.addEventListener("click", () => {
@@ -10666,8 +12043,335 @@ const FIREBASE_CONFIG = firebaseConfig;
     challengeStatusEl.textContent = message || "";
     challengeStatusEl.classList.toggle("error", !!isError);
   }
+  function getShareContext(){
+    const daily = state.dailyChallenge || currentDailyEntry();
+    if (lastCompletedRun){
+      return {
+        ...lastCompletedRun,
+        shareUrl: SHARE_BASE_URL
+      };
+    }
+    if (state.currentRunType === "daily" && daily){
+      return {
+        runType: "daily",
+        score: daily.bestScore || 0,
+        newBest: false,
+        isBestSnapshot: !!daily.bestScore,
+        shareUrl: SHARE_BASE_URL,
+        seed: daily.seed || "",
+        themeName: daily.theme?.name || "",
+        posName: daily.pos?.name || "",
+        negName: daily.neg?.name || "",
+        dailyLabel: utcDateKey()
+      };
+    }
+    return {
+      runType: "normal",
+      score: state.best || 0,
+      newBest: false,
+      isBestSnapshot: !!state.best,
+      shareUrl: SHARE_BASE_URL,
+      seed: "",
+      themeName: state.theme?.name || "",
+      posName: state.runMods?.pos?.name || "",
+      negName: state.runMods?.neg?.name || "",
+      dailyLabel: ""
+    };
+  }
+
+  function getShareRunLabel(context){
+    return context.runType === "daily" ? "Daily Challenge" : "Standard Run";
+  }
+
+  function getShareSetupLine(context){
+    const parts = [];
+    if (context.themeName) parts.push(context.themeName);
+    if (context.posName) parts.push(`+ ${context.posName}`);
+    if (context.negName) parts.push(`- ${context.negName}`);
+    return parts.join("  |  ");
+  }
+
   function getChallengeMessage(){
-    return CHALLENGE_SHARE_MESSAGE;
+    const context = getShareContext();
+    const scoreLine = context.score > 0
+      ? `I just posted ${context.score.toLocaleString()} on Neon Slip ${context.runType === "daily" ? "today's shared seed" : "and survived a brutal run"}.`
+      : `Jump into ${context.runType === "daily" ? "today's Neon Slip Daily Challenge" : "a Neon Slip run"} with me.`;
+    const bestLine = context.newBest
+      ? " New personal best."
+      : (context.isBestSnapshot && context.score > 0 ? " That's still my best." : "");
+    const setupLine = getShareSetupLine(context);
+    const setupText = setupLine
+      ? ` ${context.runType === "daily" ? "Today's setup" : "Run setup"}: ${setupLine}.`
+      : "";
+    const seedText = context.runType === "daily" && context.seed ? ` Seed ${context.seed}.` : "";
+    return `${scoreLine}${bestLine}${setupText}${seedText} Play at ${context.shareUrl} and beat me.`;
+  }
+
+  function drawRoundedPanel(ctx, x, y, width, height, radius){
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + width, y, x + width, y + height, r);
+    ctx.arcTo(x + width, y + height, x, y + height, r);
+    ctx.arcTo(x, y + height, x, y, r);
+    ctx.arcTo(x, y, x + width, y, r);
+    ctx.closePath();
+  }
+
+  function fitCardText(ctx, text, maxWidth, startSize, minSize, family){
+    let size = startSize;
+    while (size > minSize){
+      ctx.font = `${size}px ${family}`;
+      if (ctx.measureText(text).width <= maxWidth) break;
+      size -= 4;
+    }
+    ctx.font = `${Math.max(size, minSize)}px ${family}`;
+  }
+
+  function canvasToBlob(canvas){
+    return new Promise((resolve) => {
+      if (canvas.toBlob){
+        canvas.toBlob((blob) => resolve(blob), "image/png");
+        return;
+      }
+      const dataUrl = canvas.toDataURL("image/png");
+      fetch(dataUrl).then(res => res.blob()).then(resolve).catch(() => resolve(null));
+    });
+  }
+
+  async function generateChallengeCardBlob(context = getShareContext()){
+    const width = 1080;
+    const height = 1920;
+    const canvasEl = document.createElement("canvas");
+    canvasEl.width = width;
+    canvasEl.height = height;
+    const cctx = canvasEl.getContext("2d");
+    if (!cctx) return null;
+
+    const bg = cctx.createLinearGradient(0, 0, width, height);
+    bg.addColorStop(0, "#08111f");
+    bg.addColorStop(0.55, "#120a26");
+    bg.addColorStop(1, "#04060d");
+    cctx.fillStyle = bg;
+    cctx.fillRect(0, 0, width, height);
+
+    const glowA = cctx.createRadialGradient(180, 220, 0, 180, 220, 420);
+    glowA.addColorStop(0, "rgba(25,247,255,0.32)");
+    glowA.addColorStop(1, "rgba(25,247,255,0)");
+    cctx.fillStyle = glowA;
+    cctx.fillRect(0, 0, width, height);
+
+    const glowB = cctx.createRadialGradient(900, 380, 0, 900, 380, 420);
+    glowB.addColorStop(0, "rgba(138,91,255,0.26)");
+    glowB.addColorStop(1, "rgba(138,91,255,0)");
+    cctx.fillStyle = glowB;
+    cctx.fillRect(0, 0, width, height);
+
+    cctx.strokeStyle = "rgba(25,247,255,0.12)";
+    cctx.lineWidth = 2;
+    for (let x = 84; x < width; x += 96){
+      cctx.beginPath();
+      cctx.moveTo(x, 0);
+      cctx.lineTo(x, height);
+      cctx.stroke();
+    }
+    for (let y = 140; y < height; y += 128){
+      cctx.beginPath();
+      cctx.moveTo(0, y);
+      cctx.lineTo(width, y);
+      cctx.stroke();
+    }
+
+    drawRoundedPanel(cctx, 72, 72, width - 144, height - 144, 42);
+    cctx.fillStyle = "rgba(7,13,24,0.72)";
+    cctx.fill();
+    cctx.strokeStyle = "rgba(25,247,255,0.38)";
+    cctx.lineWidth = 4;
+    cctx.shadowColor = "rgba(25,247,255,0.22)";
+    cctx.shadowBlur = 26;
+    cctx.stroke();
+    cctx.shadowBlur = 0;
+
+    cctx.fillStyle = "rgba(125,255,178,0.94)";
+    cctx.font = `46px ${RESULT_CARD_BODY_FONT}`;
+    cctx.textAlign = "left";
+    cctx.fillText("NEON SLIP", 120, 154);
+
+    cctx.fillStyle = "#f4f9ff";
+    fitCardText(cctx, context.newBest ? "NEW BEST" : getShareRunLabel(context).toUpperCase(), width - 240, 132, 76, RESULT_CARD_TITLE_FONT);
+    cctx.shadowColor = "rgba(25,247,255,0.26)";
+    cctx.shadowBlur = 20;
+    cctx.fillText(context.newBest ? "NEW BEST" : getShareRunLabel(context).toUpperCase(), 120, 300);
+    cctx.shadowBlur = 0;
+
+    cctx.fillStyle = "rgba(225,252,255,0.78)";
+    cctx.font = `40px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText(context.runType === "daily" ? "TODAY'S SEEDED RUN" : "ENDLESS NORMAL RUN", 124, 368);
+
+    const scoreText = Math.max(0, context.score || 0).toLocaleString();
+    cctx.fillStyle = "#19f7ff";
+    fitCardText(cctx, scoreText, width - 240, 250, 130, RESULT_CARD_TITLE_FONT);
+    cctx.shadowColor = "rgba(25,247,255,0.4)";
+    cctx.shadowBlur = 28;
+    cctx.fillText(scoreText, 120, 640);
+    cctx.shadowBlur = 0;
+
+    cctx.fillStyle = "rgba(225,252,255,0.9)";
+    cctx.font = `46px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText("SCORE", 126, 710);
+
+    drawRoundedPanel(cctx, 104, 804, width - 208, 224, 30);
+    cctx.fillStyle = "rgba(8,17,31,0.84)";
+    cctx.fill();
+    cctx.strokeStyle = "rgba(138,91,255,0.42)";
+    cctx.lineWidth = 3;
+    cctx.stroke();
+
+    cctx.fillStyle = "rgba(225,252,255,0.72)";
+    cctx.font = `34px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText(context.runType === "daily" ? "SEEDED SETUP" : "RUN SETUP", 144, 872);
+    cctx.fillStyle = "#f4f9ff";
+    fitCardText(cctx, getShareSetupLine(context) || "Clean reflexes. No excuses.", width - 288, 62, 36, RESULT_CARD_BODY_FONT);
+    cctx.fillText(getShareSetupLine(context) || "Clean reflexes. No excuses.", 144, 950);
+
+    cctx.fillStyle = "rgba(225,252,255,0.72)";
+    cctx.font = `34px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText("STATUS", 144, 1018);
+    cctx.fillStyle = context.newBest ? "#ff7db2" : "#7dffb2";
+    cctx.font = `54px ${RESULT_CARD_TITLE_FONT}`;
+    cctx.fillText(context.newBest ? "PERSONAL BEST" : "CHALLENGE LIVE", 144, 1098);
+
+    drawRoundedPanel(cctx, 104, 1138, width - 208, 292, 30);
+    cctx.fillStyle = "rgba(8,17,31,0.84)";
+    cctx.fill();
+    cctx.strokeStyle = "rgba(25,247,255,0.32)";
+    cctx.lineWidth = 3;
+    cctx.stroke();
+
+    cctx.fillStyle = "rgba(225,252,255,0.72)";
+    cctx.font = `34px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText("CHALLENGE", 144, 1208);
+    cctx.fillStyle = "#f4f9ff";
+    cctx.font = `48px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText("Play the same game. Beat the score.", 144, 1296);
+    cctx.fillStyle = "rgba(225,252,255,0.84)";
+    cctx.font = `38px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText(context.runType === "daily" && context.seed ? `Seed ${context.seed}` : "No shortcuts. Pure movement.", 144, 1368);
+
+    cctx.fillStyle = "rgba(225,252,255,0.72)";
+    cctx.font = `32px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText("PLAY NOW", 120, 1672);
+    cctx.fillStyle = "#19f7ff";
+    cctx.font = `68px ${RESULT_CARD_TITLE_FONT}`;
+    cctx.fillText(context.shareUrl.replace(/^https?:\/\//, "").toUpperCase(), 120, 1764);
+
+    cctx.strokeStyle = "rgba(255,59,122,0.34)";
+    cctx.lineWidth = 3;
+    cctx.beginPath();
+    cctx.moveTo(120, 1816);
+    cctx.lineTo(width - 120, 1816);
+    cctx.stroke();
+
+    cctx.fillStyle = "rgba(225,252,255,0.62)";
+    cctx.font = `28px ${RESULT_CARD_BODY_FONT}`;
+    cctx.fillText("Created by Ali Imran", 120, 1868);
+
+    return canvasToBlob(canvasEl);
+  }
+
+  function clearChallengeCardPreview(){
+    if (challengeCardObjectUrl){
+      URL.revokeObjectURL(challengeCardObjectUrl);
+      challengeCardObjectUrl = "";
+    }
+    if (challengeCardPreviewEl){
+      challengeCardPreviewEl.removeAttribute("src");
+      challengeCardPreviewEl.style.visibility = "hidden";
+    }
+  }
+
+  async function refreshChallengePanelContent(){
+    if (challengeMessageEl) challengeMessageEl.value = getChallengeMessage();
+    if (!challengeCardPreviewEl) return;
+    clearChallengeCardPreview();
+    const blob = await generateChallengeCardBlob();
+    if (!blob) return;
+    challengeCardObjectUrl = URL.createObjectURL(blob);
+    challengeCardPreviewEl.src = challengeCardObjectUrl;
+    challengeCardPreviewEl.style.visibility = "visible";
+  }
+
+  function buildChallengeCardFilename(context = getShareContext()){
+    const scope = context.runType === "daily" ? "daily" : "run";
+    const score = Math.max(0, context.score || 0);
+    return `neon-slip-${scope}-${score}.png`;
+  }
+
+  async function buildChallengeCardFile(){
+    const blob = await generateChallengeCardBlob();
+    if (!blob) return null;
+    if (typeof File === "function"){
+      return new File([blob], buildChallengeCardFilename(), { type: "image/png" });
+    }
+    blob.name = buildChallengeCardFilename();
+    return blob;
+  }
+
+  async function saveChallengeCard(showStatus = true){
+    const blob = await generateChallengeCardBlob();
+    if (!blob){
+      if (showStatus) setChallengeStatus("Card export failed. Try again.", true);
+      return false;
+    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = buildChallengeCardFilename();
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+    if (showStatus) setChallengeStatus("Result card saved.");
+    return true;
+  }
+
+  async function copyChallengeMessage(showStatus = true){
+    const message = getChallengeMessage();
+    try{
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(message);
+      }else if (challengeMessageEl){
+        challengeMessageEl.focus();
+        challengeMessageEl.select();
+        document.execCommand("copy");
+      }else{
+        throw new Error("Clipboard unavailable");
+      }
+      track("challenge_copy", { messageLength: message.length });
+      if (showStatus) setChallengeStatus("Challenge copied. Send it anywhere you want.");
+      return true;
+    }catch(err){
+      console.warn("[Challenge] copy failed:", err);
+      if (showStatus) setChallengeStatus("Copy failed. Select the text and copy it manually.", true);
+      return false;
+    }
+  }
+
+  function openChallengePanel(e, source = "menu"){
+    if (e) e.stopPropagation();
+    sfxClick();
+    setChallengeStatus("");
+    void refreshChallengePanelContent();
+    track("challenge_panel_open", { source, shareRunType: getShareContext().runType });
+    if (challengePanelEl) challengePanelEl.classList.add("active");
+  }
+
+  function closeChallengePanel(e){
+    if (e) e.stopPropagation();
+    sfxClick();
+    setChallengeStatus("");
+    clearChallengeCardPreview();
+    if (challengePanelEl) challengePanelEl.classList.remove("active");
   }
   async function copyChallengeMessage(showStatus = true){
     const message = getChallengeMessage();
@@ -10709,12 +12413,8 @@ const FIREBASE_CONFIG = firebaseConfig;
   if (openCreditsEl) openCreditsEl.addEventListener("click", openCreditsPanel);
   if (siteNavCreditsEl) siteNavCreditsEl.addEventListener("click", openCreditsPanel);
   if (openChallengeFromCreditsEl) openChallengeFromCreditsEl.addEventListener("click", (e) => {
-    if (e) e.stopPropagation();
-    sfxClick();
     if (creditsPanelEl) creditsPanelEl.classList.remove("active");
-    if (challengeMessageEl) challengeMessageEl.value = getChallengeMessage();
-    setChallengeStatus("");
-    if (challengePanelEl) challengePanelEl.classList.add("active");
+    openChallengePanel(e, "credits");
   });
   if (closeCreditsEl) closeCreditsEl.addEventListener("click", closeCreditsPanel);
   if (creditsPanelEl){
@@ -10735,12 +12435,21 @@ const FIREBASE_CONFIG = firebaseConfig;
       await copyChallengeMessage();
     });
   }
+  if (challengeSaveCardBtnEl){
+    challengeSaveCardBtnEl.addEventListener("click", async (e) => {
+      if (e) e.stopPropagation();
+      sfxClick();
+      const saved = await saveChallengeCard();
+      if (saved) track("challenge_share", { channel: "save_card" });
+    });
+  }
   if (challengeEmailBtnEl){
     challengeEmailBtnEl.addEventListener("click", (e) => {
       if (e) e.stopPropagation();
       sfxClick();
       const subject = encodeURIComponent("Can you beat me on Neon Slip?");
       const body = encodeURIComponent(getChallengeMessage());
+      track("challenge_share", { channel: "email" });
       window.location.href = `mailto:?subject=${subject}&body=${body}`;
     });
   }
@@ -10750,6 +12459,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       sfxClick();
       const copied = await copyChallengeMessage(false);
       setChallengeStatus(copied ? "Challenge copied. Paste it into Discord." : "Discord opened. Copy the message manually if needed.", !copied);
+      track("challenge_share", { channel: "discord", copied });
       window.open("https://discord.com/channels/@me", "_blank", "noopener");
     });
   }
@@ -10758,6 +12468,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       if (e) e.stopPropagation();
       sfxClick();
       const body = encodeURIComponent(getChallengeMessage());
+      track("challenge_share", { channel: "sms" });
       window.location.href = `sms:?&body=${body}`;
     });
   }
@@ -10767,11 +12478,17 @@ const FIREBASE_CONFIG = firebaseConfig;
         if (e) e.stopPropagation();
         sfxClick();
         try{
-          await navigator.share({
+          const sharePayload = {
             title: "Neon Slip Challenge",
             text: getChallengeMessage(),
-            url: "https://neonslip.me"
-          });
+            url: SHARE_BASE_URL
+          };
+          const file = await buildChallengeCardFile();
+          if (file && navigator.canShare && navigator.canShare({ files: [file] })){
+            sharePayload.files = [file];
+          }
+          await navigator.share(sharePayload);
+          track("challenge_share", { channel: sharePayload.files ? "native_with_card" : "native" });
           setChallengeStatus("Challenge shared.");
         }catch(err){
           if (err && err.name !== "AbortError"){
@@ -10788,12 +12505,17 @@ const FIREBASE_CONFIG = firebaseConfig;
   if (closeBreakdownEl) closeBreakdownEl.addEventListener("click", () => {
     sfxClick();
     closeBreakdownPanel(false);
-    submitScore(state.score);
+    if (state.lastRunWasNewBest) submitScore(state.score);
+    else navigateToMainMenu();
   });
   if (breakdownViewLeaderboardEl) breakdownViewLeaderboardEl.addEventListener("click", () => {
     sfxClick();
     closeBreakdownPanel(false);
-    submitScore(state.score);
+    if (state.lastRunWasNewBest) submitScore(state.score);
+    else {
+      leaderboardPanelEl.classList.add("active");
+      loadLeaderboardOnline({ showLeaderboardLoading: true, showSidebarLoading: state.mode === "start" });
+    }
   });
   if (breakdownPanelEl){
     breakdownPanelEl.addEventListener("click", (e) => {
@@ -10827,7 +12549,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   document.getElementById("resetAllBtn").addEventListener("click", (e) => {
     e.stopPropagation();
     if (!confirm("Reset EVERYTHING? This deletes your best score, settings, progress, and all data.")) return;
-    ["neonProgress","neonBest","neonSettings","neonTutSeen","neonMuted"].forEach(k => localStorage.removeItem(k));
+    ["neonProgress","neonBest","neonSettings","neonTutSeen","neonMuted", LEGAL_ACCEPT_KEY, TELEMETRY_VISITOR_KEY, TELEMETRY_VISIT_COUNT_KEY].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
   powerupHelpEl.addEventListener("click", (e) => {
@@ -10856,6 +12578,28 @@ const FIREBASE_CONFIG = firebaseConfig;
     sfxClick();
     updateUpgradeUI();
   });
+  if (vaultGridEl){
+    vaultGridEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-cosmetic]");
+      if (!btn) return;
+      const id = btn.dataset.cosmetic || "";
+      const act = btn.dataset.act || "";
+      const cosmetic = getCosmeticById(id);
+      if (!cosmetic) return;
+      if (act === "buy"){
+        if ((state.fluxTokens || 0) < cosmetic.price) return;
+        state.fluxTokens -= cosmetic.price;
+        if (!state.ownedCosmetics.includes(id)) state.ownedCosmetics.push(id);
+      }
+      if (act === "buy" || act === "equip"){
+        state.equippedCosmetics[cosmetic.slot] = id;
+        saveProgress();
+        syncProgressToCloud();
+        updateUpgradeUI();
+        sfxClick();
+      }
+    });
+  }
 
   // Leaderboard
   openLeaderboardEl.addEventListener("click", openLeaderboard);
@@ -10867,7 +12611,12 @@ const FIREBASE_CONFIG = firebaseConfig;
 
   // Friends + Neon Speech
   if (openFriendsEl) openFriendsEl.addEventListener("click", openFriendsPanel);
-  if (startChallengeFriendsEl) startChallengeFriendsEl.addEventListener("click", openChallengePanel);
+  if (startChallengeFriendsEl) startChallengeFriendsEl.addEventListener("click", (e) => openChallengePanel(e, "more_actions"));
+  if (dailyChallengeFriendsBtnEl) dailyChallengeFriendsBtnEl.addEventListener("click", (e) => {
+    state.currentRunType = "daily";
+    state.dailyChallenge = currentDailyEntry();
+    openChallengePanel(e, "daily_share");
+  });
   if (closeFriendsEl) closeFriendsEl.addEventListener("click", closeFriendsPanel);
   if (friendsPanelEl){
     friendsPanelEl.addEventListener("click", (e) => {
@@ -10910,6 +12659,11 @@ const FIREBASE_CONFIG = firebaseConfig;
     initAudio();
     unlockAudio();
     sfxClick();
+    state.currentRunType = "normal";
+    state.dailyChallenge = currentDailyEntry();
+    track("play_click", { surface: "site_nav" });
+    generateRunProfile();
+    selectRunMods();
     if (!ensureLegalConsentForGameplay("open-mods")) return;
     modsPanelEl.classList.add("active");
   }
@@ -10917,11 +12671,11 @@ const FIREBASE_CONFIG = firebaseConfig;
   if (siteNavLeaderboardEl) siteNavLeaderboardEl.addEventListener("click", openLeaderboard);
   if (legalConsentAcceptBtnEl){
     legalConsentAcceptBtnEl.addEventListener("click", () => {
-      if (!legalConsentTermsCheckEl?.checked || !legalConsentPrivacyCheckEl?.checked || !legalConsentLicenseCheckEl?.checked){
-        if (legalConsentErrorEl) legalConsentErrorEl.textContent = "Accept Terms, Privacy, and License before playing.";
+      if (!legalConsentTermsCheckEl?.checked){
+        if (legalConsentErrorEl) legalConsentErrorEl.textContent = "Accept the Terms, Privacy, and License before playing.";
         return;
       }
-      localStorage.setItem(LEGAL_ACCEPT_KEY, "1");
+      recordLegalConsent();
       closeLegalConsentPanel();
       if (legalConsentErrorEl) legalConsentErrorEl.textContent = "";
       if (pendingConsentAction === "open-mods"){
@@ -11011,6 +12765,10 @@ const FIREBASE_CONFIG = firebaseConfig;
       openProfileCard(avatar.dataset.uid || "");
     });
   }
+  if (friendActivityRefreshEl) friendActivityRefreshEl.addEventListener("click", () => {
+    sfxClick();
+    renderFriendActivity();
+  });
   if (speechInboxListEl){
     speechInboxListEl.addEventListener("click", (e) => {
       const profileBtn = e.target.closest("[data-act='speech-profile']");
@@ -11261,6 +13019,11 @@ const FIREBASE_CONFIG = firebaseConfig;
     applySettings();
     saveSettings();
   });
+  if (frameRateEl) frameRateEl.addEventListener("change", () => {
+    SETTINGS.frameRate = frameRateEl.value;
+    applySettings();
+    saveSettings();
+  });
   colorBlindToggleEl.addEventListener("click", () => {
     SETTINGS.colorBlind = !SETTINGS.colorBlind;
     applySettings();
@@ -11458,6 +13221,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   resize();
+  initializeTelemetry();
   loadSettings();
   loadProgress();
   initIntro();
@@ -11468,10 +13232,24 @@ const FIREBASE_CONFIG = firebaseConfig;
   setTimeout(() => startPanel.classList.remove("enter"), 600);
   bestEl.textContent = state.best;
   setMuted(localStorage.getItem("neonMuted") === "1");
+  track("landing_view", { visitCount: telemetryState.visitCount });
+  if (telemetryState.visitType === "returning"){
+    track("return_visit", { visitCount: telemetryState.visitCount });
+  }
+  renderDailyChallengeCard();
+  renderHabitSidebar();
   // Show shard count and load sidebar on startup
   const mainMenuShardsEl = document.getElementById("mainMenuShards");
   if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
-  loadLeaderboardOnline();
+  const warmNonCorePanels = () => {
+    renderFriendActivity();
+    loadLeaderboardOnline({ showLeaderboardLoading: false, showSidebarLoading: true });
+  };
+  if ("requestIdleCallback" in window){
+    window.requestIdleCallback(warmNonCorePanels, { timeout: 1200 });
+  } else {
+    setTimeout(warmNonCorePanels, 400);
+  }
   
   // Keep retrying audio unlock on real user interactions so music can recover
   // after autoplay blocks, tab restores, or browser audio interruptions.

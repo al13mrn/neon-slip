@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 256">
+  <rect width="512" height="256" fill="#120f14"/>
+  <text x="256" y="132" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-size="74" fill="#fff1b0" letter-spacing="6">AURIC</text>
+  <text x="256" y="132" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-size="74" fill="none" stroke="#ffd86b" stroke-width="4" letter-spacing="6">AURIC</text>
+  <path d="M86 180 H426" stroke="#ffd86b" stroke-opacity=".55" stroke-width="4"/>
+  <circle cx="118" cy="180" r="8" fill="#ffd86b"/>
+  <circle cx="394" cy="180" r="8" fill="#ffd86b"/>
+</svg>
