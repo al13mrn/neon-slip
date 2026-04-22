@@ -2977,8 +2977,9 @@
   .start-panel{
     width:min(86vw, 520px);
     max-width:520px;
-    max-height:none;
-    overflow:visible;
+    max-height:min(88vh, 760px);
+    overflow-x:hidden;
+    overflow-y:auto;
     padding:16px 16px 14px;
   }
   .start-panel::after{
@@ -2988,6 +2989,24 @@
     font-size: clamp(24px, 4.2vw, 36px);
     letter-spacing:2px;
     margin-bottom:3px;
+  }
+  .start-panel .daily-card{
+    margin:10px 0 10px;
+    padding:11px 11px 10px;
+  }
+  .start-panel .daily-card-title{
+    font-size:14px;
+    letter-spacing:.7px;
+  }
+  .start-panel .daily-card-copy{
+    font-size:11px;
+    line-height:1.4;
+    margin-bottom:8px;
+  }
+  .start-panel .daily-mission-list{
+    max-height:132px;
+    overflow:auto;
+    padding-right:3px;
   }
   .start-eyebrow{
     margin:0 0 4px 0;
@@ -3098,7 +3117,8 @@
     opacity:.92;
   }
   body[data-state="start"] .ui{
-    align-items:center;
+    align-items:flex-start;
+    overflow-y:auto;
     padding-top: calc(var(--safe-top) + 34px);
     padding-bottom: calc(var(--safe-bottom) + 18px);
   }
@@ -3125,6 +3145,7 @@
     }
     .start-panel{
       width:min(92vw, 500px);
+      max-height:min(84vh, 660px);
       padding:14px 12px 12px;
     }
     .site-footer-main,
@@ -6001,121 +6022,6 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (state.theme) themeLabelEl.textContent = `Theme: ${state.theme.name}`;
   }
 
-  function showModifierSlideshow(){
-    state.slideshowActive = true;
-    state.slideshowIndex = 0;
-    
-    const slides = [];
-    
-    // Welcome slide
-    slides.push({
-      title: "🎮 RUN STARTING",
-      content: `<div style="font-size:16px; margin:20px 0;">Get ready for your next run!</div>
-                <div style="font-size:14px; opacity:0.8;">Let's review what modifiers you got...</div>`
-    });
-    
-    // Theme slide
-    if (state.theme){
-      slides.push({
-        title: `🎨 THEME: ${state.theme.name.toUpperCase()}`,
-        content: `<div style="font-size:14px; margin:20px 0; opacity:0.9;">
-                    This run features the <span style="color:var(--neon);">${state.theme.name}</span> theme!<br><br>
-                    <span style="color:var(--neon2);">${state.theme.tagline || "Distinct atmosphere and pacing profile."}</span><br><br>
-                    Visual Signature:<br>
-                    ${state.theme.name === "Aurora" ? "Luminous ribbon fields + fluid atmospheric drift." : ""}
-                    ${state.theme.name === "Pulse" ? "Rhythmic shock-rings + aggressive beat-driven glow." : ""}
-                    ${state.theme.name === "Glitch" ? "Chromatic split bands + unstable signal distortion." : ""}
-                  </div>`
-      });
-    }
-    
-    // Positive modifier slide
-    if (state.runMods.pos){
-      const mod = state.runMods.pos;
-      slides.push({
-        title: `✨ POSITIVE MODIFIER`,
-        content: `<div class="mod-icon">${mod.icon || "+"}</div>
-                  <div style="font-size:18px; color:#7dffb2; margin:12px 0;">${mod.name}</div>
-                  <div class="mod-desc">${mod.desc}</div>
-                  <div style="font-size:12px; opacity:0.7; margin-top:16px;">This will help you!</div>`
-      });
-    }
-    
-    // Negative modifier slide
-    if (state.runMods.neg){
-      const mod = state.runMods.neg;
-      slides.push({
-        title: `⚠️ NEGATIVE MODIFIER`,
-        content: `<div class="mod-icon">${mod.icon || "-"}</div>
-                  <div style="font-size:18px; color:#ff8aa5; margin:12px 0;">${mod.name}</div>
-                  <div class="mod-desc">${mod.desc}</div>
-                  <div style="font-size:12px; opacity:0.7; margin-top:16px;">An extra challenge to overcome!</div>`
-      });
-    }
-    
-    // Legendary slide
-    if (state.runMods.legendary){
-      slides.push({
-        title: `👑 LEGENDARY MODIFIER!`,
-        content: `<div style="font-size:14px; margin:20px 0; opacity:0.9; color:#ffd86b;">
-                    You got a RARE legendary modifier!<br><br>
-                    These are powerful and game-changing.<br>
-                    Only 5% of runs get these!
-                  </div>`
-      });
-    }
-    
-    // Missions slide
-    if (missions.length > 0){
-      const missionsList = missions.map(m =>
-        `<div style="margin:8px 0; padding:6px 10px; border:1px solid rgba(25,247,255,.2); border-radius:8px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:var(--neon);">${m.name}</span>
-          <span style="color:#7dffb2; margin-left:10px;">${m.reward} <img src="shard.png" alt="Shard" class="shard-icon-sm"></span>
-        </div>`
-      ).join('');
-      slides.push({
-        title: "🎯 YOUR MISSIONS",
-        content: `<div style="font-size:13px; margin:8px 0 12px; opacity:0.8;">Complete these for Neon Shards!</div>
-                  ${missionsList}`
-      });
-    }
-
-    // Ready slide
-    slides.push({
-      title: "🚀 READY TO GO!",
-      content: `<div style="font-size:14px; margin:20px 0;">
-                  <div style="margin:10px 0;">✅ Modifiers applied</div>
-                  <div style="margin:10px 0;">✅ Theme set: ${state.theme ? state.theme.name : "Default"}</div>
-                  <div style="margin:10px 0;">✅ Good luck!</div>
-                  <div style="font-size:16px; color:var(--neon); margin-top:24px;">Time to slip through those gates!</div>
-                </div>`
-    });
-    
-    state.slideshowSlides = slides;
-    updateSlideshowDisplay();
-    modifierSlideshowEl.classList.add("active");
-  }
-
-  function updateSlideshowDisplay(){
-    const slide = state.slideshowSlides[state.slideshowIndex];
-    slideshowContentEl.innerHTML = `
-      <div class="title" style="margin-bottom:16px;">${slide.title}</div>
-      ${slide.content}
-    `;
-    
-    // Update progress dots with keyboard accessibility
-    slideshowProgressEl.innerHTML = state.slideshowSlides.map((_, i) => 
-      `<div class="progress-dot ${i === state.slideshowIndex ? 'active' : ''}" data-slide-index="${i}" tabindex="0" role="button" aria-label="Go to slide ${i + 1}"></div>`
-    ).join('');
-    
-    // Update button text
-    if (state.slideshowIndex === state.slideshowSlides.length - 1){
-      nextSlideshowSlideEl.textContent = "START RUN!";
-    } else {
-      nextSlideshowSlideEl.textContent = "Next";
-    }
-  }
-
   function jumpToSlide(index){
     // Bounds checking
     if (index < 0 || index >= state.slideshowSlides.length) return;
@@ -8507,7 +8413,15 @@ const FIREBASE_CONFIG = firebaseConfig;
     } else if (state.mode === "dying"){
       if (state.deathTimer > 0){
         state.deathTimer -= dt;
-        if (state.deathTimer <= 0) gameOver();
+        if (state.deathTimer <= 0){
+          try{
+            gameOver();
+          }catch(err){
+            console.error("[NeonSlip] death transition failed:", err);
+            setMode("over");
+            overPanel.classList.remove("hidden");
+          }
+        }
       }
       if (state.freeze > 0) state.freeze -= dt;
       if (state.shake > 0) state.shake -= dt;
@@ -12371,39 +12285,6 @@ const FIREBASE_CONFIG = firebaseConfig;
     sfxClick();
     setChallengeStatus("");
     clearChallengeCardPreview();
-    if (challengePanelEl) challengePanelEl.classList.remove("active");
-  }
-  async function copyChallengeMessage(showStatus = true){
-    const message = getChallengeMessage();
-    try{
-      if (navigator.clipboard && navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(message);
-      }else if (challengeMessageEl){
-        challengeMessageEl.focus();
-        challengeMessageEl.select();
-        document.execCommand("copy");
-      }else{
-        throw new Error("Clipboard unavailable");
-      }
-      if (showStatus) setChallengeStatus("Challenge copied. Send it anywhere you want.");
-      return true;
-    }catch(err){
-      console.warn("[Challenge] copy failed:", err);
-      if (showStatus) setChallengeStatus("Copy failed. Select the text and copy it manually.", true);
-      return false;
-    }
-  }
-  function openChallengePanel(e){
-    if (e) e.stopPropagation();
-    sfxClick();
-    if (challengeMessageEl) challengeMessageEl.value = getChallengeMessage();
-    setChallengeStatus("");
-    if (challengePanelEl) challengePanelEl.classList.add("active");
-  }
-  function closeChallengePanel(e){
-    if (e) e.stopPropagation();
-    sfxClick();
-    setChallengeStatus("");
     if (challengePanelEl) challengePanelEl.classList.remove("active");
   }
   openSettingsEl.addEventListener("click", openSettings);
