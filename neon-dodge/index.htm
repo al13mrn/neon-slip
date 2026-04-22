@@ -1,0 +1,2502 @@
+<!doctype html>
+<!--
+  UPDATE NOTES:
+  - Added meta-progression (Neon Shards) + upgrade/mods screen.
+  - Added run modifiers (positive/negative) with pre-run preview.
+  - Added combo decay, style bonuses, floating score popups, and run breakdown.
+  - Added announcer text, special streak moments, and theme-specific UI styling.
+  - Added key rebinding, motion/streamer/color-blind toggles, and feature flags.
+-->
+<!--
+  CHANGELOG:
+  - Added settings panel, pause overlay, tutorial tooltip, and new best celebration.
+  - Added run themes (Aurora/Pulse/Glitch) with palette + pacing influence.
+  - Added ready-go intro, combo/near-miss UI, and richer WebAudio SFX.
+  - Added cached speedlines/noise for performance and extra polish.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Neon Slip</title>
+<style>
+  :root{
+    --bg: #06070b;
+    --bg2: #0c1020;
+    --neon: #19f7ff;
+    --neon2: #8a5bff;
+    --danger: #ff3b7a;
+    --text: #d7f9ff;
+  }
+  *{ box-sizing: border-box; }
+  html, body{
+    margin:0; padding:0; width:100%; height:100%;
+    background: radial-gradient(1200px 800px at 70% -10%, #131a33 0%, var(--bg) 45%, #05050a 100%);
+    overflow:hidden; color:var(--text);
+    font-family: "Trebuchet MS","Lucida Console","Courier New",monospace;
+    letter-spacing: .5px;
+  }
+  canvas{ display:block; width:100vw; height:100vh; }
+  .ui{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:auto;
+    z-index:6;
+  }
+  .panel{
+    pointer-events:auto;
+    background: linear-gradient(180deg, rgba(15,20,40,.9), rgba(6,10,20,.9));
+    border:1px solid rgba(25,247,255,.35);
+    box-shadow: 0 0 25px rgba(25,247,255,.2), inset 0 0 30px rgba(138,91,255,.15);
+    padding:24px 28px; border-radius:14px; text-align:center; max-width:320px;
+    position:relative; overflow:hidden;
+    transition: opacity .35s ease, transform .35s ease;
+  }
+  .panel::after{
+    content:""; position:absolute; inset:-40%;
+    background: conic-gradient(from 0deg, rgba(25,247,255,.15), rgba(138,91,255,.0), rgba(255,59,122,.15), rgba(25,247,255,.15));
+    animation: panelGlow 8s linear infinite;
+    pointer-events:none;
+  }
+  .panel > *{ position:relative; z-index:1; }
+  @keyframes panelGlow{
+    0%{ transform: rotate(0deg); }
+    100%{ transform: rotate(360deg); }
+  }
+  .panel.enter{
+    animation: panelIn .55s ease;
+  }
+  @keyframes panelIn{
+    0%{ opacity:0; transform: translateY(16px) scale(0.96); }
+    100%{ opacity:1; transform: translateY(0) scale(1); }
+  }
+  .title{
+    font-size:28px; color:var(--neon); text-transform:uppercase;
+    text-shadow: 0 0 12px rgba(25,247,255,.8);
+    font-family: "Impact","Haettenschweiler","Arial Black","Franklin Gothic Heavy",sans-serif;
+    letter-spacing:2px;
+    margin-bottom:8px;
+  }
+  .neon-title{
+    font-size: clamp(26px, 6vw, 44px);
+    line-height:1.05;
+    color:#19f7ff;
+    text-shadow:
+      0 0 6px rgba(25,247,255,.8),
+      0 0 18px rgba(138,91,255,.8),
+      0 0 32px rgba(255,59,122,.6);
+    animation: titleGlow 6s ease-in-out infinite;
+  }
+  @keyframes titleGlow{
+    0%{
+      color:#19f7ff;
+      text-shadow:
+        0 0 6px rgba(25,247,255,.85),
+        0 0 18px rgba(138,91,255,.6),
+        0 0 30px rgba(255,59,122,.4);
+    }
+    50%{
+      color:#8a5bff;
+      text-shadow:
+        0 0 8px rgba(138,91,255,.9),
+        0 0 22px rgba(25,247,255,.7),
+        0 0 34px rgba(255,59,122,.55);
+    }
+    100%{
+      color:#19f7ff;
+      text-shadow:
+        0 0 6px rgba(25,247,255,.85),
+        0 0 18px rgba(138,91,255,.6),
+        0 0 30px rgba(255,59,122,.4);
+    }
+  }
+  .btn{
+    margin-top:16px; display:inline-block; padding:10px 18px;
+    border:1px solid rgba(25,247,255,.5);
+    background: rgba(25,247,255,.1);
+    color:var(--text); border-radius:10px; cursor:pointer;
+    box-shadow: 0 0 10px rgba(25,247,255,.12);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 0 16px rgba(25,247,255,.25); }
+  .hint{ font-size:12px; opacity:.8; margin-top:8px; }
+  .hidden{ opacity:0; transform: translateY(14px) scale(0.98); pointer-events:none; position:absolute; }
+  .hud{
+    position:fixed; top:0; left:0; right:0; pointer-events:none;
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+    padding:12px 14px; gap:10px;
+    font-size:12.5px; letter-spacing:1px; text-transform:uppercase;
+    text-shadow: 0 0 8px rgba(25,247,255,.45);
+    transition: opacity .3s ease;
+    animation: hudBreath 4s ease-in-out infinite;
+  }
+  .hud-block{
+    display:flex; flex-direction:column; gap:3px;
+    color:var(--text);
+  }
+  .hud-left{ align-items:flex-start; }
+  .hud-center{ align-items:center; }
+  .hud-right{ align-items:flex-end; }
+  .hud-label{
+    font-size:10px; opacity:.7;
+  }
+  .hud-value{
+    font-size:16px; letter-spacing:1.5px;
+    text-shadow: 0 0 12px rgba(25,247,255,.5);
+  }
+  .meter{
+    width:140px; height:7px; border-radius:8px;
+    border:1px solid rgba(25,247,255,.35);
+    background: rgba(6,12,20,.6);
+    overflow:hidden;
+    box-shadow: inset 0 0 12px rgba(25,247,255,.1);
+  }
+  .meter-fill{
+    height:100%; transform-origin:left;
+    background: linear-gradient(90deg, rgba(25,247,255,.8), rgba(138,91,255,.95), rgba(255,59,122,.9));
+    box-shadow: 0 0 10px rgba(25,247,255,.6);
+    transform: scaleX(0);
+    transition: transform .12s ease, filter .12s ease;
+    background-size: 200% 100%;
+    animation: meterShimmer 3.5s linear infinite;
+  }
+  .hud-sub{
+    font-size:11px; opacity:.85;
+  }
+  .hud-divider{
+    width:100%; height:1px; background: linear-gradient(90deg, rgba(25,247,255,0), rgba(25,247,255,.35), rgba(25,247,255,0));
+  }
+  @keyframes hudBreath{
+    0%{ text-shadow: 0 0 6px rgba(25,247,255,.35); }
+    50%{ text-shadow: 0 0 10px rgba(25,247,255,.6); }
+    100%{ text-shadow: 0 0 6px rgba(25,247,255,.35); }
+  }
+  @keyframes meterShimmer{
+    0%{ background-position:0% 50%; }
+    100%{ background-position:100% 50%; }
+  }
+  .audio-toggle{
+    margin-top:6px;
+    font-size:10px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--neon);
+    cursor:pointer;
+    pointer-events:auto;
+    opacity:.75;
+  }
+  .audio-toggle:hover{ opacity:1; }
+  .prompt{
+    margin-top:12px;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--neon);
+    animation: promptPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes promptPulse{
+    0%{ opacity:.5; transform: translateY(0); }
+    50%{ opacity:1; transform: translateY(-2px); }
+    100%{ opacity:.5; transform: translateY(0); }
+  }
+  .settings-panel, .pause-panel{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(4,6,12,.6);
+    pointer-events:none; opacity:0;
+    transition: opacity .25s ease;
+    z-index:12;
+  }
+  .settings-panel.active, .pause-panel.active{
+    pointer-events:auto; opacity:1;
+  }
+  .settings-box, .pause-box{
+    background: linear-gradient(180deg, rgba(10,16,30,.95), rgba(6,10,20,.95));
+    border:1px solid rgba(25,247,255,.35);
+    box-shadow: 0 0 28px rgba(25,247,255,.25);
+    padding:20px 22px; border-radius:14px; min-width:260px;
+  }
+  .settings-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px; margin:10px 0; font-size:12px; text-transform:uppercase;
+  }
+  .settings-row input[type="range"]{ width:140px; }
+  .settings-actions{ display:flex; gap:10px; justify-content:center; margin-top:12px; }
+  .toggle{
+    border:1px solid rgba(25,247,255,.4);
+    padding:6px 10px; border-radius:8px; cursor:pointer;
+    background: rgba(25,247,255,.1);
+  }
+  .overlay-text{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; font-size:36px; letter-spacing:4px; text-transform:uppercase;
+    text-shadow: 0 0 18px rgba(25,247,255,.8);
+    opacity:0; transform: scale(0.95);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .overlay-text.show{ opacity:1; transform: scale(1); }
+  .near-pop{
+    position:fixed; left:50%; top:58%;
+    transform: translate(-50%, -50%) scale(0.9);
+    pointer-events:none; opacity:0;
+    color:var(--danger); font-size:20px; letter-spacing:2px;
+    text-shadow: 0 0 12px rgba(255,59,122,.8);
+  }
+  .near-pop.show{
+    animation: nearPop .5s ease;
+  }
+  @keyframes nearPop{
+    0%{ opacity:0; transform: translate(-50%, -50%) scale(0.8); }
+    40%{ opacity:1; transform: translate(-50%, -58%) scale(1.05); }
+    100%{ opacity:0; transform: translate(-50%, -70%) scale(0.95); }
+  }
+  .combo{
+    position:fixed; left:50%; top:18%;
+    transform: translate(-50%, -50%) scale(0.95);
+    pointer-events:none; opacity:0;
+    color:var(--neon); font-size:14px; letter-spacing:2px;
+    text-shadow: 0 0 10px rgba(25,247,255,.7);
+  }
+  .combo.show{ opacity:1; transform: translate(-50%, -50%) scale(1); transition: opacity .2s ease; }
+  .tutorial{
+    position:fixed; left:50%; bottom:18%;
+    transform: translateX(-50%);
+    background: rgba(10,14,24,.85);
+    border:1px solid rgba(25,247,255,.35);
+    padding:10px 14px; border-radius:10px;
+    font-size:12px; letter-spacing:1px; text-transform:uppercase;
+    box-shadow: 0 0 16px rgba(25,247,255,.2);
+    opacity:0; transition: opacity .3s ease;
+  }
+  .tutorial.show{ opacity:1; }
+  .best-burst{
+    position:fixed; right:18px; top:60px;
+    font-size:12px; letter-spacing:2px; text-transform:uppercase;
+    color:#ffd86b; text-shadow: 0 0 12px rgba(255,216,107,.8);
+    opacity:0;
+  }
+  .best-burst.show{ animation: bestBurst 1.2s ease; }
+  @keyframes bestBurst{
+    0%{ opacity:0; transform: translateY(8px) scale(0.9); }
+    30%{ opacity:1; transform: translateY(0) scale(1.05); }
+    100%{ opacity:0; transform: translateY(-8px) scale(1); }
+  }
+  body.high-contrast{
+    --bg: #020207;
+    --bg2: #0b0f1e;
+    --text: #f0fbff;
+  }
+  body.colorblind{
+    --neon: #2be2ff;
+    --neon2: #ffd166;
+    --danger: #06d6a0;
+  }
+  .mods-panel{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition: opacity .25s ease;
+    background: rgba(4,6,12,.55);
+    z-index:20;
+  }
+  .mods-panel.active{ pointer-events:auto; opacity:1; }
+  .mods-box{
+    background: linear-gradient(180deg, rgba(10,16,30,.95), rgba(6,10,20,.95));
+    border:1px solid rgba(25,247,255,.35);
+    box-shadow: 0 0 28px rgba(25,247,255,.25);
+    padding:18px 20px; border-radius:14px; min-width:280px;
+    text-align:center;
+  }
+  .modifier-badge{
+    display:inline-block; padding:6px 10px; margin:6px 4px;
+    border-radius:10px; border:1px solid rgba(25,247,255,.4);
+    background: rgba(25,247,255,.08); font-size:11px; letter-spacing:1px;
+  }
+  .modifier-badge.positive{ color:#7dffb2; }
+  .modifier-badge.negative{ color:#ff8aa5; }
+  .announcer{
+    position:fixed; left:50%; top:30%;
+    transform: translate(-50%, -50%) scale(0.9);
+    pointer-events:none; opacity:0;
+    font-size:22px; letter-spacing:3px; text-transform:uppercase;
+    text-shadow: 0 0 14px rgba(25,247,255,.8);
+  }
+  .announcer.show{ animation: announce .7s ease; }
+  @keyframes announce{
+    0%{ opacity:0; transform: translate(-50%, -50%) scale(0.85); }
+    35%{ opacity:1; transform: translate(-50%, -55%) scale(1.05); }
+    100%{ opacity:0; transform: translate(-50%, -70%) scale(0.95); }
+  }
+  .score-pop{
+    position:fixed; left:50%; top:50%;
+    transform: translate(-50%, -50%);
+    pointer-events:none; opacity:0;
+    font-size:12px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--neon); text-shadow: 0 0 10px rgba(25,247,255,.7);
+  }
+  .score-pop.show{ animation: scorePop .7s ease; }
+  @keyframes scorePop{
+    0%{ opacity:0; transform: translate(-50%, -30%) scale(0.9); }
+    30%{ opacity:1; transform: translate(-50%, -40%) scale(1.05); }
+    100%{ opacity:0; transform: translate(-50%, -65%) scale(0.95); }
+  }
+  .upgrades-panel{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition: opacity .25s ease;
+    background: rgba(4,6,12,.6);
+    z-index:12;
+  }
+  .upgrades-panel.active{ pointer-events:auto; opacity:1; }
+  .upgrades-box{
+    background: linear-gradient(180deg, rgba(10,16,30,.95), rgba(6,10,20,.95));
+    border:1px solid rgba(25,247,255,.35);
+    box-shadow: 0 0 28px rgba(25,247,255,.25);
+    padding:18px 20px; border-radius:14px; width:min(520px, 90vw);
+  }
+  .upgrade-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  }
+  .upgrade-card{
+    border:1px solid rgba(25,247,255,.35);
+    border-radius:12px; padding:10px; background: rgba(25,247,255,.06);
+    font-size:11px; text-transform:uppercase; letter-spacing:1px;
+  }
+  .upgrade-card .btn{ margin-top:8px; width:100%; }
+  .currency{
+    font-size:12px; letter-spacing:1px; text-transform:uppercase;
+    color:#7dffb2; margin-bottom:8px;
+  }
+  .shard-icon{
+    width:36px; height:36px; vertical-align:middle; margin-left:8px;
+    image-rendering: auto;
+  }
+  .rebind{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:8px 0; font-size:11px; text-transform:uppercase;
+  }
+  .rebind-key{
+    border:1px solid rgba(25,247,255,.4);
+    padding:4px 8px; border-radius:8px;
+    background: rgba(25,247,255,.1); cursor:pointer;
+  }
+  .breakdown-panel{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition: opacity .25s ease;
+    background: rgba(4,6,12,.6);
+    z-index:12;
+  }
+  .intro-panel{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition: opacity .25s ease;
+    background: rgba(4,6,12,.75);
+    z-index:30;
+  }
+  .intro-panel.active{ pointer-events:auto; opacity:1; }
+  .intro-box{
+    background: linear-gradient(180deg, rgba(10,16,30,.98), rgba(6,10,20,.98));
+    border:1px solid rgba(25,247,255,.35);
+    box-shadow: 0 0 28px rgba(25,247,255,.25);
+    padding:18px 20px; border-radius:14px; width:min(860px, 94vw);
+  }
+  .slides{
+    display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x mandatory;
+    padding:12px 6px; scroll-behavior:smooth;
+  }
+  .slide{
+    min-width:80vw; max-width:80vw; scroll-snap-align:center;
+    background: rgba(25,247,255,.06);
+    border:1px solid rgba(25,247,255,.25);
+    border-radius:12px; padding:14px 16px;
+    text-transform:uppercase; letter-spacing:1px;
+  }
+  .slide h3{
+    margin:0 0 6px 0; font-size:14px; color:var(--neon);
+  }
+  .slide p{
+    margin:6px 0; font-size:11px; opacity:.85;
+  }
+  .slide .hint{ font-size:10px; }
+  .slide-controls{
+    display:flex; align-items:center; justify-content:space-between; margin-top:8px;
+  }
+  .dots{ display:flex; gap:6px; }
+  .dot{
+    width:8px; height:8px; border-radius:50%;
+    border:1px solid rgba(25,247,255,.5); opacity:.4;
+  }
+  .dot.active{ opacity:1; background: rgba(25,247,255,.7); }
+  .breakdown-panel.active{ pointer-events:auto; opacity:1; }
+  .breakdown-box{
+    background: linear-gradient(180deg, rgba(10,16,30,.95), rgba(6,10,20,.95));
+    border:1px solid rgba(25,247,255,.35);
+    box-shadow: 0 0 28px rgba(25,247,255,.25);
+    padding:18px 20px; border-radius:14px; min-width:260px;
+    text-align:center;
+  }
+  .feature-toggle{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:8px 0; font-size:11px; text-transform:uppercase;
+  }
+  @media (min-width: 700px){
+    .hud{ font-size:13.5px; padding:14px 18px; }
+    .hud-value{ font-size:18px; }
+    .meter{ width:170px; height:8px; }
+  }
+  body[data-state="start"] .hud{ opacity:.45; }
+  body[data-state="dying"] .hud{ opacity:.2; }
+  body[data-state="over"] .hud{ opacity:.7; }
+  body[data-danger="1"] .meter-fill{ filter: brightness(1.4); }
+  body[data-state="play"] .ui{ pointer-events:none; }
+  body[data-state="dying"] .ui{ pointer-events:none; }
+  .itch-embed{
+    position:fixed; right:12px; bottom:12px;
+    z-index:8; opacity:.9; transition: opacity .2s ease;
+  }
+  .itch-embed iframe{ display:block; border:0; }
+  body[data-state="play"] .itch-embed,
+  body[data-state="dying"] .itch-embed{
+    opacity:0; pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div class="hud">
+  <div class="hud-block hud-left">
+    <div class="hud-label">Score</div>
+    <div class="hud-value" id="score">0</div>
+    <div class="hud-divider"></div>
+  </div>
+  <div class="hud-block hud-center">
+    <div class="hud-label">Intensity</div>
+    <div class="meter"><div id="intensityFill" class="meter-fill"></div></div>
+    <div class="hud-sub">x<span id="intensity">1.0</span></div>
+  </div>
+  <div class="hud-block hud-right">
+    <div class="hud-label">Best</div>
+    <div class="hud-value" id="best">0</div>
+    <div class="hud-divider"></div>
+    <div id="audioToggle" class="audio-toggle">Audio On</div>
+  </div>
+</div>
+
+<div class="ui">
+  <div id="startPanel" class="panel">
+    <div class="title neon-title">Neon Slip</div>
+    <div>Move left/right to slip through the neon gates.</div>
+    <div class="hint">Keys: A/D or Arrows. Touch: drag or tap.</div>
+    <div class="prompt">Press Space / Click to Start</div>
+    <div class="btn">Tap to Start</div>
+    <div class="btn" id="openUpgrades">Upgrades</div>
+    <div class="btn" id="openSettings">Settings</div>
+  </div>
+  <div id="overPanel" class="panel hidden">
+    <div class="title">Crashed</div>
+    <div>Score: <span id="finalScore">0</span></div>
+    <div>Best: <span id="finalBest">0</span></div>
+    <div class="btn">Try Again</div>
+    <div class="hint">Instant restart keeps the flow.</div>
+    <div class="btn" id="openUpgradesOver">Upgrades</div>
+    <div class="btn" id="openSettingsOver">Settings</div>
+  </div>
+</div>
+
+<div id="settingsPanel" class="settings-panel">
+  <div class="settings-box">
+    <div class="title">Settings</div>
+    <div class="settings-row"><span>Music</span><input id="musicVol" type="range" min="0" max="1" step="0.01"></div>
+    <div class="settings-row"><span>SFX</span><input id="sfxVol" type="range" min="0" max="1" step="0.01"></div>
+    <div class="settings-row"><span>Shake</span>
+      <select id="shakeLevel" class="toggle">
+        <option value="low">Low</option>
+        <option value="med">Med</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <div class="settings-row"><span>High Contrast</span><button id="contrastToggle" class="toggle">Off</button></div>
+    <div class="settings-actions">
+      <div id="closeSettings" class="btn">Close</div>
+    </div>
+  </div>
+</div>
+
+<div id="pausePanel" class="pause-panel">
+  <div class="pause-box">
+    <div class="title">Paused</div>
+    <div class="settings-actions">
+      <div id="resumeBtn" class="btn">Resume</div>
+      <div id="restartBtn" class="btn">Restart</div>
+      <div id="quitBtn" class="btn">Quit</div>
+    </div>
+  </div>
+</div>
+
+<div id="readyGo" class="overlay-text">Ready</div>
+<div id="nearPop" class="near-pop">NEAR!</div>
+<div id="comboPop" class="combo">Combo x2</div>
+<div id="tutorial" class="tutorial">Slip through gaps. Near the edge = bonus.</div>
+<div id="bestBurst" class="best-burst">New Best!</div>
+<div id="announcer" class="announcer">FLOW</div>
+<div id="scorePop" class="score-pop">+10</div>
+
+<div id="modsPanel" class="mods-panel">
+  <div class="mods-box">
+    <div class="title">Run Modifiers</div>
+    <div id="themeLabel" class="hint">Theme: Aurora</div>
+    <div id="modPos" class="modifier-badge positive">Positive</div>
+    <div id="modNeg" class="modifier-badge negative">Negative</div>
+    <div class="hint">Balanced, fair modifiers. Readable patterns.</div>
+    <div id="closeMods" class="btn">Continue</div>
+  </div>
+</div>
+
+<div id="upgradesPanel" class="upgrades-panel">
+  <div class="upgrades-box">
+    <div class="title">Upgrades / Mods</div>
+    <div id="currency" class="currency">Neon Shards: 0</div>
+    <div class="upgrade-grid" id="upgradeGrid"></div>
+    <div class="rebind">
+      <span>Left Key</span><span id="rebindLeft" class="rebind-key">A</span>
+    </div>
+    <div class="rebind">
+      <span>Right Key</span><span id="rebindRight" class="rebind-key">D</span>
+    </div>
+    <div class="feature-toggle"><span>Motion Intensity</span>
+      <select id="motionLevel" class="toggle">
+        <option value="low">Low</option>
+        <option value="med">Med</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <div class="feature-toggle"><span>Color-Blind</span><button id="colorBlindToggle" class="toggle">Off</button></div>
+    <div class="feature-toggle"><span>Streamer Mode</span><button id="streamerToggle" class="toggle">Off</button></div>
+    <div class="settings-actions">
+      <div id="closeUpgrades" class="btn">Close</div>
+    </div>
+  </div>
+</div>
+
+<div id="breakdownPanel" class="breakdown-panel">
+  <div class="breakdown-box">
+    <div class="title">Run Breakdown</div>
+    <div id="breakdownStats" class="hint">---</div>
+    <div class="btn" id="closeBreakdown">Close</div>
+  </div>
+</div>
+
+<div id="introPanel" class="intro-panel">
+  <div class="intro-box">
+    <div class="title">How To Play</div>
+    <div id="slides" class="slides">
+      <div class="slide">
+        <h3>Core Goal</h3>
+        <p>Move left and right to slip through neon gates.</p>
+        <p>Survive as long as possible and chase high intensity.</p>
+      </div>
+      <div class="slide">
+        <h3>Controls</h3>
+        <p>Keyboard: Left/Right (rebind in Upgrades).</p>
+        <p>Touch: drag or tap to set a target.</p>
+        <p>P or Esc to pause.</p>
+      </div>
+      <div class="slide">
+        <h3>Scoring</h3>
+        <p>Center passes = PERFECT bonus.</p>
+        <p>Edge passes = RISK bonus and near-miss glow.</p>
+        <p>Combo builds on clean passes, decays over time.</p>
+      </div>
+      <div class="slide">
+        <h3>Modifiers</h3>
+        <p>Each run has 1 positive + 1 negative modifier.</p>
+        <p>They change feel, never make it unfair.</p>
+        <p class="hint">Positive: Hyper Drift, Echo Gates, Flow Assist.</p>
+        <p class="hint">Negative: Tight Slip, Mirror Bias, Pulse Locks.</p>
+      </div>
+      <div class="slide">
+        <h3>Progression</h3>
+        <p>Earn Neon Shards <img src="shard.png" alt="Shard" class="shard-icon"> from score, near-misses, combos.</p>
+        <p>Spend in Upgrades for better clarity and feel.</p>
+      </div>
+      <div class="slide">
+        <h3>Settings</h3>
+        <p>Adjust music/SFX, shake, motion intensity.</p>
+        <p>Color-blind and streamer modes available.</p>
+      </div>
+    </div>
+    <div class="slide-controls">
+      <div class="btn" id="prevSlide">Prev</div>
+      <div class="dots" id="slideDots"></div>
+      <div class="btn" id="nextSlide">Next</div>
+    </div>
+    <div class="settings-actions">
+      <div id="closeIntro" class="btn">Start Run</div>
+    </div>
+  </div>
+</div>
+
+<div class="itch-embed">
+  <iframe frameborder="0" src="https://itch.io/embed/4157033" width="552" height="167"><a href="https://247-gamer.itch.io/neon-slip">NEON Slip by 24.7-GAMER</a></iframe>
+</div>
+
+<audio id="menuMusic" src="menu.mp3" preload="auto" loop></audio>
+<audio id="gameMusic" src="game.mp3" preload="auto" loop></audio>
+
+<script>
+(() => {
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+  const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
+  const intensityEl = document.getElementById("intensity");
+  const intensityFillEl = document.getElementById("intensityFill");
+  const startPanel = document.getElementById("startPanel");
+  const overPanel = document.getElementById("overPanel");
+  const finalScoreEl = document.getElementById("finalScore");
+  const finalBestEl = document.getElementById("finalBest");
+  const audioToggleEl = document.getElementById("audioToggle");
+  const menuMusic = document.getElementById("menuMusic");
+  const gameMusic = document.getElementById("gameMusic");
+  const openSettingsEl = document.getElementById("openSettings");
+  const openSettingsOverEl = document.getElementById("openSettingsOver");
+  const openUpgradesEl = document.getElementById("openUpgrades");
+  const openUpgradesOverEl = document.getElementById("openUpgradesOver");
+  const settingsPanelEl = document.getElementById("settingsPanel");
+  const closeSettingsEl = document.getElementById("closeSettings");
+  const musicVolEl = document.getElementById("musicVol");
+  const sfxVolEl = document.getElementById("sfxVol");
+  const shakeLevelEl = document.getElementById("shakeLevel");
+  const contrastToggleEl = document.getElementById("contrastToggle");
+  const pausePanelEl = document.getElementById("pausePanel");
+  const resumeBtnEl = document.getElementById("resumeBtn");
+  const restartBtnEl = document.getElementById("restartBtn");
+  const quitBtnEl = document.getElementById("quitBtn");
+  const readyGoEl = document.getElementById("readyGo");
+  const nearPopEl = document.getElementById("nearPop");
+  const comboPopEl = document.getElementById("comboPop");
+  const tutorialEl = document.getElementById("tutorial");
+  const bestBurstEl = document.getElementById("bestBurst");
+  const announcerEl = document.getElementById("announcer");
+  const scorePopEl = document.getElementById("scorePop");
+  const modsPanelEl = document.getElementById("modsPanel");
+  const modPosEl = document.getElementById("modPos");
+  const modNegEl = document.getElementById("modNeg");
+  const themeLabelEl = document.getElementById("themeLabel");
+  const closeModsEl = document.getElementById("closeMods");
+  const upgradesPanelEl = document.getElementById("upgradesPanel");
+  const upgradeGridEl = document.getElementById("upgradeGrid");
+  const currencyEl = document.getElementById("currency");
+  const closeUpgradesEl = document.getElementById("closeUpgrades");
+  const rebindLeftEl = document.getElementById("rebindLeft");
+  const rebindRightEl = document.getElementById("rebindRight");
+  const motionLevelEl = document.getElementById("motionLevel");
+  const colorBlindToggleEl = document.getElementById("colorBlindToggle");
+  const streamerToggleEl = document.getElementById("streamerToggle");
+  const breakdownPanelEl = document.getElementById("breakdownPanel");
+  const breakdownStatsEl = document.getElementById("breakdownStats");
+  const closeBreakdownEl = document.getElementById("closeBreakdown");
+  const introPanelEl = document.getElementById("introPanel");
+  const slidesEl = document.getElementById("slides");
+  const prevSlideEl = document.getElementById("prevSlide");
+  const nextSlideEl = document.getElementById("nextSlide");
+  const slideDotsEl = document.getElementById("slideDots");
+  const closeIntroEl = document.getElementById("closeIntro");
+
+  let w, h, dpr;
+  function resize(){
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    initVisualCaches();
+  }
+  window.addEventListener("resize", resize);
+
+  const state = {
+    mode: "start",
+    time: 0,
+    score: 0,
+    best: +localStorage.getItem("neonBest") || 0,
+    shake: 0,
+    shakePower: 0,
+    lastTime: 0,
+    spawnTimer: 0,
+    lastPassETA: null,
+    lastGapCenter: null,
+    loggedParams: false,
+    slowMo: 0,
+    flash: 0,
+    glitch: 0,
+    orbTimer: 0,
+    lastOrbTime: -999,
+    runSeed: 0,
+    rng: null,
+    runProfile: null,
+    uiScore: 0,
+    uiBest: 0,
+    uiIntensity: 1,
+    scorePulse: 0,
+    dangerPulse: 0,
+    deathTimer: 0,
+    freeze: 0,
+    zoom: 0,
+    audioUnlocked: false,
+    audioMuted: false,
+    audioFade: null,
+    combo: 0,
+    comboTimer: 0,
+    nearTimer: 0,
+    readyTimer: 0,
+    paused: false,
+    theme: null,
+    speedLines: [],
+    noiseCanvas: null,
+    starCanvas: null,
+    playerHistory: [],
+    visualTime: 0,
+    gateCount: 0,
+    shards: 0,
+    upgrades: {},
+    runMods: { pos: null, neg: null, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false, patternBias: 0 },
+    bestCombo: 0,
+    nearCount: 0,
+    intensityPeak: 1,
+    rebind: { left: "KeyA", right: "KeyD" },
+    awaitingBind: null,
+    upgradeEffects: { controlBoost: 1, comboExtend: 1, glowBoost: 1, trailShift: 0, gatePulse: 0 },
+    announceCooldown: 0,
+    introRequired: true,
+    slideIndex: 0
+  };
+
+  const player = {
+    x: w * 0.5,
+    y: () => h * 0.82,
+    r: 10,
+    speed: 620,
+    accel: 9000,
+    friction: 12000,
+    vx: 0,
+    targetX: null
+  };
+
+  const input = { left:false, right:false, activePointer:false };
+
+  const gates = [];
+  const particles = [];
+  const orbs = [];
+  const trail = [];
+
+  /*
+    TUNING (make harder/easier):
+    - rampSecondsMin/Max: time to reach high intensity (used for pacing styles only).
+    - baseSpeedMin/Max, speedGrowthScaleMin/Max, speedGrowthPowerMin/Max, speedGrowthTimeMin/Max: scroll speed growth.
+    - intensityScoreScaleMin/Max, intensityResponseMin/Max: intensity multiplier + UI/pattern response.
+    - baseGapMin/Max, gapShrinkPerIntensityMin/Max, minGapMin/Max: gap pressure.
+    - minPassIntervalMin/Max, maxPassIntervalMin/Max: reaction windows.
+    - patternBiasStrengthMin/Max, patternPeriodMin/Max: anti-camping drift/push.
+    - directorWindowSec, directorStrength: anti-camping director bias.
+    - orbTelegraphMin/Max, orbSpeedMin/Max, orbMinIntervalMin/Max: dash orbs.
+  */
+  const TUNING = {
+    rampSecondsMin: 30,
+    rampSecondsMax: 46,
+    baseSpeedMin: 360,
+    baseSpeedMax: 440,
+    speedGrowthScaleMin: 0.22,
+    speedGrowthScaleMax: 0.32,
+    speedGrowthPowerMin: 1.7,
+    speedGrowthPowerMax: 2.1,
+    speedGrowthTimeMin: 12,
+    speedGrowthTimeMax: 20,
+    intensityScoreScaleMin: 0.06,
+    intensityScoreScaleMax: 0.12,
+    intensityResponseMin: 0.4,
+    intensityResponseMax: 0.6,
+    baseGapMin: 150,
+    baseGapMax: 175,
+    gapShrinkPerIntensityMin: 24,
+    gapShrinkPerIntensityMax: 32,
+    minGapMin: 62,
+    minGapMax: 74,
+    minPassIntervalMin: 0.42,
+    minPassIntervalMax: 0.54,
+    maxPassIntervalMin: 0.7,
+    maxPassIntervalMax: 0.9,
+    intervalDecay: 0.12,
+    intervalMaxDecay: 0.06,
+    reachFactor: 0.98,
+    patternBiasStrengthMin: 60,
+    patternBiasStrengthMax: 140,
+    patternPeriodMin: 2.2,
+    patternPeriodMax: 4.2,
+    directorWindowSec: 2.6,
+    directorStrength: 0.22,
+    jitterHigh: 0.6,
+    jitterLow: 0.22,
+    orbTelegraphMin: 0.16,
+    orbTelegraphMax: 0.24,
+    orbSpeedMin: 880,
+    orbSpeedMax: 1120,
+    orbMinIntervalMin: 1.05,
+    orbMinIntervalMax: 1.35,
+    orbSafeGateWindow: 0.35,
+    orbYBandOffsetMin: 48,
+    orbYBandOffsetMax: 70,
+    orbRadius: 7,
+    nearMissThreshold: 13,
+    slowMoTime: 0.09,
+    slowMoScale: 0.7,
+    deathGlitchTime: 0.35
+  };
+
+  /*
+    POLISH / JUICE:
+    - uiEase: HUD count-up smoothing.
+    - pulseTime / pulseScale: HUD pulse on score.
+    - bgDriftSpeed / scanlineAlpha / noiseAlpha: background motion.
+    - trailLength / trailFade: player trail.
+    - nearMissShake / deathShake: camera response.
+    - deathFreeze / deathUiDelay / deathZoom: death transition timing.
+  */
+  const POLISH = {
+    uiEase: 0.18,
+    pulseTime: 0.18,
+    pulseScale: 0.12,
+    bgDriftSpeed: 0.035,
+    scanlineAlpha: 0.08,
+    noiseAlpha: 0.035,
+    trailLength: 12,
+    trailFade: 0.5,
+    nearMissShake: 0.06,
+    deathShake: 0.45,
+    deathFreeze: 0.12,
+    deathUiDelay: 0.35,
+    deathZoom: 0.035,
+    visualSpeedBoost: 0.55,
+    speedLineCount: 26,
+    speedLineAlpha: 0.12,
+    maxParticles: 180,
+    starAlpha: 0.22,
+    starSpeed: 12,
+    vignetteAlpha: 0.35,
+    gateStreakAlpha: 0.12,
+    gateStreakLen: 30,
+    uiGlowPulse: 0.12
+  };
+
+  const AUDIO = {
+    menuVolume: 0.45,
+    gameVolume: 0.65,
+    crossfadeMs: 650
+  };
+
+  const SETTINGS = {
+    musicVolume: 0.8,
+    sfxVolume: 0.7,
+    shake: "med",
+    highContrast: false,
+    motion: "med",
+    colorBlind: false,
+    streamer: false
+  };
+
+  const FEATURE_FLAGS = {
+    progression: true,
+    modifiers: true,
+    announcer: true,
+    scorePopups: true,
+    comboDecay: true
+  };
+
+  // Theme system: per-run visual palette + pacing feel.
+  const THEMES = [
+    {
+      name: "Aurora",
+      palette: { neonA: [25, 247, 255], neonB: [138, 91, 255], neonC: [70, 255, 180] },
+      bg: { a: "#05090f", b: "#0d1430" },
+      pacingBias: 0.92,
+      glowBoost: 1.1,
+      meterHue: 190
+    },
+    {
+      name: "Pulse",
+      palette: { neonA: [255, 80, 120], neonB: [255, 200, 80], neonC: [25, 247, 255] },
+      bg: { a: "#0b0407", b: "#1c0c14" },
+      pacingBias: 1.08,
+      glowBoost: 1.2,
+      meterHue: 340
+    },
+    {
+      name: "Glitch",
+      palette: { neonA: [130, 255, 220], neonB: [255, 80, 200], neonC: [80, 140, 255] },
+      bg: { a: "#05060c", b: "#0b0f1e" },
+      pacingBias: 1.0,
+      glowBoost: 1.3,
+      meterHue: 280
+    }
+  ];
+
+  /*
+    Progression: earn currency and buy light upgrades (no pay-to-win).
+  */
+  const PROGRESSION = {
+    currencyName: "Neon Shards",
+    earnScore: 0.01,
+    earnNear: 2,
+    earnCombo: 1
+  };
+
+  const UPGRADES = [
+    { id: "control", name: "Control Assist", cost: 120, desc: "Slightly steadier control feel.", level: 0, max: 3 },
+    { id: "glow", name: "Gate Clarity", cost: 90, desc: "Sharper gate glow visibility.", level: 0, max: 3 },
+    { id: "combo", name: "Combo Window", cost: 80, desc: "Combo decays slower.", level: 0, max: 3 },
+    { id: "trail", name: "Trail Tint", cost: 70, desc: "Cosmetic trail hue shift.", level: 0, max: 3 },
+    { id: "pulse", name: "Gate Pulse", cost: 110, desc: "Cosmetic pulse style.", level: 0, max: 2 }
+  ];
+
+  /*
+    Modifiers: one positive + one negative each run.
+  */
+  const MODIFIERS = {
+    positive: [
+      { id: "hyper", name: "Hyper Drift", desc: "Faster scroll, wider gaps.", apply: (m) => { m.speedMul *= 1.15; m.gapMul *= 1.1; } },
+      { id: "echo", name: "Echo Gates", desc: "Decoy gates fade out.", apply: (m) => { m.echo = true; } },
+      { id: "flow", name: "Flow Assist", desc: "Smoother patterns.", apply: (m) => { m.patternBias += 0.08; } }
+    ],
+    negative: [
+      { id: "tight", name: "Tight Slip", desc: "Smaller gaps, slower scroll.", apply: (m) => { m.gapMul *= 0.9; m.speedMul *= 0.92; } },
+      { id: "mirror", name: "Mirror Bias", desc: "Subtle left/right pull.", apply: (m) => { m.mirror = true; } },
+      { id: "pulse", name: "Pulse Locks", desc: "Rhythmic bursts.", apply: (m) => { m.pulse = true; } }
+    ]
+  };
+
+  function clamp(value, min, max){
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function lerp(a, b, t){
+    return a + (b - a) * t;
+  }
+
+  function mulberry32(seed){
+    let a = seed >>> 0;
+    return function(){
+      a |= 0;
+      a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function randRange(min, max){
+    const r = state.rng ? state.rng() : Math.random();
+    return min + (max - min) * r;
+  }
+
+  function randPick(list){
+    const r = state.rng ? state.rng() : Math.random();
+    return list[Math.floor(r * list.length)];
+  }
+
+  function initVisualCaches(){
+    state.speedLines = [];
+    for (let i = 0; i < POLISH.speedLineCount; i++){
+      state.speedLines.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        len: 12 + Math.random() * 24
+      });
+    }
+    const stars = document.createElement("canvas");
+    stars.width = 256;
+    stars.height = 256;
+    const sctx = stars.getContext("2d");
+    sctx.fillStyle = "rgba(255,255,255,0.8)";
+    for (let i = 0; i < 120; i++){
+      const x = Math.random() * stars.width;
+      const y = Math.random() * stars.height;
+      const r = Math.random() < 0.1 ? 1.6 : 1;
+      sctx.globalAlpha = Math.random() * 0.8;
+      sctx.fillRect(x, y, r, r);
+    }
+    sctx.globalAlpha = 1;
+    state.starCanvas = stars;
+    const noise = document.createElement("canvas");
+    noise.width = 128;
+    noise.height = 128;
+    const nctx = noise.getContext("2d");
+    const img = nctx.createImageData(noise.width, noise.height);
+    for (let i = 0; i < img.data.length; i += 4){
+      const v = Math.random() * 255;
+      img.data[i] = v;
+      img.data[i + 1] = v;
+      img.data[i + 2] = v;
+      img.data[i + 3] = 80;
+    }
+    nctx.putImageData(img, 0, 0);
+    state.noiseCanvas = noise;
+  }
+
+  function generateRunProfile(){
+    state.runSeed = (Date.now() ^ (Math.random() * 1e9)) >>> 0;
+    state.rng = mulberry32(state.runSeed);
+    state.theme = randPick(THEMES);
+    const rampSeconds = randRange(TUNING.rampSecondsMin, TUNING.rampSecondsMax);
+    const baseSpeed = randRange(TUNING.baseSpeedMin, TUNING.baseSpeedMax);
+    const speedGrowthScale = randRange(TUNING.speedGrowthScaleMin, TUNING.speedGrowthScaleMax);
+    const speedGrowthPower = randRange(TUNING.speedGrowthPowerMin, TUNING.speedGrowthPowerMax);
+    const speedGrowthTime = randRange(TUNING.speedGrowthTimeMin, TUNING.speedGrowthTimeMax);
+    const intensityScoreScale = randRange(TUNING.intensityScoreScaleMin, TUNING.intensityScoreScaleMax);
+    const intensityResponse = randRange(TUNING.intensityResponseMin, TUNING.intensityResponseMax);
+    const baseGap = randRange(TUNING.baseGapMin, TUNING.baseGapMax);
+    const gapShrinkPerIntensity = randRange(TUNING.gapShrinkPerIntensityMin, TUNING.gapShrinkPerIntensityMax);
+    const minGap = randRange(TUNING.minGapMin, TUNING.minGapMax);
+    const minPassInterval = randRange(TUNING.minPassIntervalMin, TUNING.minPassIntervalMax);
+    const maxPassInterval = randRange(TUNING.maxPassIntervalMin, TUNING.maxPassIntervalMax);
+    let patternMode = randPick(["drift", "push", "oscillate"]);
+    const patternBiasStrength = randRange(TUNING.patternBiasStrengthMin, TUNING.patternBiasStrengthMax);
+    const patternPeriod = randRange(TUNING.patternPeriodMin, TUNING.patternPeriodMax);
+    const patternPhase = randRange(0, Math.PI * 2);
+    let pacingStyle = randPick(["steady", "swell", "burst"]);
+    const orbSpeed = randRange(TUNING.orbSpeedMin, TUNING.orbSpeedMax);
+    const orbMinInterval = randRange(TUNING.orbMinIntervalMin, TUNING.orbMinIntervalMax);
+    const orbYBandOffset = randRange(TUNING.orbYBandOffsetMin, TUNING.orbYBandOffsetMax);
+
+    if (state.theme.name === "Aurora"){
+      patternMode = "drift";
+      pacingStyle = "steady";
+    } else if (state.theme.name === "Pulse"){
+      patternMode = "push";
+      pacingStyle = "burst";
+    } else if (state.theme.name === "Glitch"){
+      patternMode = "oscillate";
+      pacingStyle = "swell";
+    }
+
+    state.runProfile = {
+      rampSeconds,
+      baseSpeed,
+      speedGrowthScale,
+      speedGrowthPower,
+      speedGrowthTime,
+      intensityScoreScale,
+      intensityResponse,
+      baseGap,
+      gapShrinkPerIntensity,
+      minGap,
+      minPassInterval,
+      maxPassInterval,
+      patternMode,
+      patternBiasStrength,
+      patternPeriod,
+      patternPhase,
+      pacingStyle,
+      orbSpeed,
+      orbMinInterval,
+      orbYBandOffset
+    };
+    applyTheme();
+  }
+
+  function applyTheme(){
+    if (!state.theme) return;
+    const t = state.theme;
+    const root = document.documentElement;
+    const palette = SETTINGS.colorBlind
+      ? { neonA: [43, 226, 255], neonB: [255, 209, 102], neonC: [6, 214, 160], bg: { a: "#040610", b: "#0b1226" } }
+      : t.palette;
+    root.style.setProperty("--neon", `rgb(${palette.neonA.join(",")})`);
+    root.style.setProperty("--neon2", `rgb(${palette.neonB.join(",")})`);
+    root.style.setProperty("--danger", `rgb(${palette.neonC.join(",")})`);
+    root.style.setProperty("--bg", t.bg.a);
+    root.style.setProperty("--bg2", t.bg.b);
+    intensityFillEl.style.background = `linear-gradient(90deg, rgba(${palette.neonA.join(",")},.9), rgba(${palette.neonB.join(",")},.95), rgba(${palette.neonC.join(",")},.9))`;
+  }
+
+  // Settings: persisted UX controls.
+  function loadSettings(){
+    const stored = localStorage.getItem("neonSettings");
+    if (stored){
+      try{
+        const data = JSON.parse(stored);
+        Object.assign(SETTINGS, data);
+      } catch {}
+    }
+    applySettings();
+  }
+
+  function applySettings(){
+    musicVolEl.value = SETTINGS.musicVolume;
+    sfxVolEl.value = SETTINGS.sfxVolume;
+    shakeLevelEl.value = SETTINGS.shake;
+    contrastToggleEl.textContent = SETTINGS.highContrast ? "On" : "Off";
+    document.body.classList.toggle("high-contrast", SETTINGS.highContrast);
+    motionLevelEl.value = SETTINGS.motion;
+    colorBlindToggleEl.textContent = SETTINGS.colorBlind ? "On" : "Off";
+    streamerToggleEl.textContent = SETTINGS.streamer ? "On" : "Off";
+    document.body.classList.toggle("colorblind", SETTINGS.colorBlind);
+    if (!state.audioMuted){
+      menuMusic.volume = AUDIO.menuVolume * SETTINGS.musicVolume;
+      gameMusic.volume = AUDIO.gameVolume * SETTINGS.musicVolume;
+    }
+  }
+
+  function initIntro(){
+    slideDotsEl.innerHTML = "";
+    const slides = slidesEl.children;
+    for (let i = 0; i < slides.length; i++){
+      const dot = document.createElement("div");
+      dot.className = "dot" + (i === 0 ? " active" : "");
+      slideDotsEl.appendChild(dot);
+    }
+  }
+
+  function slideStep(){
+    const slide = slidesEl.children[0];
+    if (!slide) return slidesEl.clientWidth;
+    const styles = window.getComputedStyle(slidesEl);
+    const gap = parseFloat(styles.gap || styles.columnGap || "0");
+    return slide.offsetWidth + gap;
+  }
+
+  function updateIntroDots(){
+    const dots = slideDotsEl.children;
+    for (let i = 0; i < dots.length; i++){
+      dots[i].classList.toggle("active", i === state.slideIndex);
+    }
+  }
+
+  function setSlide(index){
+    const count = slidesEl.children.length;
+    const clamped = Math.max(0, Math.min(count - 1, index));
+    state.slideIndex = clamped;
+    slidesEl.scrollTo({ left: clamped * slideStep(), behavior: "smooth" });
+    updateIntroDots();
+  }
+
+  function scrollToSlide(dir){
+    setSlide(state.slideIndex + dir);
+  }
+
+  function saveSettings(){
+    localStorage.setItem("neonSettings", JSON.stringify(SETTINGS));
+  }
+
+  // Progression: currency + upgrades + keybinds.
+  function loadProgress(){
+    const stored = localStorage.getItem("neonProgress");
+    if (stored){
+      try{
+        const data = JSON.parse(stored);
+        state.shards = data.shards || 0;
+        state.upgrades = data.upgrades || {};
+        if (data.rebind) state.rebind = data.rebind;
+      } catch {}
+    }
+    for (const up of UPGRADES){
+      if (state.upgrades[up.id] == null) state.upgrades[up.id] = 0;
+      up.level = state.upgrades[up.id];
+    }
+    updateUpgradeUI();
+  }
+
+  function saveProgress(){
+    localStorage.setItem("neonProgress", JSON.stringify({
+      shards: state.shards,
+      upgrades: state.upgrades,
+      rebind: state.rebind
+    }));
+  }
+
+  function updateUpgradeUI(){
+    currencyEl.innerHTML = `${PROGRESSION.currencyName}: ${state.shards} <img src="shard.png" alt="Shard" class="shard-icon">`;
+    upgradeGridEl.innerHTML = "";
+    for (const up of UPGRADES){
+      const card = document.createElement("div");
+      card.className = "upgrade-card";
+      card.innerHTML = `<div>${up.name}</div><div class="hint">${up.desc}</div><div class="hud-divider"></div><div>Level ${up.level}/${up.max}</div>`;
+      const btn = document.createElement("div");
+      btn.className = "btn";
+      btn.textContent = up.level >= up.max ? "Maxed" : `Buy (${up.cost})`;
+      btn.addEventListener("click", () => {
+        if (up.level >= up.max) return;
+        if (state.shards < up.cost) return;
+        state.shards -= up.cost;
+        up.level += 1;
+        state.upgrades[up.id] = up.level;
+        saveProgress();
+        updateUpgradeUI();
+        sfxClick();
+      });
+      card.appendChild(btn);
+      upgradeGridEl.appendChild(card);
+    }
+    rebindLeftEl.textContent = state.rebind.left.replace("Key","").replace("Arrow","Arrow ");
+    rebindRightEl.textContent = state.rebind.right.replace("Key","").replace("Arrow","Arrow ");
+  }
+
+  function applyUpgrades(){
+    const control = state.upgrades.control || 0;
+    const combo = state.upgrades.combo || 0;
+    const glow = state.upgrades.glow || 0;
+    const trail = state.upgrades.trail || 0;
+    const pulse = state.upgrades.pulse || 0;
+    state.upgradeEffects = {
+      controlBoost: 1 + control * 0.05,
+      comboExtend: 1 + combo * 0.2,
+      glowBoost: 1 + glow * 0.08,
+      trailShift: trail * 0.12,
+      gatePulse: pulse
+    };
+  }
+
+  function selectRunMods(){
+    if (!FEATURE_FLAGS.modifiers){
+      state.runMods = { pos: null, neg: null, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false, patternBias: 0 };
+      return;
+    }
+    const pos = randPick(MODIFIERS.positive);
+    const neg = randPick(MODIFIERS.negative);
+    const mods = { pos, neg, speedMul: 1, gapMul: 1, echo: false, mirror: false, pulse: false, patternBias: 0, mirrorDir: Math.random() < 0.5 ? -1 : 1 };
+    pos.apply(mods);
+    neg.apply(mods);
+    state.runMods = mods;
+    modPosEl.textContent = `${pos.name} (+)`;
+    modNegEl.textContent = `${neg.name} (-)`;
+    if (state.theme) themeLabelEl.textContent = `Theme: ${state.theme.name}`;
+  }
+
+  function announce(text){
+    if (!FEATURE_FLAGS.announcer || SETTINGS.streamer) return;
+    announcerEl.textContent = text;
+    announcerEl.classList.remove("show");
+    void announcerEl.offsetWidth;
+    announcerEl.classList.add("show");
+  }
+
+  function intensity(){
+    const p = state.runProfile || {
+      baseSpeed: 260,
+      speedGrowthScale: 0.16,
+      speedGrowthPower: 1.6,
+      speedGrowthTime: 22,
+      intensityScoreScale: 0.08
+    };
+    const speed = speedAtTime();
+    const scoreFactor = 1 + Math.log1p(state.score / 3000) * p.intensityScoreScale;
+    return (speed / p.baseSpeed) * scoreFactor;
+  }
+
+  function intensityNorm(){
+    const p = state.runProfile || { intensityResponse: 0.5 };
+    const mult = Math.max(0, intensity() - 1);
+    return 1 - Math.exp(-p.intensityResponse * mult);
+  }
+
+  // SPEED GROWTH CONSTANTS: baseSpeedMin/Max, speedGrowthScaleMin/Max,
+  // speedGrowthPowerMin/Max, speedGrowthTimeMin/Max.
+  function speedAtTime(){
+    const p = state.runProfile || {
+      baseSpeed: 260,
+      speedGrowthScale: 0.16,
+      speedGrowthPower: 1.6,
+      speedGrowthTime: 22
+    };
+    const t = Math.max(0, state.time) / p.speedGrowthTime;
+    const growth = Math.pow(t, p.speedGrowthPower);
+    return p.baseSpeed * (1 + p.speedGrowthScale * growth);
+  }
+
+  function resetGame(){
+    applyUpgrades();
+    state.time = 0;
+    state.score = 0;
+    gates.length = 0;
+    particles.length = 0;
+    orbs.length = 0;
+    trail.length = 0;
+    player.x = w * 0.5;
+    player.vx = 0;
+    player.targetX = null;
+    state.shake = 0;
+    state.shakePower = 0;
+    state.spawnTimer = 0;
+    state.lastPassETA = null;
+    state.lastGapCenter = null;
+    state.slowMo = 0;
+    state.flash = 0;
+    state.glitch = 0;
+    state.orbTimer = 0.7;
+    state.lastOrbTime = -999;
+    state.uiScore = 0;
+    state.uiBest = state.best;
+    state.uiIntensity = 1;
+    state.scorePulse = 0;
+    state.dangerPulse = 0;
+    state.deathTimer = 0;
+    state.freeze = 0;
+    state.zoom = 0;
+    state.combo = 0;
+    state.comboTimer = 0;
+    state.nearTimer = 0;
+    state.readyTimer = 0.7;
+    state.paused = false;
+    state.playerHistory = [];
+    state.gateCount = 0;
+    state.bestCombo = 0;
+    state.nearCount = 0;
+    state.intensityPeak = 1;
+    state.announceCooldown = 0;
+    intensityEl.textContent = "1.0";
+    intensityFillEl.style.transform = "scaleX(0)";
+    spawnGate(-80, true);
+  }
+
+  function setMode(mode){
+    state.mode = mode;
+    document.body.setAttribute("data-state", mode);
+    if (mode !== "play") readyGoEl.classList.remove("show");
+    if (mode === "start" || mode === "over"){
+      generateRunProfile();
+      selectRunMods();
+      modsPanelEl.classList.add("active");
+      playMenuMusic();
+    } else if (mode === "play"){
+      modsPanelEl.classList.remove("active");
+      playGameMusic();
+    }
+  }
+
+  function setPaused(isPaused){
+    state.paused = isPaused;
+    pausePanelEl.classList.toggle("active", isPaused);
+  }
+
+  function shakeScale(){
+    if (SETTINGS.shake === "low") return 0.6;
+    if (SETTINGS.shake === "high") return 1.2;
+    return 1;
+  }
+
+  function motionScale(){
+    if (SETTINGS.motion === "low") return 0.6;
+    if (SETTINGS.motion === "high") return 1.25;
+    return 1;
+  }
+
+  function startGame(){
+    initAudio();
+    unlockAudio();
+    if (state.introRequired){
+      introPanelEl.classList.add("active");
+      return;
+    }
+    resetGame();
+    state.flash = 0.06;
+    state.zoom = 0.01;
+    readyGoEl.textContent = "Ready";
+    readyGoEl.classList.add("show");
+    breakdownPanelEl.classList.remove("active");
+    if (!localStorage.getItem("neonTutSeen")){
+      tutorialEl.classList.add("show");
+      setTimeout(() => tutorialEl.classList.remove("show"), 3500);
+      localStorage.setItem("neonTutSeen", "1");
+    }
+    if (!state.loggedParams){
+      const profile = state.runProfile;
+      const maxGapShift = player.speed * profile.minPassInterval * TUNING.reachFactor;
+      console.log("[NeonSlip] fairness params:", {
+        minPassInterval: profile.minPassInterval,
+        maxPassInterval: profile.maxPassInterval,
+        minGapWidth: profile.minGap,
+        maxAllowedGapShift: Math.round(maxGapShift),
+        runSeed: state.runSeed,
+        patternMode: profile.patternMode,
+        pacingStyle: profile.pacingStyle
+      });
+      state.loggedParams = true;
+    }
+    const speedNow = speedAtTime();
+    const intensityNow = intensity();
+    console.log(
+      "[NeonSlip] speed now:",
+      speedNow.toFixed(2),
+      "intensity x",
+      intensityNow.toFixed(2),
+      "formula:",
+      "speed = baseSpeed * (1 + scale * (t/time)^power)"
+    );
+    setMode("play");
+    startPanel.classList.add("hidden");
+    startPanel.classList.remove("enter");
+    overPanel.classList.add("hidden");
+  }
+
+  function gameOver(){
+    setMode("over");
+    const isNewBest = state.score > state.best;
+    if (isNewBest){
+      state.best = state.score;
+      localStorage.setItem("neonBest", state.best);
+    }
+    if (FEATURE_FLAGS.progression){
+      const earned = Math.floor(state.score * PROGRESSION.earnScore) +
+        state.nearCount * PROGRESSION.earnNear +
+        state.bestCombo * PROGRESSION.earnCombo;
+      state.shards += earned;
+      saveProgress();
+      updateUpgradeUI();
+    }
+    finalScoreEl.textContent = state.score;
+    finalBestEl.textContent = state.best;
+    scoreEl.textContent = state.score;
+    bestEl.textContent = state.best;
+    breakdownStatsEl.textContent = `Best Combo: ${state.bestCombo} | Near Misses: ${state.nearCount} | Peak Intensity: x${state.intensityPeak.toFixed(1)}`;
+    breakdownPanelEl.classList.add("active");
+    if (isNewBest){
+      bestBurstEl.classList.remove("show");
+      void bestBurstEl.offsetWidth;
+      bestBurstEl.classList.add("show");
+    }
+
+    // Monetization hook: show interstitial ad between runs here.
+    showInterstitialAd();
+
+    // Leaderboard hook: submit score to server here.
+    submitScore(state.score);
+
+    overPanel.classList.remove("hidden");
+    overPanel.classList.add("enter");
+    setTimeout(() => overPanel.classList.remove("enter"), 600);
+  }
+
+  function beginDeath(){
+    if (state.mode !== "play") return;
+    state.freeze = POLISH.deathFreeze;
+    state.deathTimer = POLISH.deathUiDelay;
+    state.zoom = POLISH.deathZoom;
+    state.glitch = Math.max(state.glitch, TUNING.deathGlitchTime);
+    state.flash = Math.max(state.flash, 0.2);
+    setMode("dying");
+  }
+
+  function patternOffset(){
+    const p = state.runProfile;
+    if (!p) return 0;
+    const intensityN = intensityNorm();
+    const phase = (state.time / p.patternPeriod) * Math.PI * 2 + p.patternPhase;
+    const strength = p.patternBiasStrength * (0.65 + intensityN * 0.55);
+    if (p.patternMode === "push"){
+      return strength * (Math.sin(phase) >= 0 ? 1 : -1);
+    }
+    if (p.patternMode === "oscillate"){
+      return strength * Math.sin(phase);
+    }
+    return strength * Math.sin(phase * 0.65 + Math.sin(phase) * 0.35);
+  }
+
+  // Director: track recent average x to bias future gaps.
+  function recordPlayerX(){
+    state.playerHistory.push({ x: player.x, t: state.time });
+    const cutoff = state.time - TUNING.directorWindowSec;
+    while (state.playerHistory.length && state.playerHistory[0].t < cutoff){
+      state.playerHistory.shift();
+    }
+  }
+
+  function avgPlayerX(){
+    if (!state.playerHistory.length) return player.x;
+    let sum = 0;
+    for (const p of state.playerHistory) sum += p.x;
+    return sum / state.playerHistory.length;
+  }
+
+  function chooseGapCenter(gapW, passETA, intensityN){
+    const minCenter = 40 + gapW / 2;
+    const maxCenter = w - 40 - gapW / 2;
+    let center = clamp(w * 0.5 + patternOffset(), minCenter, maxCenter);
+
+    if (state.lastGapCenter != null && state.lastPassETA != null){
+      const timeDelta = Math.max(0.05, passETA - state.lastPassETA);
+      const maxShift = player.speed * timeDelta * TUNING.reachFactor;
+      const bias = 0.55 + intensityN * 0.25 + state.runMods.patternBias;
+      const patternCenter = clamp(w * 0.5 + patternOffset(), minCenter, maxCenter);
+      const avgX = avgPlayerX();
+      const dir = Math.sign(patternCenter - avgX) || 1;
+      const directorPush = dir * TUNING.directorStrength * (maxCenter - minCenter);
+      const target = lerp(patternCenter + directorPush, player.x, 0.2);
+      const blended = state.lastGapCenter * bias + target * (1 - bias);
+      const jitterScale = lerp(TUNING.jitterHigh, TUNING.jitterLow, intensityN);
+      const jitter = (randRange(-1, 1)) * maxShift * jitterScale;
+      const allowedLeft = state.lastGapCenter - maxShift;
+      const allowedRight = state.lastGapCenter + maxShift;
+      center = clamp(blended + jitter, allowedLeft, allowedRight);
+    }
+
+    return clamp(center, minCenter, maxCenter);
+  }
+
+  function spawnGate(yOverride, easy){
+    const intensityN = intensityNorm();
+    const intensityVal = intensity();
+    const p = state.runProfile;
+    let gapW = Math.max(p.minGap, p.baseGap - (intensityVal - 1) * p.gapShrinkPerIntensity);
+    if (state.gateCount < 12) gapW += 20;
+    gapW = Math.max(p.minGap, gapW * state.runMods.gapMul);
+    const y = yOverride != null ? yOverride : -40;
+    const playerY = player.y();
+    let speed = Math.max(p.baseSpeed, speedAtTime()) * state.runMods.speedMul;
+    let passETA = state.time + (playerY - y) / speed;
+
+    if (state.lastPassETA != null){
+      const intensityMult = intensity();
+      const minInterval = p.minPassInterval / (1 + intensityMult * TUNING.intervalDecay);
+      const maxInterval = p.maxPassInterval / (1 + intensityMult * TUNING.intervalMaxDecay);
+      const minETA = state.lastPassETA + minInterval;
+      const maxETA = state.lastPassETA + Math.max(minInterval, maxInterval);
+      if (passETA < minETA){
+        passETA = minETA;
+      } else if (passETA > maxETA){
+        passETA = maxETA;
+      }
+      speed = (playerY - y) / Math.max(0.05, passETA - state.time);
+      if (speed < p.baseSpeed) speed = p.baseSpeed;
+      passETA = state.time + (playerY - y) / speed;
+    }
+
+    const gapCenter = chooseGapCenter(gapW, passETA, intensityN);
+    const gapX = gapCenter - gapW / 2;
+    gates.push({
+      y,
+      gapX, gapW, speed, passed:false, passETA,
+      echo: state.runMods.echo && randRange(0, 1) < 0.2
+    });
+    state.gateCount += 1;
+    state.lastPassETA = passETA;
+    state.lastGapCenter = gapCenter;
+  }
+
+  function updateGates(dt){
+    const intensityN = intensityNorm();
+    const intensityMult = intensity();
+    const p = state.runProfile;
+    const minInterval = p.minPassInterval / (1 + intensityMult * TUNING.intervalDecay);
+    const maxInterval = p.maxPassInterval / (1 + intensityMult * TUNING.intervalMaxDecay);
+    const baseInterval = lerp(maxInterval, minInterval, intensityN);
+    let interval = baseInterval;
+    if (p.pacingStyle === "swell"){
+      interval *= 0.85 + 0.25 * Math.sin(state.time * 0.9 + p.patternPhase);
+    } else if (p.pacingStyle === "burst"){
+      const cycle = p.patternPeriod * 1.6;
+      const phase = (state.time % cycle) / cycle;
+      interval *= phase < 0.35 ? 0.78 : 1.05;
+    }
+    if (state.theme) interval *= state.theme.pacingBias;
+    if (state.runMods.pulse){
+      interval *= 0.85 + 0.2 * Math.sin(state.time * 2.4);
+    }
+    interval = clamp(interval, minInterval, Math.max(minInterval, maxInterval));
+    state.spawnTimer = (state.spawnTimer || 0) - dt;
+    if (state.spawnTimer <= 0){
+      spawnGate();
+      state.spawnTimer = interval;
+    }
+
+    for (let i = gates.length - 1; i >= 0; i--){
+      const g = gates[i];
+      g.y += g.speed * dt;
+
+      if (!g.passed && g.y > player.y()){
+        g.passed = true;
+        const px = player.x;
+        const inside = px > g.gapX && px < g.gapX + g.gapW;
+        if (!inside){
+          sfxCrash();
+          state.shake = POLISH.deathShake * shakeScale();
+          state.shakePower = 14 * shakeScale();
+          beginDeath();
+          return;
+        } else {
+          const center = g.gapX + g.gapW / 2;
+          const centerDist = Math.abs(px - center);
+          const edgeDist = Math.min(
+            Math.abs(px - g.gapX),
+            Math.abs(px - (g.gapX + g.gapW))
+          );
+          let bonus = edgeDist < 18 ? 8 : edgeDist < 35 ? 4 : 2;
+          let style = "";
+          if (centerDist < 6){
+            bonus += 6;
+            style = "PERFECT";
+          }
+          if (edgeDist <= TUNING.nearMissThreshold){
+            bonus += 4;
+            style = "RISK";
+          }
+          state.score += 10 + bonus;
+          state.scorePulse = POLISH.pulseTime;
+          sfxPass();
+          spawnParticles(px, g.y);
+          state.shake = POLISH.nearMissShake * shakeScale();
+          state.shakePower = 4 * shakeScale();
+          if (edgeDist <= TUNING.nearMissThreshold){
+            state.slowMo = TUNING.slowMoTime;
+            state.flash = 0.12;
+            state.dangerPulse = POLISH.pulseTime;
+            state.nearTimer = 0.4;
+            if (!SETTINGS.streamer){
+              nearPopEl.classList.remove("show");
+              void nearPopEl.offsetWidth;
+              nearPopEl.classList.add("show");
+            }
+            sfxNear();
+            state.combo = Math.max(0, state.combo - 1);
+            state.comboTimer = 0.6 * state.upgradeEffects.comboExtend;
+            state.nearCount += 1;
+          } else {
+            state.combo += 1;
+            state.comboTimer = 1.2 * state.upgradeEffects.comboExtend;
+            if (state.combo >= 2 && !SETTINGS.streamer){
+              comboPopEl.textContent = `Combo x${state.combo}`;
+              comboPopEl.classList.add("show");
+            }
+            state.score += Math.min(3, state.combo);
+          }
+          if (FEATURE_FLAGS.scorePopups && !SETTINGS.streamer){
+            scorePopEl.textContent = style ? `${style} +${bonus}` : `+${bonus}`;
+            scorePopEl.classList.remove("show");
+            void scorePopEl.offsetWidth;
+            scorePopEl.classList.add("show");
+          }
+          if (state.combo === 5) announce("FLOW");
+          if (state.combo === 8){
+            announce("ULTRA");
+            state.flash = Math.max(state.flash, 0.18);
+          }
+          if (state.combo === 10) announce("PERFECT");
+          state.bestCombo = Math.max(state.bestCombo, state.combo);
+        }
+      }
+
+      if (g.y > h + 60) gates.splice(i, 1);
+    }
+  }
+
+  function getNextGateETA(){
+    let eta = null;
+    for (const g of gates){
+      if (!g.passed){
+        if (eta == null || g.passETA < eta) eta = g.passETA;
+      }
+    }
+    return eta;
+  }
+
+  function spawnOrb(){
+    const now = state.time;
+    if (orbs.length > 0) return;
+    if (state.lastPassETA != null && now - state.lastPassETA < TUNING.orbSafeGateWindow){
+      return;
+    }
+    const nextGateETA = getNextGateETA();
+    if (nextGateETA != null && nextGateETA - now < TUNING.orbSafeGateWindow + TUNING.orbTelegraphMax){
+      return;
+    }
+
+    const p = state.runProfile;
+    const y = clamp(player.y() - p.orbYBandOffset, 80, h - 80);
+    const telegraph = lerp(TUNING.orbTelegraphMin, TUNING.orbTelegraphMax, randRange(0, 1));
+    let dir = randPick([-1, 1]);
+    if (player.x < 90) dir = 1;
+    if (player.x > w - 90) dir = -1;
+    const startX = dir === 1 ? -40 : w + 40;
+    orbs.push({
+      x: startX,
+      y,
+      vx: dir * p.orbSpeed,
+      r: TUNING.orbRadius,
+      telegraph,
+      telegraphLeft: telegraph,
+      active: false
+    });
+    state.lastOrbTime = now;
+  }
+
+  function updateOrbs(dt){
+    const intensityN = intensityNorm();
+    const p = state.runProfile;
+    const orbInterval = Math.max(0.85, p.orbMinInterval - intensityN * 0.35);
+    state.orbTimer -= dt;
+    if (state.orbTimer <= 0){
+      spawnOrb();
+      state.orbTimer = orbInterval;
+    }
+
+    for (let i = orbs.length - 1; i >= 0; i--){
+      const o = orbs[i];
+      if (o.telegraphLeft > 0){
+        o.telegraphLeft -= dt;
+        if (o.telegraphLeft <= 0) o.active = true;
+      } else {
+        o.x += o.vx * dt;
+        if (o.x < -80 || o.x > w + 80){
+          orbs.splice(i, 1);
+          continue;
+        }
+        const dx = o.x - player.x;
+        const dy = o.y - player.y();
+        const hit = (dx * dx + dy * dy) <= (o.r + player.r) * (o.r + player.r);
+        if (hit){
+          sfxCrash();
+          state.shake = POLISH.deathShake * shakeScale();
+          state.shakePower = 14 * shakeScale();
+          beginDeath();
+          return;
+        }
+      }
+    }
+  }
+
+  function updatePlayer(dt){
+    const controlBoost = state.upgradeEffects.controlBoost || 1;
+    const intensityBoost = 1 + intensityNorm() * 0.35;
+    const move = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+    if (player.targetX != null){
+      const dx = player.targetX - player.x;
+      let desired = clamp(dx * 8, -player.speed * intensityBoost, player.speed * intensityBoost);
+      if (state.runMods.mirror) desired += state.runMods.mirrorDir * 40;
+      const dv = clamp(desired - player.vx, -player.accel * controlBoost * intensityBoost * dt, player.accel * controlBoost * intensityBoost * dt);
+      player.vx += dv;
+      player.x += player.vx * dt;
+    } else if (move !== 0){
+      let desired = move * player.speed * intensityBoost;
+      if (state.runMods.mirror) desired += state.runMods.mirrorDir * 40;
+      const dv = clamp(desired - player.vx, -player.accel * controlBoost * intensityBoost * dt, player.accel * controlBoost * intensityBoost * dt);
+      player.vx += dv;
+      player.x += player.vx * dt;
+    } else {
+      const dv = clamp(-player.vx, -player.friction * controlBoost * intensityBoost * dt, player.friction * controlBoost * intensityBoost * dt);
+      player.vx += dv;
+      if (Math.abs(player.vx) < 6) player.vx = 0;
+      player.x += player.vx * dt;
+    }
+    player.x = Math.max(14, Math.min(w - 14, player.x));
+  }
+
+  function spawnParticles(x, y){
+    const count = Math.max(4, Math.floor(10 * motionScale()));
+    for (let i = 0; i < count; i++){
+      if (particles.length >= POLISH.maxParticles) break;
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 160,
+        vy: -Math.random() * 120,
+        life: 0.5 + Math.random() * 0.3
+      });
+    }
+  }
+
+  function updateParticles(dt){
+    for (let i = particles.length - 1; i >= 0; i--){
+      const p = particles[i];
+      p.life -= dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 220 * dt;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  function updateTrail(dt){
+    trail.push({ x: player.x, y: player.y(), life: 1 });
+    const maxLen = Math.max(4, Math.floor(POLISH.trailLength * motionScale()));
+    while (trail.length > maxLen) trail.shift();
+    for (let i = trail.length - 1; i >= 0; i--){
+      trail[i].life -= dt * POLISH.trailFade;
+      if (trail[i].life <= 0) trail.splice(i, 1);
+    }
+  }
+
+  function updateHud(dt){
+    state.uiScore += (state.score - state.uiScore) * POLISH.uiEase;
+    state.uiBest += (state.best - state.uiBest) * POLISH.uiEase;
+    state.uiIntensity += (intensity() - state.uiIntensity) * POLISH.uiEase;
+
+    if (state.scorePulse > 0) state.scorePulse -= dt;
+    if (state.dangerPulse > 0) state.dangerPulse -= dt;
+    if (state.comboTimer > 0) state.comboTimer -= dt;
+    if (FEATURE_FLAGS.comboDecay && state.comboTimer <= 0 && state.combo > 0){
+      state.combo -= 1;
+      state.comboTimer = 0.6 * state.upgradeEffects.comboExtend;
+      if (state.combo <= 1) comboPopEl.classList.remove("show");
+    }
+    if (state.comboTimer <= 0) comboPopEl.classList.remove("show");
+
+    scoreEl.textContent = Math.floor(state.uiScore);
+    bestEl.textContent = Math.floor(state.uiBest);
+    intensityEl.textContent = state.uiIntensity.toFixed(1);
+    const intensityLevel = intensityNorm();
+    intensityFillEl.style.transform = `scaleX(${intensityLevel.toFixed(3)})`;
+    document.body.setAttribute("data-danger", intensityLevel > 0.8 ? "1" : "0");
+
+    const pulse = Math.max(0, state.scorePulse / POLISH.pulseTime);
+    scoreEl.style.transform = `scale(${1 + pulse * POLISH.pulseScale})`;
+
+    const danger = Math.max(0, state.dangerPulse / POLISH.pulseTime);
+    intensityFillEl.style.filter = `brightness(${1 + danger * 0.6})`;
+  }
+
+  function unlockAudio(){
+    if (state.audioUnlocked) return;
+    state.audioUnlocked = true;
+    initAudio();
+    menuMusic.volume = 0;
+    gameMusic.volume = 0;
+    if (!state.audioMuted){
+      playMenuMusic();
+    }
+  }
+
+  function crossfade(from, to, durationMs){
+    if (state.audioFade) cancelAnimationFrame(state.audioFade);
+    const start = performance.now();
+    const fromStart = from ? from.volume : 0;
+    const toTarget = (to === menuMusic ? AUDIO.menuVolume : AUDIO.gameVolume) * SETTINGS.musicVolume;
+    if (to && to.paused) to.play().catch(() => {});
+
+    function step(now){
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = t * (2 - t);
+      if (from){
+        from.volume = fromStart * (1 - eased);
+        if (t >= 1){
+          from.pause();
+          from.currentTime = Math.max(0, from.currentTime);
+        }
+      }
+      if (to){
+        to.volume = state.audioMuted ? 0 : toTarget * eased;
+      }
+      if (t < 1){
+        state.audioFade = requestAnimationFrame(step);
+      } else {
+        state.audioFade = null;
+      }
+    }
+    state.audioFade = requestAnimationFrame(step);
+  }
+
+  function playMenuMusic(){
+    if (!state.audioUnlocked) return;
+    if (menuMusic.paused){
+      menuMusic.play().catch(() => {});
+    }
+    if (!gameMusic.paused){
+      crossfade(gameMusic, menuMusic, AUDIO.crossfadeMs);
+    } else {
+      menuMusic.volume = state.audioMuted ? 0 : AUDIO.menuVolume * SETTINGS.musicVolume;
+    }
+  }
+
+  function playGameMusic(){
+    if (!state.audioUnlocked) return;
+    if (gameMusic.paused){
+      gameMusic.play().catch(() => {});
+    }
+    if (!menuMusic.paused){
+      crossfade(menuMusic, gameMusic, AUDIO.crossfadeMs);
+    } else {
+      gameMusic.volume = state.audioMuted ? 0 : AUDIO.gameVolume * SETTINGS.musicVolume;
+    }
+  }
+
+  function setMuted(isMuted){
+    state.audioMuted = isMuted;
+    localStorage.setItem("neonMuted", isMuted ? "1" : "0");
+    audioToggleEl.textContent = isMuted ? "Audio Off" : "Audio On";
+    if (isMuted){
+      menuMusic.volume = 0;
+      gameMusic.volume = 0;
+    } else {
+      playMenuMusic();
+    }
+  }
+
+  function draw(){
+    ctx.save();
+
+    if (state.shake > 0){
+      const t = state.shake;
+      const power = state.shakePower * t;
+      const sx = (Math.random() - 0.5) * power;
+      const sy = (Math.random() - 0.5) * power;
+      ctx.translate(sx, sy);
+    }
+
+    if (state.zoom > 0){
+      const z = 1 + state.zoom;
+      ctx.translate(w * 0.5, h * 0.5);
+      ctx.scale(z, z);
+      ctx.translate(-w * 0.5, -h * 0.5);
+    }
+
+    ctx.clearRect(0, 0, w, h);
+
+    const motion = motionScale();
+    const speedFactor = 1 + intensityNorm() * POLISH.visualSpeedBoost * motion;
+    const anchorY = player.y();
+    const renderY = (y) => anchorY + (y - anchorY) * speedFactor;
+
+    // Starfield (cached)
+    if (state.starCanvas){
+      ctx.globalAlpha = POLISH.starAlpha * motion;
+      const sx = (state.visualTime * POLISH.starSpeed) % state.starCanvas.width;
+      const sy = (state.visualTime * POLISH.starSpeed * 0.6) % state.starCanvas.height;
+      ctx.drawImage(state.starCanvas, -sx, -sy, w + state.starCanvas.width, h + state.starCanvas.height);
+      ctx.globalAlpha = 1;
+    }
+
+    // Animated background glow
+    const drift = state.visualTime * POLISH.bgDriftSpeed * speedFactor;
+    const gx = w * 0.6 + Math.sin(drift * 1.3) * 120;
+    const gy = h * 0.2 + Math.cos(drift * 0.9) * 90;
+    const radial = ctx.createRadialGradient(gx, gy, 60, gx, gy, Math.max(w, h));
+    radial.addColorStop(0, "rgba(25,247,255,0.08)");
+    radial.addColorStop(0.35, "rgba(138,91,255,0.06)");
+    radial.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = radial;
+    ctx.fillRect(0, 0, w, h);
+
+    // Background grid glow
+    ctx.globalAlpha = 0.14;
+    ctx.strokeStyle = "#1a2a44";
+    const gridOffset = (state.visualTime * 12 * speedFactor) % (h / 12);
+    for (let i = 0; i < 12; i++){
+      const y = (i / 12) * h + gridOffset;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    const tint = intensityNorm();
+    const theme = state.theme || THEMES[0];
+    const a = theme.palette.neonA;
+    const b = theme.palette.neonB;
+    const c = theme.palette.neonC;
+    const mix = tint < 0.5 ? tint * 2 : (tint - 0.5) * 2;
+    const from = tint < 0.5 ? a : b;
+    const to = tint < 0.5 ? b : c;
+    const neonR = Math.round(from[0] + (to[0] - from[0]) * mix);
+    const neonG = Math.round(from[1] + (to[1] - from[1]) * mix);
+    const neonB = Math.round(from[2] + (to[2] - from[2]) * mix);
+    const neonColor = `rgb(${neonR},${neonG},${neonB})`;
+    const neonGlow = `rgba(${neonR},${neonG},${neonB},0.9)`;
+    const glowBoost = (theme.glowBoost || 1) * (state.upgradeEffects.glowBoost || 1);
+    const pulseBoost = state.upgradeEffects.gatePulse || 0;
+
+    // Gates
+    for (const g of gates){
+      const gy = renderY(g.y);
+      ctx.shadowColor = `rgba(${neonR},${neonG},${neonB},0.6)`;
+      ctx.shadowBlur = 10 * glowBoost;
+      const pulse = pulseBoost ? (0.16 + 0.04 * Math.sin(state.visualTime * 6)) : 0.18;
+      ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},${pulse})`;
+      ctx.fillRect(0, gy, g.gapX, 16);
+      ctx.fillRect(g.gapX + g.gapW, gy, w, 16);
+
+      ctx.globalAlpha = 0.15;
+      ctx.fillRect(0, gy - 18, g.gapX, 18);
+      ctx.fillRect(g.gapX + g.gapW, gy - 18, w, 18);
+      ctx.globalAlpha = 1;
+
+      if (g.echo){
+        ctx.globalAlpha = 0.22;
+        ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},0.12)`;
+        ctx.fillRect(0, gy - 36, g.gapX, 10);
+        ctx.fillRect(g.gapX + g.gapW, gy - 36, w, 10);
+        ctx.globalAlpha = 1;
+      }
+
+      ctx.fillStyle = neonGlow;
+      ctx.fillRect(g.gapX - 2, gy - 2, 4, 20);
+      ctx.fillRect(g.gapX + g.gapW - 2, gy - 2, 4, 20);
+      ctx.globalAlpha = POLISH.gateStreakAlpha * motion;
+      ctx.fillRect(g.gapX - 1, gy - POLISH.gateStreakLen, 2, POLISH.gateStreakLen);
+      ctx.fillRect(g.gapX + g.gapW - 1, gy - POLISH.gateStreakLen, 2, POLISH.gateStreakLen);
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+
+    // Dash orbs telegraph + active
+    for (const o of orbs){
+      const oy = renderY(o.y);
+      if (o.telegraphLeft > 0){
+        const pulse = 0.4 + 0.6 * Math.sin((1 - o.telegraphLeft / o.telegraph) * Math.PI);
+        ctx.strokeStyle = `rgba(255, 59, 122, ${0.6 * pulse})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, oy);
+        ctx.lineTo(w, oy);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.arc(o.x, oy, o.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 59, 122, 0.9)";
+        ctx.shadowColor = "#ff3b7a";
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 0.18;
+        ctx.strokeStyle = "rgba(255, 59, 122, 0.8)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(o.x - Math.sign(o.vx) * 18, oy);
+        ctx.lineTo(o.x - Math.sign(o.vx) * 34, oy);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Player trail
+    const trailShift = state.upgradeEffects.trailShift || 0;
+    const trailR = Math.round(neonR + (255 - neonR) * trailShift);
+    const trailG = Math.round(neonG + (neonB - neonG) * trailShift);
+    const trailB = Math.round(neonB + (neonG - neonB) * trailShift);
+    for (let i = 0; i < trail.length; i++){
+      const t = trail[i];
+      const alpha = (i / trail.length) * 0.35 * t.life;
+      ctx.globalAlpha = alpha;
+      const size = 7;
+      ctx.beginPath();
+      ctx.moveTo(t.x, t.y - size);
+      ctx.lineTo(t.x - size + 1, t.y + size - 1);
+      ctx.lineTo(t.x + size - 1, t.y + size - 1);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${trailR},${trailG},${trailB},0.6)`;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Player
+    const py = player.y();
+    ctx.beginPath();
+    ctx.moveTo(player.x, py - 14);
+    ctx.lineTo(player.x - 12, py + 12);
+    ctx.lineTo(player.x + 12, py + 12);
+    ctx.closePath();
+    ctx.fillStyle = neonColor;
+    ctx.shadowColor = neonColor;
+    ctx.shadowBlur = (16 + Math.sin(state.visualTime * 6) * 2) * glowBoost;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Particles
+    ctx.fillStyle = "rgba(138,91,255,0.8)";
+    for (const p of particles){
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillRect(p.x, renderY(p.y), 3, 3);
+    }
+    ctx.globalAlpha = 1;
+
+    if (state.flash > 0 && !SETTINGS.streamer){
+      ctx.globalAlpha = state.flash;
+      ctx.fillStyle = "rgba(25,247,255,0.25)";
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalAlpha = 1;
+    }
+
+    // Scanlines
+    ctx.globalAlpha = POLISH.scanlineAlpha * motion;
+    ctx.fillStyle = "rgba(6,10,20,0.45)";
+    for (let y = 0; y < h; y += 4){
+      ctx.fillRect(0, y + (state.visualTime * 20 * speedFactor) % 4, w, 1);
+    }
+    ctx.globalAlpha = 1;
+
+    // Subtle noise (cached)
+    if (state.noiseCanvas){
+      ctx.globalAlpha = POLISH.noiseAlpha * motion;
+      const nx = (state.visualTime * 40) % state.noiseCanvas.width;
+      const ny = (state.visualTime * 26) % state.noiseCanvas.height;
+      ctx.drawImage(state.noiseCanvas, -nx, -ny, w + state.noiseCanvas.width, h + state.noiseCanvas.height);
+      ctx.globalAlpha = 1;
+    }
+
+    // Speed lines (cached)
+    const speedAlpha = POLISH.speedLineAlpha * intensityNorm() * motion;
+    if (speedAlpha > 0 && state.speedLines.length){
+      ctx.globalAlpha = speedAlpha;
+      ctx.strokeStyle = "rgba(25,247,255,0.5)";
+      ctx.lineWidth = 1;
+      const offset = (state.visualTime * 220 * speedFactor) % h;
+      for (const line of state.speedLines){
+        const y = (line.y + offset) % h;
+        const len = line.len * speedFactor;
+        ctx.beginPath();
+        ctx.moveTo(line.x, y);
+        ctx.lineTo(line.x, y + len);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    if (state.glitch > 0){
+      const g = state.glitch;
+      const ox = (Math.random() - 0.5) * 6 * g;
+      const oy = (Math.random() - 0.5) * 4 * g;
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.22 * g;
+      ctx.drawImage(canvas, ox, oy);
+      ctx.fillStyle = "rgba(255, 0, 80, 0.12)";
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "rgba(0, 180, 255, 0.1)";
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+    // Intensity wash
+    const wash = intensityNorm() * 0.08 * motion;
+    if (wash > 0){
+      ctx.globalAlpha = wash;
+      ctx.fillStyle = `rgba(${neonR},${neonG},${neonB},0.35)`;
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalAlpha = 1;
+    }
+
+    // Vignette
+    const vg = ctx.createRadialGradient(w * 0.5, h * 0.55, Math.min(w, h) * 0.2, w * 0.5, h * 0.55, Math.max(w, h) * 0.7);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, `rgba(0,0,0,${POLISH.vignetteAlpha})`);
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.restore();
+  }
+
+  function loop(ts){
+    const dt = Math.min(0.033, (ts - state.lastTime) / 1000 || 0);
+    const timeScale = state.slowMo > 0 ? TUNING.slowMoScale : 1;
+    state.lastTime = ts;
+    state.visualTime += dt;
+
+    if (state.paused){
+      updateHud(dt);
+      draw();
+      requestAnimationFrame(loop);
+      return;
+    }
+
+    if (state.mode === "play"){
+      state.time += dt;
+      const dtScaled = dt * timeScale;
+      state.score += Math.floor(dtScaled * 8);
+      state.intensityPeak = Math.max(state.intensityPeak, intensity());
+      if (state.announceCooldown > 0) state.announceCooldown -= dt;
+      if (intensityNorm() > 0.85 && state.announceCooldown <= 0){
+        announce("DANGER");
+        state.announceCooldown = 4;
+      }
+      updatePlayer(dtScaled);
+      updateGates(dtScaled);
+      updateOrbs(dtScaled);
+      updateParticles(dtScaled);
+      updateTrail(dtScaled);
+      recordPlayerX();
+
+      if (state.shake > 0) state.shake -= dt;
+      if (state.slowMo > 0) state.slowMo -= dt;
+      if (state.flash > 0) state.flash -= dt;
+      if (state.glitch > 0) state.glitch -= dt;
+      if (state.zoom > 0) state.zoom = Math.max(0, state.zoom - dt * 0.08);
+
+      if (state.readyTimer > 0){
+        state.readyTimer -= dt;
+        if (state.readyTimer > 0.35){
+          readyGoEl.textContent = "Ready";
+          readyGoEl.classList.add("show");
+        } else if (state.readyTimer > 0){
+          readyGoEl.textContent = "Go";
+          readyGoEl.classList.add("show");
+        } else {
+          readyGoEl.classList.remove("show");
+        }
+      }
+    } else if (state.mode === "dying"){
+      if (state.deathTimer > 0){
+        state.deathTimer -= dt;
+        if (state.deathTimer <= 0) gameOver();
+      }
+      if (state.freeze > 0) state.freeze -= dt;
+      if (state.shake > 0) state.shake -= dt;
+      if (state.flash > 0) state.flash -= dt;
+      if (state.glitch > 0) state.glitch -= dt;
+      if (state.zoom > 0) state.zoom = Math.max(0, state.zoom - dt * 0.06);
+    }
+
+    updateHud(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // Audio
+  let audioCtx = null;
+  let sfxGain = null;
+  function initAudio(){
+    if (!audioCtx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) audioCtx = new Ctx();
+      if (audioCtx){
+        sfxGain = audioCtx.createGain();
+        sfxGain.gain.value = 1;
+        sfxGain.connect(audioCtx.destination);
+      }
+    }
+    if (audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+  }
+  function playTone(freq, duration, type, volume){
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = volume * SETTINGS.sfxVolume;
+    osc.connect(gain);
+    gain.connect(sfxGain);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    osc.stop(audioCtx.currentTime + duration);
+  }
+  function playNoise(duration, volume){
+    if (!audioCtx) return;
+    const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * duration, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * volume;
+    const src = audioCtx.createBufferSource();
+    src.buffer = buffer;
+    const gain = audioCtx.createGain();
+    gain.gain.value = SETTINGS.sfxVolume;
+    src.connect(gain);
+    gain.connect(sfxGain);
+    src.start();
+  }
+  function sfxPass(){
+    playTone(680, 0.08, "triangle", 0.08);
+    playTone(920, 0.06, "sine", 0.06);
+  }
+  function sfxNear(){
+    playTone(840, 0.05, "square", 0.05);
+  }
+  function sfxCrash(){
+    playTone(180, 0.18, "sawtooth", 0.14);
+    playNoise(0.12, 0.12);
+  }
+  function sfxClick(){
+    playTone(520, 0.04, "triangle", 0.05);
+  }
+
+  // Monetization hook: cosmetic skins could change player color/glow here.
+  // Example: swap player color based on owned cosmetics.
+  function applyCosmeticSkin(){ /* integrate cosmetic system here */ }
+
+  // Monetization hook: ads between runs.
+  function showInterstitialAd(){ /* integrate ad SDK here */ }
+
+  // Monetization hook: leaderboard submissions.
+  function submitScore(score){ /* integrate leaderboard API here */ }
+
+  // Input
+  window.addEventListener("keydown", (e) => {
+    unlockAudio();
+    if (state.awaitingBind){
+      state.rebind[state.awaitingBind] = e.code;
+      state.awaitingBind = null;
+      updateUpgradeUI();
+      saveProgress();
+      return;
+    }
+    if (e.code === state.rebind.left) input.left = true;
+    if (e.code === state.rebind.right) input.right = true;
+    if (e.code === "KeyM"){
+      setMuted(!state.audioMuted);
+    }
+    if (e.code === "KeyP" || e.code === "Escape"){
+      if (state.mode === "play"){
+        setPaused(!state.paused);
+        sfxClick();
+      }
+    }
+    if (state.mode !== "play" && (e.code === "Space" || e.code === "Enter")) startGame();
+  });
+  window.addEventListener("keyup", (e) => {
+    if (e.code === state.rebind.left) input.left = false;
+    if (e.code === state.rebind.right) input.right = false;
+  });
+
+  canvas.addEventListener("pointerdown", (e) => {
+    initAudio();
+    unlockAudio();
+    input.activePointer = true;
+    player.targetX = e.clientX;
+    if (state.mode !== "play") startGame();
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    if (input.activePointer) player.targetX = e.clientX;
+  });
+  window.addEventListener("pointerup", () => {
+    input.activePointer = false;
+    player.targetX = null;
+  });
+
+  startPanel.addEventListener("click", startGame);
+  overPanel.addEventListener("click", startGame);
+  audioToggleEl.addEventListener("click", () => {
+    unlockAudio();
+    setMuted(!state.audioMuted);
+  });
+  openSettingsEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfxClick();
+    modsPanelEl.classList.remove("active");
+    settingsPanelEl.classList.add("active");
+  });
+  openSettingsOverEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfxClick();
+    modsPanelEl.classList.remove("active");
+    settingsPanelEl.classList.add("active");
+  });
+  openUpgradesEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfxClick();
+    modsPanelEl.classList.remove("active");
+    upgradesPanelEl.classList.add("active");
+    updateUpgradeUI();
+  });
+  openUpgradesOverEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfxClick();
+    modsPanelEl.classList.remove("active");
+    upgradesPanelEl.classList.add("active");
+    updateUpgradeUI();
+  });
+  closeSettingsEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfxClick();
+    settingsPanelEl.classList.remove("active");
+  });
+  closeUpgradesEl.addEventListener("click", () => {
+    sfxClick();
+    upgradesPanelEl.classList.remove("active");
+  });
+  closeModsEl.addEventListener("click", () => {
+    sfxClick();
+    modsPanelEl.classList.remove("active");
+  });
+  resumeBtnEl.addEventListener("click", () => {
+    sfxClick();
+    setPaused(false);
+  });
+  restartBtnEl.addEventListener("click", () => {
+    sfxClick();
+    setPaused(false);
+    startGame();
+  });
+  quitBtnEl.addEventListener("click", () => {
+    sfxClick();
+    setPaused(false);
+    setMode("start");
+    startPanel.classList.remove("hidden");
+    startPanel.classList.add("enter");
+  });
+  closeBreakdownEl.addEventListener("click", () => {
+    sfxClick();
+    breakdownPanelEl.classList.remove("active");
+  });
+  musicVolEl.addEventListener("input", () => {
+    SETTINGS.musicVolume = parseFloat(musicVolEl.value);
+    saveSettings();
+    if (!state.audioMuted){
+      if (state.mode === "play"){
+        gameMusic.volume = AUDIO.gameVolume * SETTINGS.musicVolume;
+      } else {
+        menuMusic.volume = AUDIO.menuVolume * SETTINGS.musicVolume;
+      }
+    }
+  });
+  sfxVolEl.addEventListener("input", () => {
+    SETTINGS.sfxVolume = parseFloat(sfxVolEl.value);
+    saveSettings();
+  });
+  shakeLevelEl.addEventListener("change", () => {
+    SETTINGS.shake = shakeLevelEl.value;
+    saveSettings();
+  });
+  contrastToggleEl.addEventListener("click", () => {
+    SETTINGS.highContrast = !SETTINGS.highContrast;
+    applySettings();
+    saveSettings();
+  });
+  motionLevelEl.addEventListener("change", () => {
+    SETTINGS.motion = motionLevelEl.value;
+    saveSettings();
+  });
+  colorBlindToggleEl.addEventListener("click", () => {
+    SETTINGS.colorBlind = !SETTINGS.colorBlind;
+    applySettings();
+    applyTheme();
+    saveSettings();
+  });
+  streamerToggleEl.addEventListener("click", () => {
+    SETTINGS.streamer = !SETTINGS.streamer;
+    applySettings();
+    saveSettings();
+  });
+  rebindLeftEl.addEventListener("click", () => {
+    state.awaitingBind = "left";
+    rebindLeftEl.textContent = "Press key...";
+  });
+  rebindRightEl.addEventListener("click", () => {
+    state.awaitingBind = "right";
+    rebindRightEl.textContent = "Press key...";
+  });
+  prevSlideEl.addEventListener("click", () => {
+    scrollToSlide(-1);
+  });
+  nextSlideEl.addEventListener("click", () => {
+    scrollToSlide(1);
+  });
+  closeIntroEl.addEventListener("click", () => {
+    state.introRequired = false;
+    localStorage.setItem("neonIntroSeen", "1");
+    introPanelEl.classList.remove("active");
+    startGame();
+  });
+  slidesEl.addEventListener("scroll", () => {
+    const idx = Math.round(slidesEl.scrollLeft / slideStep());
+    if (idx !== state.slideIndex){
+      state.slideIndex = idx;
+      updateIntroDots();
+    }
+  });
+
+  resize();
+  loadSettings();
+  loadProgress();
+  initIntro();
+  state.introRequired = localStorage.getItem("neonIntroSeen") !== "1";
+  setSlide(0);
+  setMode("start");
+  startPanel.classList.add("enter");
+  setTimeout(() => startPanel.classList.remove("enter"), 600);
+  bestEl.textContent = state.best;
+  setMuted(localStorage.getItem("neonMuted") === "1");
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
