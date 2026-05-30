@@ -5375,24 +5375,24 @@ const FIREBASE_CONFIG = firebaseConfig;
         messages: ["Initializing neon core...", "Waking guidance systems..."]
       },
       {
-        phase: "Gate Fabrication",
+        phase: "Online",
         threshold: 0.38,
-        messages: ["Building the gates...", "Forging gate rails..."]
+        messages: ["Loading Firebase API...", "Loading Realtime Database..."]
       },
       {
-        phase: "Engine Prime",
+        phase: "Gameplay",
         threshold: 0.62,
-        messages: ["Fueling the engines...", "Charging drift capacitors..."]
+        messages: ["Loading gameplay loops...", "Loading anti-cheat..."]
       },
       {
-        phase: "Stabilization",
+        phase: "Elements",
         threshold: 0.83,
-        messages: ["Wiring neon circuits...", "Syncing orb trajectories..."]
+        messages: ["Loading buttons...", "Loading embeds..."]
       },
       {
-        phase: "Launch Protocol",
+        phase: "Assets",
         threshold: 1,
-        messages: ["Calibrating slipstream...", "Preparing launch..."]
+        messages: ["Loading assets...", "Loading JavaScript..."]
       }
     ];
 
@@ -6267,7 +6267,7 @@ const FIREBASE_CONFIG = firebaseConfig;
             <div><strong>${m.name}</strong><span>${m.desc || "Complete this objective during the run."}</span><div class="run-brief-reward">${m.reward} <img src="shard.png" alt="Shard" class="shard-icon-sm"></div></div>
           </div>
         `).join("")
-      : `<div class="run-brief-item"><div><strong>No missions</strong><span>This run is focused purely on score.</span></div></div>`;
+      : `<div class="run-brief-item"><div><strong>No missions</strong><span>Aim for the highest score to earn shards!</span></div></div>`;
 
     state.slideshowSlides = [{
       title: "RUN BRIEF",
