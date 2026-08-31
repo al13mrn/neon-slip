@@ -26,13 +26,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
-<title>Neon Slip | Endless Runner by Ali Imran</title>
+<title>Neon Slip | Endless Runner</title>
 <meta name="description" content="Neon Slip is a fast-paced endless runner where speed never stops increasing. Play now, chase leaderboard scores, and challenge your friends.">
 <meta name="author" content="Ali Imran">
 <meta name="copyright" content="Ali Imran 2025-2026">
 <meta name="keywords" content="Neon Slip, endless runner, browser game, indie game, leaderboard game, Ali Imran">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Neon Slip | Endless Runner by Ali Imran">
+<meta property="og:title" content="Neon Slip | Endless Runner">
 <meta property="og:description" content="A fast-paced endless runner where speed never stops increasing.">
 <meta property="og:url" content="https://neonslip.me/">
 <meta property="og:image" content="https://neonslip.me/shard.png">
@@ -713,6 +713,38 @@
     width:100%;
     text-align:center;
   }
+  .donation-slide{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .donation-copy{
+    font-size:18px;
+    line-height:1.35;
+    font-weight:700;
+    color:#fff5bf;
+  }
+  .donation-subcopy{
+    font-size:12px;
+    line-height:1.5;
+    color:rgba(225,250,255,.9);
+    max-width:32ch;
+  }
+  .donation-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:6px;
+  }
+  .donation-note{
+    font-size:10px;
+    line-height:1.45;
+    color:rgba(125,255,178,.9);
+    max-width:34ch;
+  }
   @keyframes slideIn{
     0%{ opacity:0; transform: translateX(20px); }
     100%{ opacity:1; transform: translateX(0); }
@@ -1250,11 +1282,11 @@
   }
   /* Leaderboard sidebar on main menu */
   .lb-sidebar{
-    position:fixed; top:50%; right:max(20px, calc(25vw - 265px)); transform:translateY(-50%);
+    position:fixed; top:50%; right:max(20px, calc(25vw - 290px)); transform:translateY(-50%);
     background: linear-gradient(160deg, rgba(18,26,52,.97), rgba(6,10,20,.99));
     border:1px solid rgba(25,247,255,.45);
     box-shadow: 0 0 32px rgba(25,247,255,.2), 0 0 60px rgba(138,91,255,.12), inset 0 1px 0 rgba(25,247,255,.2);
-    border-radius:16px; padding:18px 16px; width:270px;
+    border-radius:16px; padding:18px 16px; width:300px;
     pointer-events:none; opacity:0;
     transition: opacity .4s ease, transform .4s ease;
     z-index:5; text-align:left;
@@ -1301,11 +1333,11 @@
   .sidebar-section.active{ display:block; }
   /* Left sidebar (Stats + Guide) */
   .left-sidebar{
-    position:fixed; top:50%; left:max(20px, calc(25vw - 235px)); transform:translateY(-50%);
+    position:fixed; top:50%; left:max(20px, calc(25vw - 255px)); transform:translateY(-50%);
     background: linear-gradient(160deg, rgba(18,26,52,.97), rgba(6,10,20,.99));
     border:1px solid rgba(138,91,255,.45);
     box-shadow: 0 0 32px rgba(138,91,255,.2), 0 0 60px rgba(25,247,255,.12), inset 0 1px 0 rgba(138,91,255,.2);
-    border-radius:16px; padding:14px 12px; width:198px;
+    border-radius:16px; padding:14px 12px; width:240px;
     max-height:78vh; overflow-y:auto; overflow-x:hidden;
     pointer-events:none; opacity:0;
     transition: opacity .4s ease;
@@ -1485,6 +1517,74 @@
     font-size:13px; letter-spacing:1px; color:#7dffb2;
     text-shadow: 0 0 12px rgba(125,255,178,.6); margin:6px 0;
   }
+  .survey-panel{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    padding:calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left));
+    pointer-events:none; opacity:0; transition:opacity .24s ease;
+    background:radial-gradient(900px 520px at 50% 40%, rgba(25,247,255,.12), transparent 60%), rgba(3,5,12,.72);
+    z-index:32;
+  }
+  .survey-panel.active{ pointer-events:auto; opacity:1; }
+  .survey-box{
+    position:relative; width:min(94vw, 460px); overflow:hidden;
+    padding:24px 24px 22px;
+    border-radius:16px;
+    border:1px solid rgba(25,247,255,.5);
+    background:
+      radial-gradient(130% 90% at 10% 0%, rgba(25,247,255,.18), transparent 48%),
+      radial-gradient(120% 90% at 100% 15%, rgba(255,59,122,.15), transparent 52%),
+      linear-gradient(160deg, rgba(17,24,48,.98), rgba(6,9,19,.99));
+    box-shadow:0 0 44px rgba(25,247,255,.26), 0 0 72px rgba(138,91,255,.2), inset 0 1px 0 rgba(255,255,255,.12);
+    text-align:left;
+    transform:translateY(12px) scale(.98);
+    transition:transform .24s ease;
+  }
+  .survey-panel.active .survey-box{ transform:translateY(0) scale(1); }
+  .survey-close-x{
+    position:absolute; top:10px; right:12px;
+    width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; border:1px solid rgba(255,255,255,.12);
+    color:#fff; background:rgba(255,255,255,.06);
+    cursor:pointer; font-size:18px; line-height:1;
+    transition:transform .14s ease, border-color .14s ease, background .14s ease;
+  }
+  .survey-close-x:hover{ transform:scale(1.06); border-color:rgba(255,59,122,.55); background:rgba(255,59,122,.14); }
+  .survey-kicker{
+    display:inline-flex; align-items:center; gap:7px;
+    padding:5px 9px; border-radius:999px;
+    border:1px solid rgba(255,216,107,.42); background:rgba(255,216,107,.09);
+    color:#ffd86b; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+    margin-bottom:12px;
+  }
+  .survey-title{
+    font-family:"Impact","Haettenschweiler","Arial Black","Franklin Gothic Heavy",sans-serif;
+    font-size:clamp(24px, 7vw, 36px); line-height:1.02; letter-spacing:2px;
+    color:var(--neon); text-transform:uppercase;
+    text-shadow:0 0 18px rgba(25,247,255,.72), 0 0 36px rgba(138,91,255,.42);
+    margin:0 34px 10px 0;
+  }
+  .survey-copy{ font-size:13px; line-height:1.55; opacity:.9; margin:0 0 14px; }
+  .survey-reward{
+    display:flex; align-items:center; gap:10px;
+    margin:14px 0; padding:10px 12px; border-radius:12px;
+    border:1px solid rgba(125,255,178,.32); background:rgba(125,255,178,.08);
+    color:#7dffb2; font-size:13px; letter-spacing:.8px; text-transform:uppercase;
+    text-shadow:0 0 12px rgba(125,255,178,.35);
+  }
+  .survey-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px; }
+  .survey-btn{
+    flex:1 1 210px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:48px; padding:13px 16px; border-radius:12px;
+    border:1px solid rgba(25,247,255,.82);
+    background:linear-gradient(135deg, rgba(25,247,255,.32), rgba(138,91,255,.24) 52%, rgba(255,59,122,.18));
+    color:#fff; text-decoration:none; font-weight:800; letter-spacing:1.3px; text-transform:uppercase;
+    box-shadow:0 0 24px rgba(25,247,255,.34), inset 0 1px 0 rgba(255,255,255,.2);
+    transition:transform .14s ease, box-shadow .14s ease;
+  }
+  .survey-btn:hover{ transform:translateY(-2px); box-shadow:0 0 34px rgba(25,247,255,.52), 0 6px 18px rgba(25,247,255,.16), inset 0 1px 0 rgba(255,255,255,.24); }
+  .survey-note{ font-size:10px; line-height:1.4; opacity:.62; margin-top:9px; }
+  .survey-box.rewarded{ text-align:center; }
+  .survey-box.rewarded .survey-title{ margin-right:0; }
   /* Leaderboard submit modal */
   .lb-modal{
     position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
@@ -3366,7 +3466,7 @@
       <button id="openHowToPlayQuick" class="start-utility-link" type="button">How to Play</button>
     </div>
     <div class="start-ownership">Original game and site by Ali Imran | &copy; Ali Imran 2025-2026</div>
-    <div class="hint">One-time Terms, Privacy, and License confirmation is remembered before you play.</div>
+    <div class="hint">Before your first run, accept the Terms, Privacy Policy, and License. We’ll remember it on this device.</div>
   </div>
   <div id="overPanel" class="panel hidden" aria-hidden="true">
     <div class="title">Run Complete</div>
@@ -3374,7 +3474,7 @@
     <div>Best: <span id="finalBest">0</span></div>
     <div id="shardsEarned" class="shards-earned"></div>
     <div class="btn" id="tryAgainBtn">Try Again</div>
-    <div class="hint">Legacy fallback panel. The detailed run results should appear instead.</div>
+    <div class="hint">Your run results should appear here after each run.</div>
     <div class="btn" id="openUpgradesOver">Upgrades</div>
     <div class="btn" id="openSettingsOver">Settings</div>
   </div>
@@ -3404,7 +3504,7 @@
   <div id="leftSectionStats" class="sidebar-section active">
     <div class="lb-sidebar-title">Your Progress</div>
     <div class="habit-panel">
-      <div class="habit-title">Habit Loop</div>
+      <div class="habit-title">Progress</div>
       <div id="habitSummaryGrid" class="habit-grid"></div>
       <div id="habitStatusPills" class="habit-pill-row"></div>
       <div id="weeklyGoalList" class="weekly-goal-list"></div>
@@ -3500,7 +3600,7 @@
       <a class="credits-link" href="terms.html">Terms of Use</a>
     </div>
     <div class="credits-contact">
-      Contact: <a href="mailto:al116im24@ast.kevibham.org">al116im24@ast.kevibham.org</a><br>
+      Contact: <a href="mailto:support@neonslip.me">support@neonslip.me</a><br>
       Discord: add <strong>24_7gamer_</strong>
     </div>
     <div class="credits-section-title">More Actions</div>
@@ -3548,7 +3648,7 @@
 <div id="legalConsentPanel" class="legal-consent-panel">
   <div class="legal-consent-box">
     <div class="title">Before You Play</div>
-    <div class="legal-consent-copy">Before your first run, confirm that you accept the Terms of Use, Privacy Policy, and License. Neon Slip remembers this on this device and on your signed-in profile when available.</div>
+    <div class="legal-consent-copy">Before your first run, review and accept the Terms of Use, Privacy Policy, and License. We’ll remember your choice on this device and on your signed-in profile when available.</div>
     <div class="legal-links">
       <a href="terms.html" target="_blank" rel="noopener">Terms</a>
       <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy</a>
@@ -3564,7 +3664,21 @@
       <div id="legalConsentAcceptBtn" class="btn">Accept and Play</div>
       <div id="legalConsentCancelBtn" class="btn danger-btn">Cancel</div>
     </div>
-    <div class="legal-note">One-time confirmation. Re-prompted only when legal terms change.</div>
+    <div class="legal-note">You’ll only be asked again if those terms change.</div>
+  </div>
+</div>
+
+<div id="surveyPanel" class="survey-panel" aria-hidden="true">
+  <div id="surveyBox" class="survey-box" role="dialog" aria-modal="true" aria-labelledby="surveyTitle">
+    <div id="surveyCloseX" class="survey-close-x" title="Close" role="button" aria-label="Close survey popup">✕</div>
+    <div id="surveyKicker" class="survey-kicker">Selected Player Survey</div>
+    <h2 id="surveyTitle" class="survey-title">Shape The Next Update</h2>
+    <p id="surveyCopy" class="survey-copy"></p>
+    <div id="surveyReward" class="survey-reward"><img src="shard.png" alt="Shard" class="shard-icon-sm"> Reward: 2000 Shards</div>
+    <div id="surveyActions" class="survey-actions">
+      <a id="surveyLinkBtn" class="survey-btn" href="https://forms.gle/aywNYJEJR2FdDH8F7" target="_blank" rel="noopener">Open Survey</a>
+    </div>
+    <div id="surveyNote" class="survey-note">If you complete the survey, the 2000 Shards will be added to your account the next time you load NEON Slip.</div>
   </div>
 </div>
 
@@ -4055,6 +4169,10 @@
   // =====================================================================
 const firebaseConfig = window.__NEON_FIREBASE_CONFIG__ || {};
 const FIREBASE_CONFIG = firebaseConfig;
+  const SURVEY_FORM_URL = "https://forms.gle/aywNYJEJR2FdDH8F7";
+  const SURVEY_REWARD_SHARDS = 2000;
+  const SURVEY_AWAY_MS = 10000;
+  const SURVEY_STATE_KEY = "neonSurveyRewardState";
   
   // =====================================================================
 
@@ -4123,6 +4241,16 @@ const FIREBASE_CONFIG = firebaseConfig;
   const breakdownMissionsEl = document.getElementById("breakdownMissions");
   const closeBreakdownEl = document.getElementById("closeBreakdown");
   const breakdownViewLeaderboardEl = document.getElementById("breakdownViewLeaderboard");
+  const surveyPanelEl = document.getElementById("surveyPanel");
+  const surveyBoxEl = document.getElementById("surveyBox");
+  const surveyCloseXEl = document.getElementById("surveyCloseX");
+  const surveyKickerEl = document.getElementById("surveyKicker");
+  const surveyTitleEl = document.getElementById("surveyTitle");
+  const surveyCopyEl = document.getElementById("surveyCopy");
+  const surveyRewardEl = document.getElementById("surveyReward");
+  const surveyActionsEl = document.getElementById("surveyActions");
+  const surveyLinkBtnEl = document.getElementById("surveyLinkBtn");
+  const surveyNoteEl = document.getElementById("surveyNote");
   const introPanelEl = document.getElementById("introPanel");
   const slidesEl = document.getElementById("slides");
   const prevSlideEl = document.getElementById("prevSlide");
@@ -4769,6 +4897,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     achievementsUnlocked: [],
     slideshowIndex: 0,
     slideshowActive: false,
+    slideshowMode: "",
     lbSubmitTimer: null,
     lbBeatTimer: null,
     lbTargetRank: null,
@@ -5525,24 +5654,24 @@ const FIREBASE_CONFIG = firebaseConfig;
         messages: ["Initializing neon core...", "Waking guidance systems..."]
       },
       {
-        phase: "Gate Fabrication",
+        phase: "Online",
         threshold: 0.38,
-        messages: ["Building the gates...", "Forging gate rails..."]
+        messages: ["Loading Firebase API...", "Loading Realtime Database..."]
       },
       {
-        phase: "Engine Prime",
+        phase: "Gameplay",
         threshold: 0.62,
-        messages: ["Fueling the engines...", "Charging drift capacitors..."]
+        messages: ["Loading gameplay loops...", "Loading anti-cheat..."]
       },
       {
-        phase: "Stabilization",
+        phase: "Elements",
         threshold: 0.83,
-        messages: ["Wiring neon circuits...", "Syncing orb trajectories..."]
+        messages: ["Loading buttons...", "Loading embeds..."]
       },
       {
-        phase: "Launch Protocol",
+        phase: "Assets",
         threshold: 1,
-        messages: ["Calibrating slipstream...", "Preparing launch..."]
+        messages: ["Loading assets...", "Loading JavaScript..."]
       }
     ];
 
@@ -6138,7 +6267,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     }
     if (socialPromptBoxEl){
       const prompt = getSocialPrompt();
-      socialPromptBoxEl.textContent = prompt || "No social target loaded yet. Add friends to unlock rival prompts and daily callouts.";
+      socialPromptBoxEl.textContent = prompt || "Add friends to see rival prompts and daily callouts.";
     }
   }
 
@@ -6380,13 +6509,46 @@ const FIREBASE_CONFIG = firebaseConfig;
   function closeSlideshow(){
     modifierSlideshowEl.classList.remove("active");
     state.slideshowActive = false;
-    // Continue to actual game start
     modsPanelEl.classList.remove("active");
+    const mode = state.slideshowMode;
+    state.slideshowMode = "";
+    if (mode === "startupDonation") return;
+    // Continue to actual game start
     startGame();
+  }
+
+  function showStartupDonationSlideshow(){
+    if (state.mode !== "start" || state.slideshowActive) return;
+    try {
+      if (sessionStorage.getItem("neonStartupDonationSeen") === "1") return;
+      sessionStorage.setItem("neonStartupDonationSeen", "1");
+    } catch (_err) {
+      return;
+    }
+
+    state.slideshowMode = "startupDonation";
+    state.slideshowActive = true;
+    state.slideshowIndex = 0;
+    state.slideshowSlides = [{
+      title: "SUPPORT NEON SLIP",
+      content: `
+        <div class="donation-slide">
+          <div class="donation-copy">Want to support further development of NEON Slip?</div>
+          <div class="donation-subcopy">Donating helps me add more cool stuff even quicker!</div>
+          <div class="donation-actions">
+            <a class="btn" href="https://247-gamer.itch.io/neon-slip/donate" target="_blank" rel="noopener">Donate Now</a>
+          </div>
+          <div class="donation-note">Every bit helps keep updates moving. Thanks for playing.</div>
+        </div>
+      `
+    }];
+    updateSlideshowDisplay();
+    modifierSlideshowEl.classList.add("active");
   }
 
   function showModifierSlideshow(){
     state.slideshowActive = true;
+    state.slideshowMode = "runBrief";
     state.slideshowIndex = 0;
 
     const modifierItems = [];
@@ -6418,7 +6580,7 @@ const FIREBASE_CONFIG = firebaseConfig;
             <div><strong>${m.name}</strong><span>${m.desc || "Complete this objective during the run."}</span><div class="run-brief-reward">${m.reward} <img src="shard.png" alt="Shard" class="shard-icon-sm"></div></div>
           </div>
         `).join("")
-      : `<div class="run-brief-item"><div><strong>No missions</strong><span>This run is focused purely on score.</span></div></div>`;
+      : `<div class="run-brief-item"><div><strong>No missions</strong><span>Aim for the highest score to earn shards!</span></div></div>`;
 
     state.slideshowSlides = [{
       title: "RUN BRIEF",
@@ -6450,7 +6612,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     slideshowProgressEl.style.display = "none";
     skipSlideshowEl.style.display = "none";
     if (slideshowHintEl) slideshowHintEl.style.display = "none";
-    if (nextSlideshowSlideEl) nextSlideshowSlideEl.textContent = "Start Run";
+    if (nextSlideshowSlideEl) nextSlideshowSlideEl.textContent = state.slideshowMode === "startupDonation" ? "Continue" : "Start Run";
   }
 
   function announce(text){
@@ -9707,6 +9869,141 @@ const FIREBASE_CONFIG = firebaseConfig;
     return authUser.displayName || (authUser.email ? authUser.email.split("@")[0] : "Player");
   }
 
+  function getSurveyState(){
+    try{
+      return JSON.parse(localStorage.getItem(SURVEY_STATE_KEY) || "{}") || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveSurveyState(data){
+    localStorage.setItem(SURVEY_STATE_KEY, JSON.stringify({ ...getSurveyState(), ...(data || {}) }));
+  }
+
+  function closeSurveyPanel(){
+    if (!surveyPanelEl) return;
+    surveyPanelEl.classList.remove("active");
+    surveyPanelEl.setAttribute("aria-hidden", "true");
+  }
+
+  function renderSurveyRewardNotice(){
+    if (!surveyPanelEl || !surveyBoxEl) return;
+    surveyBoxEl.classList.add("rewarded");
+    if (surveyCloseXEl) surveyCloseXEl.style.display = "flex";
+    if (surveyKickerEl) surveyKickerEl.textContent = "Survey Reward Added";
+    if (surveyTitleEl) surveyTitleEl.textContent = "2000 Shards Added";
+    if (surveyCopyEl) surveyCopyEl.textContent = "Thank you for helping shape the next major update of NEON Slip. Your survey reward has been added to your account.";
+    if (surveyRewardEl) surveyRewardEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> +${SURVEY_REWARD_SHARDS.toLocaleString()} Neon Shards`;
+    if (surveyActionsEl) surveyActionsEl.innerHTML = '<div class="btn" id="surveyRewardDoneBtn">Nice</div>';
+    if (surveyNoteEl) surveyNoteEl.textContent = "Spend them on upgrades or cosmetics whenever you're ready.";
+    surveyPanelEl.classList.add("active");
+    surveyPanelEl.setAttribute("aria-hidden", "false");
+    const doneBtn = document.getElementById("surveyRewardDoneBtn");
+    if (doneBtn){
+      doneBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        sfxClick();
+        saveSurveyState({ rewardNoticePending: false, rewardNoticeSeenAt: Date.now() });
+        closeSurveyPanel();
+      }, { once: true });
+    }
+  }
+
+  function renderSurveyPrompt(){
+    if (!surveyPanelEl || !surveyBoxEl) return;
+    const name = authUser ? (getCurrentDisplayName() || "player") : "player";
+    surveyBoxEl.classList.remove("rewarded");
+    if (surveyCloseXEl) surveyCloseXEl.style.display = "flex";
+    if (surveyKickerEl) surveyKickerEl.textContent = "Selected Player Survey";
+    if (surveyTitleEl) surveyTitleEl.textContent = "Shape The Next Update";
+    if (surveyCopyEl){
+      surveyCopyEl.textContent = `Hi, ${name}! You've been specially selected for my survey, so I can find out what to put into the next major update of NEON Slip. Could you complete my survey? It'll only take you a few minutes.`;
+    }
+    if (surveyRewardEl) surveyRewardEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> Reward: ${SURVEY_REWARD_SHARDS.toLocaleString()} Shards`;
+    if (surveyActionsEl){
+      surveyActionsEl.innerHTML = `<a id="surveyLinkBtn" class="survey-btn" href="${SURVEY_FORM_URL}" target="_blank" rel="noopener">Open Survey</a>`;
+    }
+    if (surveyNoteEl) surveyNoteEl.textContent = "After opening the survey, stay off the game tab for at least 10 seconds and the Shards will be added automatically.";
+    const link = document.getElementById("surveyLinkBtn");
+    if (link) link.addEventListener("click", handleSurveyOpenClick);
+    surveyPanelEl.classList.add("active");
+    surveyPanelEl.setAttribute("aria-hidden", "false");
+  }
+
+  function grantSurveyReward(){
+    const survey = getSurveyState();
+    if (survey.rewarded) return false;
+    state.shards = (+state.shards || 0) + SURVEY_REWARD_SHARDS;
+    state.stats.totalShardsEarned = (+state.stats.totalShardsEarned || 0) + SURVEY_REWARD_SHARDS;
+    refreshShardDisplays(true);
+    saveProgress();
+    syncProgressToCloud();
+    saveSurveyState({
+      rewarded: true,
+      rewardGrantedAt: Date.now(),
+      rewardNoticePending: true,
+      awayStartedAt: 0
+    });
+    track("survey_reward_granted", { shards: SURVEY_REWARD_SHARDS });
+    return true;
+  }
+
+  let surveyAwayTimer = null;
+
+  function clearSurveyAwayTimer(){
+    if (surveyAwayTimer){
+      clearTimeout(surveyAwayTimer);
+      surveyAwayTimer = null;
+    }
+  }
+
+  function scheduleSurveyRewardCheck(){
+    clearSurveyAwayTimer();
+    const survey = getSurveyState();
+    if (!survey.clickedAt || survey.rewarded) return;
+    const awayStartedAt = +survey.awayStartedAt || Date.now();
+    saveSurveyState({ awayStartedAt });
+    const remaining = Math.max(0, SURVEY_AWAY_MS - (Date.now() - awayStartedAt));
+    surveyAwayTimer = setTimeout(() => {
+      const latest = getSurveyState();
+      if (!latest.rewarded && latest.clickedAt && latest.awayStartedAt && (document.hidden || !document.hasFocus())){
+        grantSurveyReward();
+      }
+    }, remaining + 50);
+  }
+
+  function checkSurveyReturn(){
+    const survey = getSurveyState();
+    if (!survey.clickedAt || survey.rewarded || !survey.awayStartedAt) return;
+    if (Date.now() - (+survey.awayStartedAt || 0) >= SURVEY_AWAY_MS){
+      if (grantSurveyReward()) renderSurveyRewardNotice();
+    } else {
+      saveSurveyState({ awayStartedAt: 0 });
+    }
+  }
+
+  function handleSurveyOpenClick(){
+    sfxClick();
+    saveSurveyState({ clickedAt: Date.now(), dismissed: false });
+    closeSurveyPanel();
+    setTimeout(() => {
+      if (document.hidden || !document.hasFocus()) scheduleSurveyRewardCheck();
+    }, 120);
+  }
+
+  function maybeShowSurveyOnMenu(reason = "menu"){
+    const survey = getSurveyState();
+    if (survey.rewardNoticePending){
+      renderSurveyRewardNotice();
+      return;
+    }
+    if (survey.rewarded || survey.clickedAt) return;
+    if (reason === "startup" && survey.dismissed) return;
+    renderSurveyPrompt();
+    saveSurveyState({ lastPromptedAt: Date.now(), lastPromptReason: reason });
+  }
+
   function getMemberColor(uid){
     const colors = [
       'rgba(25,247,255,.6)',    // cyan
@@ -10928,6 +11225,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function navigateToMainMenu(){
+    const previousMode = state.mode;
     clearLbTimer();
     closeLbModal();
     modifierSlideshowEl.classList.remove("active");
@@ -10949,6 +11247,9 @@ const FIREBASE_CONFIG = firebaseConfig;
     renderFriendActivity();
     const mainMenuShardsEl = document.getElementById("mainMenuShards");
     if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
+    if (previousMode === "over" || previousMode === "play"){
+      setTimeout(() => maybeShowSurveyOnMenu("post_run"), 360);
+    }
   }
 
   function openLeaderboard(e){
@@ -12962,6 +13263,38 @@ const FIREBASE_CONFIG = firebaseConfig;
   document.getElementById("closeStats").addEventListener("click", (e) => { e.stopPropagation(); sfxClick(); statsPanelEl.classList.remove("active"); });
   document.getElementById("openAchievements").addEventListener("click", openAchievements);
   document.getElementById("closeAchievements").addEventListener("click", (e) => { e.stopPropagation(); sfxClick(); achievementsPanelEl.classList.remove("active"); });
+  if (surveyCloseXEl){
+    surveyCloseXEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      sfxClick();
+      saveSurveyState({ dismissed: true, dismissedAt: Date.now(), rewardNoticePending: false });
+      closeSurveyPanel();
+    });
+  }
+  if (surveyPanelEl){
+    surveyPanelEl.addEventListener("click", (e) => {
+      if (e.target === surveyPanelEl) e.stopPropagation();
+    });
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden){
+      const survey = getSurveyState();
+      if (survey.clickedAt && !survey.rewarded) scheduleSurveyRewardCheck();
+    } else {
+      clearSurveyAwayTimer();
+      checkSurveyReturn();
+      if (getSurveyState().rewardNoticePending) renderSurveyRewardNotice();
+    }
+  });
+  window.addEventListener("blur", () => {
+    const survey = getSurveyState();
+    if (survey.clickedAt && !survey.rewarded) scheduleSurveyRewardCheck();
+  });
+  window.addEventListener("focus", () => {
+    clearSurveyAwayTimer();
+    checkSurveyReturn();
+    if (getSurveyState().rewardNoticePending) renderSurveyRewardNotice();
+  });
   closeSettingsEl.addEventListener("click", (e) => {
     e.stopPropagation();
     sfxClick();
@@ -12985,7 +13318,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   document.getElementById("resetAllBtn").addEventListener("click", (e) => {
     e.stopPropagation();
     if (!confirm("Reset EVERYTHING? This deletes your best score, settings, progress, and all data.")) return;
-    ["neonProgress","neonBest","neonSettings","neonTutSeen","neonMuted", LEGAL_ACCEPT_KEY, TELEMETRY_VISITOR_KEY, TELEMETRY_VISIT_COUNT_KEY].forEach(k => localStorage.removeItem(k));
+    ["neonProgress","neonBest","neonSettings","neonTutSeen","neonMuted", SURVEY_STATE_KEY, LEGAL_ACCEPT_KEY, TELEMETRY_VISITOR_KEY, TELEMETRY_VISIT_COUNT_KEY].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
   powerupHelpEl.addEventListener("click", (e) => {
@@ -13678,6 +14011,7 @@ const FIREBASE_CONFIG = firebaseConfig;
   // Show shard count and load sidebar on startup
   const mainMenuShardsEl = document.getElementById("mainMenuShards");
   if (mainMenuShardsEl) mainMenuShardsEl.innerHTML = `<img src="shard.png" alt="Shard" class="shard-icon-sm"> ${state.shards} Neon Shards`;
+  setTimeout(() => maybeShowSurveyOnMenu("startup"), 650);
   const warmNonCorePanels = () => {
     renderFriendActivity();
     loadLeaderboardOnline({ showLeaderboardLoading: false, showSidebarLoading: true });
@@ -13718,6 +14052,7 @@ const FIREBASE_CONFIG = firebaseConfig;
     initCrazyGamesSdk()
   ]).finally(() => {
     requestAnimationFrame(loop);
+    setTimeout(showStartupDonationSlideshow, 400);
   });
 })();
 </script>
