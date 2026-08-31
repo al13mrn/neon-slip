@@ -39,6 +39,7 @@
 <meta property="og:site_name" content="Neon Slip">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="shard.png">
+<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 <style>
   :root{
     --bg: #06070b;
@@ -1345,7 +1346,7 @@
     display:flex; justify-content:space-between; align-items:center; gap:10px;
     font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#ffd86b;
     margin-bottom:8px;
-    cursor:pointer; user-select:none;
+    cursor:pointer; -webkit-user-select:none;
   }
   .daily-card-toggle{
     margin-left:auto; border:0; background:transparent; color:#ffd86b;
@@ -4029,7 +4030,7 @@
 <audio id="gameMusic" src="game.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
 
 <script>
-(() => {
+(async () => {
   // Neon Slip ownership note:
   // Original game and website by Ali Imran.
   // Copyright © Ali Imran 2025-2026. All rights reserved.
@@ -4292,6 +4293,153 @@ const FIREBASE_CONFIG = firebaseConfig;
     firstInputTracked: false,
     firstGateTracked: false
   };
+  const CRAZY_SDK_TIMEOUT_MS = 5000;
+  let crazySdkReady = false;
+  let crazyGamesUser = null;
+  let crazyGamesUserId = "";
+  let crazyGameplayActive = false;
+  let crazyLoadingActive = false;
+  let crazyLoadingReportedStart = false;
+  let crazyLoadingReportedStop = false;
+  let crazyForceMuted = false;
+
+  function getCrazySdk(){
+    return window.CrazyGames && window.CrazyGames.SDK ? window.CrazyGames.SDK : null;
+  }
+
+  function callCrazyGameEvent(method){
+    const sdk = getCrazySdk();
+    const fn = sdk && sdk.game && sdk.game[method];
+    if (!crazySdkReady || typeof fn !== "function") return;
+    try{
+      fn.call(sdk.game);
+    }catch(err){
+      console.warn(`[CrazyGames] game.${method} failed:`, err && (err.message || err));
+    }
+  }
+
+  function crazyLoadingStart(){
+    crazyLoadingActive = true;
+    crazyLoadingReportedStop = false;
+    if (crazySdkReady){
+      callCrazyGameEvent("loadingStart");
+      crazyLoadingReportedStart = true;
+    }
+  }
+
+  function crazyLoadingStop(){
+    crazyLoadingActive = false;
+    if (crazySdkReady){
+      if (!crazyLoadingReportedStart) callCrazyGameEvent("loadingStart");
+      callCrazyGameEvent("loadingStop");
+      crazyLoadingReportedStart = false;
+    }
+    crazyLoadingReportedStop = true;
+  }
+
+  function crazyGameplayStart(){
+    if (crazyGameplayActive) return;
+    crazyGameplayActive = true;
+    callCrazyGameEvent("gameplayStart");
+  }
+
+  function crazyGameplayStop(){
+    if (!crazyGameplayActive) return;
+    crazyGameplayActive = false;
+    callCrazyGameEvent("gameplayStop");
+  }
+
+  function handleCrazySettings(settings = {}){
+    crazyForceMuted = !!settings.muteAudio;
+    if (crazyForceMuted){
+      setMuted(true, { forced: true, persist: false });
+    } else {
+      setMuted(localStorage.getItem("neonMuted") === "1", { persist: false });
+    }
+  }
+
+  function setupCrazySettingsListener(){
+    const sdk = getCrazySdk();
+    if (!sdk || !sdk.game) return;
+    handleCrazySettings(sdk.game.settings || {});
+    if (typeof sdk.game.addSettingsChangeListener === "function"){
+      try{
+        sdk.game.addSettingsChangeListener(handleCrazySettings);
+      }catch(err){
+        console.warn("[CrazyGames] Settings listener failed:", err && (err.message || err));
+      }
+    }
+  }
+
+  function withCrazyTimeout(promise, label){
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(`${label}-timeout`)), CRAZY_SDK_TIMEOUT_MS))
+    ]);
+  }
+
+  function decodeJwtPayload(token){
+    if (!token || typeof token !== "string") return null;
+    const part = token.split(".")[1];
+    if (!part) return null;
+    try{
+      const normalized = part.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = normalized + "=".repeat((4 - normalized.length % 4) % 4);
+      const json = decodeURIComponent(Array.prototype.map.call(atob(padded), ch =>
+        "%" + ("00" + ch.charCodeAt(0).toString(16)).slice(-2)
+      ).join(""));
+      return JSON.parse(json);
+    }catch{
+      return null;
+    }
+  }
+
+  async function fetchCrazyGamesUser(){
+    const sdk = getCrazySdk();
+    if (!sdk || !sdk.user || typeof sdk.user.getUser !== "function") return null;
+    try{
+      const user = await withCrazyTimeout(sdk.user.getUser(), "crazy-user");
+      crazyGamesUser = user && user.username ? user : null;
+      if (crazyGamesUser && sdk.user && typeof sdk.user.getUserToken === "function"){
+        try{
+          const token = await withCrazyTimeout(sdk.user.getUserToken(), "crazy-user-token");
+          const payload = decodeJwtPayload(token);
+          crazyGamesUserId = String(payload?.userId || payload?.sub || "");
+        }catch{
+          crazyGamesUserId = "";
+        }
+      }
+      return crazyGamesUser;
+    }catch(err){
+      console.warn("[CrazyGames] Could not fetch user:", err && (err.message || err));
+      crazyGamesUser = null;
+      crazyGamesUserId = "";
+      return null;
+    }
+  }
+
+  async function initCrazyGamesSdk(){
+    const sdk = getCrazySdk();
+    if (!sdk || typeof sdk.init !== "function") return false;
+    try{
+      await withCrazyTimeout(sdk.init(), "crazy-init");
+      crazySdkReady = true;
+      if (crazyLoadingReportedStop){
+        callCrazyGameEvent("loadingStart");
+        callCrazyGameEvent("loadingStop");
+      } else if (crazyLoadingActive){
+        callCrazyGameEvent("loadingStart");
+        crazyLoadingReportedStart = true;
+      }
+      setupCrazySettingsListener();
+      await fetchCrazyGamesUser();
+      return true;
+    }catch(err){
+      console.warn("[CrazyGames] SDK init failed:", err && (err.message || err));
+      crazySdkReady = false;
+      return false;
+    }
+  }
 
   function createClientId(prefix){
     try{
@@ -5346,7 +5494,9 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function initBootLoader(){
+    crazyLoadingStart();
     if (!bootLoaderEl || !bootMessageEl || !bootBarEl || !bootPercentEl){
+      crazyLoadingStop();
       return Promise.resolve();
     }
 
@@ -5499,6 +5649,7 @@ const FIREBASE_CONFIG = firebaseConfig;
           bootLoaderEl.classList.add("hidden");
           setTimeout(() => {
             bootLoaderEl.style.display = "none";
+            crazyLoadingStop();
             resolve();
           }, 450);
           return;
@@ -6487,9 +6638,47 @@ const FIREBASE_CONFIG = firebaseConfig;
     spawnGate(-80, true);
   }
 
+  function clearMenuOverlaysForGameplay(){
+    [
+      settingsPanelEl,
+      powerupInfoPanelEl,
+      modsPanelEl,
+      upgradesPanelEl,
+      breakdownPanelEl,
+      introPanelEl,
+      leaderboardPanelEl,
+      friendsPanelEl,
+      statsPanelEl,
+      achievementsPanelEl,
+      creditsPanelEl,
+      challengePanelEl,
+      legalConsentPanelEl,
+      document.getElementById("adminPanel"),
+      document.getElementById("authModal"),
+      document.getElementById("profileCardPanel")
+    ].forEach((el) => {
+      if (el) el.classList.remove("active");
+    });
+    modifierSlideshowEl.classList.remove("active");
+    state.slideshowActive = false;
+    pendingConsentAction = null;
+    startPanel.classList.add("hidden");
+    startPanel.classList.remove("enter");
+    overPanel.classList.add("hidden");
+    pausePanelEl.classList.remove("active");
+    const sidebarEl = document.getElementById("lbSidebar");
+    if (sidebarEl) sidebarEl.classList.remove("active");
+    const leftSidebarEl = document.getElementById("leftSidebar");
+    if (leftSidebarEl) leftSidebarEl.classList.remove("active");
+  }
+
   function setMode(mode){
+    const previousMode = state.mode;
     state.mode = mode;
     document.body.setAttribute("data-state", mode);
+    if (previousMode === "play" && mode !== "play"){
+      crazyGameplayStop();
+    }
     if (mode !== "play") readyGoEl.classList.remove("show");
     if (mode === "start"){
       generateRunProfile();
@@ -6497,12 +6686,7 @@ const FIREBASE_CONFIG = firebaseConfig;
       renderLbSidebar();
       renderLeftSidebar();
     } else if (mode === "play"){
-      modsPanelEl.classList.remove("active");
-      // Hide sidebars during play
-      const sidebarEl = document.getElementById("lbSidebar");
-      if (sidebarEl) sidebarEl.classList.remove("active");
-      const leftSidebarEl = document.getElementById("leftSidebar");
-      if (leftSidebarEl) leftSidebarEl.classList.remove("active");
+      clearMenuOverlaysForGameplay();
       playGameMusic();
       return;
     } else {
@@ -6517,10 +6701,16 @@ const FIREBASE_CONFIG = firebaseConfig;
   }
 
   function setPaused(isPaused){
+    const wasPaused = !!state.paused;
     state.paused = isPaused;
     state.frameAccumulatorMs = 0;
     state.lastTime = 0;
     pausePanelEl.classList.toggle("active", isPaused);
+    if (isPaused){
+      crazyGameplayStop();
+    } else if (wasPaused && state.mode === "play"){
+      crazyGameplayStart();
+    }
   }
 
   function hasAcceptedLegalTerms(){
@@ -6744,12 +6934,14 @@ const FIREBASE_CONFIG = firebaseConfig;
     );
     markRunStart("start_game");
     setMode("play");
+    crazyGameplayStart();
     startPanel.classList.add("hidden");
     startPanel.classList.remove("enter");
     overPanel.classList.add("hidden");
   }
 
   function gameOver(){
+    crazyGameplayStop();
     setMode("over");
     state.score = Math.floor(state.score);
     state.lastRunPreviousBest = state.best;
@@ -7780,10 +7972,13 @@ const FIREBASE_CONFIG = firebaseConfig;
     recoverMusicPlayback("game");
   }
 
-  function setMuted(isMuted){
+  function setMuted(isMuted, options = {}){
+    if (crazyForceMuted && !options.forced) isMuted = true;
     state.audioMuted = isMuted;
-    localStorage.setItem("neonMuted", isMuted ? "1" : "0");
-    audioToggleEl.textContent = isMuted ? "Audio Off" : "Audio On";
+    if (options.persist !== false && !crazyForceMuted){
+      localStorage.setItem("neonMuted", isMuted ? "1" : "0");
+    }
+    audioToggleEl.textContent = crazyForceMuted ? "Audio Forced Off" : (isMuted ? "Audio Off" : "Audio On");
     if (isMuted){
       menuMusic.volume = 0;
       gameMusic.volume = 0;
@@ -9040,7 +9235,21 @@ const FIREBASE_CONFIG = firebaseConfig;
     return guestId;
   }
 
+  function getCrazyGamesLeaderboardIdentity(){
+    const rawName = String(crazyGamesUser && crazyGamesUser.username || "").trim();
+    if (!rawName) return null;
+    const fallbackId = rawName.toLowerCase().replace(/[^a-z0-9_-]+/g, "_").replace(/^_+|_+$/g, "") || getGuestLeaderboardId();
+    return {
+      uid: `crazy_${crazyGamesUserId || fallbackId}`,
+      name: rawName.slice(0, 24),
+      verified: true,
+      photo: crazyGamesUser.profilePictureUrl || ""
+    };
+  }
+
   function getLeaderboardIdentity(){
+    const crazyIdentity = getCrazyGamesLeaderboardIdentity();
+    if (crazyIdentity) return crazyIdentity;
     if (authUser && authUser.emailVerified){
       return {
         uid: authUser.uid,
@@ -10771,7 +10980,22 @@ const FIREBASE_CONFIG = firebaseConfig;
     const submitHint = document.getElementById("lbSubmitHint");
     const photoLabel = document.getElementById("lbPhotoLabel");
 
-    if (authUser && authUser.emailVerified){
+    if (crazyGamesUser && crazyGamesUser.username){
+      const displayName = String(crazyGamesUser.username).slice(0, 24);
+      lbNameInputEl.value = displayName;
+      lbNameInputEl.setAttribute("readonly", "true");
+      lbNameInputEl.style.opacity = ".7";
+      if (signedInLabel){
+        signedInLabel.textContent = `Submitting as ${displayName}`;
+        signedInLabel.style.display = "block";
+      }
+      if (submitHint) submitHint.style.display = "none";
+      if (photoLabel) photoLabel.style.display = "none";
+      if (crazyGamesUser.profilePictureUrl){
+        lbPhotoPreviewEl.src = crazyGamesUser.profilePictureUrl;
+        lbPhotoPreviewEl.style.display = "block";
+      }
+    } else if (authUser && authUser.emailVerified){
       // Pre-fill and lock the name when signed in with verified email
       const displayName = authUser.displayName || authUser.email.split("@")[0];
       const accountPhoto = getAccountPhoto();
@@ -13489,7 +13713,10 @@ const FIREBASE_CONFIG = firebaseConfig;
     if (!state.audioMuted && state.audioUnlocked && state.mode === "play") recoverMusicPlayback("game");
   });
   
-  initBootLoader().finally(() => {
+  Promise.allSettled([
+    initBootLoader(),
+    initCrazyGamesSdk()
+  ]).finally(() => {
     requestAnimationFrame(loop);
   });
 })();
