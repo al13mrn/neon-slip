@@ -4,8 +4,18 @@
       ".read": true,
       ".indexOn": ["score"],
       "$entryId": {
-        ".write": "auth != null && (root.child('adminAccess').child(auth.uid).val() === true || (!data.exists() && newData.child('uid').val() === auth.uid))",
+        ".write": "auth != null && (root.child('adminAccess').child(auth.uid).val() === true || ($entryId === auth.uid && newData.child('uid').val() === auth.uid))",
         ".validate": "newData.hasChildren(['name','score','date']) && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24"
+      }
+    },
+    "leaderboardToday": {
+      "$date": {
+        ".read": true,
+        ".indexOn": ["score"],
+        "$uid": {
+          ".write": "auth != null && (root.child('adminAccess').child(auth.uid).val() === true || (auth.uid === $uid && newData.child('uid').val() === auth.uid))",
+          ".validate": "newData.hasChildren(['name','score','date']) && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24"
+        }
       }
     },
     "leaderboardDaily": {
@@ -13,7 +23,7 @@
         ".read": true,
         ".indexOn": ["score"],
         "$uid": {
-          ".write": "auth != null && (root.child('adminAccess').child(auth.uid).val() === true || auth.uid === $uid)",
+          ".write": "auth != null && (root.child('adminAccess').child(auth.uid).val() === true || (auth.uid === $uid && newData.child('uid').val() === auth.uid))",
           ".validate": "newData.hasChildren(['name','score','date']) && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24"
         }
       }

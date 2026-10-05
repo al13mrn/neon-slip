@@ -29,6 +29,14 @@ Security note:
 - Ensure Firebase Authentication authorized domains include your production host(s) (for this repo: `neonslip.me`, and `www.neonslip.me` if used).
 - Keep Realtime Database rules restrictive (this repo deploys `database.rules.json` via workflow).
 
+## Leaderboard authentication
+
+The leaderboard uses Firebase Authentication UIDs as database keys, including when
+the visible player name comes from CrazyGames. Enable the **Anonymous** provider in
+Firebase Console under **Authentication > Sign-in method** so players without a
+separate Firebase account can submit scores. Keep `database.rules.json` deployed;
+it only permits a player to write the leaderboard row matching their own `auth.uid`.
+
 ## Admin mode access
 
 Admin mode does **not** use a client-side password.
